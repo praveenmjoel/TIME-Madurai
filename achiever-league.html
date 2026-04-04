@@ -2931,6 +2931,7 @@ async function doLogin() {
       'auth/invalid-email':    'Invalid email address.',
       'auth/too-many-requests':'Too many attempts. Please try again later.',
       'auth/invalid-credential': 'Incorrect email or password.',
+      'auth/user-disabled':    'Your access has been paused. Please contact your T.I.M.E. coordinator.',
     };
     errEl.textContent = msgs[e.code] || 'Sign-in failed. Please try again.';
     btn.disabled = false;
