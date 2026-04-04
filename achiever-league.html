@@ -1086,8 +1086,8 @@
         <option value="">— Select —</option>
       </select>
     </div>
-    <!-- AI Insights -->
-    <button class="upload-btn" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff" onclick="openAIInsights()">✦ AI Insights</button>
+    <!-- AI Insights — hidden, activate later -->
+    <button class="upload-btn" style="display:none;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff" onclick="openAIInsights()">✦ AI Insights</button>
     <!-- Admin controls -->
     <button class="admin-unlock" onclick="promptAdminUnlock()" id="adminLockBtn">🔒 Admin</button>
     <span id="uploadWrap" style="display:none;gap:8px;align-items:center">
@@ -1265,15 +1265,15 @@
       <!-- ── SECTION 3: SUBJECT PRACTICE ── -->
       <div class="dl-section-header" style="background:#1a4a8a">Subject Practice</div>
       <div class="dl-sub-header">VARC</div>
-      <div class="dl-row"><label>New Concepts Learned</label><input type="number" min="0" id="dl_varcConcepts" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>New Concepts Learned</label><input type="text" id="dl_varcConcepts" class="dl-text" placeholder="e.g. Para jumbles, RC strategy"></div>
       <div class="dl-row"><label>Practice Questions</label><input type="number" min="0" id="dl_varcQuestions" class="dl-num" placeholder="0"></div>
       <div class="dl-row"><label>Practice (mins)</label><input type="number" min="0" id="dl_varcMins" class="dl-num" placeholder="0"></div>
       <div class="dl-sub-header">DILR</div>
-      <div class="dl-row"><label>New Concepts Learned</label><input type="number" min="0" id="dl_dilrConcepts" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>New Concepts Learned</label><input type="text" id="dl_dilrConcepts" class="dl-text" placeholder="e.g. Arrangements, Blood relations"></div>
       <div class="dl-row"><label>Questions</label><input type="number" min="0" id="dl_dilrQuestions" class="dl-num" placeholder="0"></div>
       <div class="dl-row"><label>Practice (mins)</label><input type="number" min="0" id="dl_dilrMins" class="dl-num" placeholder="0"></div>
       <div class="dl-sub-header">QA</div>
-      <div class="dl-row"><label>New Concepts Learned</label><input type="number" min="0" id="dl_qaConcepts" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>New Concepts Learned</label><input type="text" id="dl_qaConcepts" class="dl-text" placeholder="e.g. Percentages, Number theory"></div>
       <div class="dl-row"><label>Questions</label><input type="number" min="0" id="dl_qaQuestions" class="dl-num" placeholder="0"></div>
       <div class="dl-row"><label>Practice (mins)</label><input type="number" min="0" id="dl_qaMins" class="dl-num" placeholder="0"></div>
 
@@ -3065,6 +3065,7 @@ const FIREBASE_CONFIG = {
 // ── ADMIN EMAILS — add more here ──
 const ADMIN_EMAILS = [
   "praveenmjoel@gmail.com",
+  "praveen@khive.in",
 ];
 
 // ── INIT ──
@@ -3216,15 +3217,15 @@ const DL_FIELDS = [
   { id:'currentBook',    label:'Book',      type:'text' },
   { id:'pagesRead',      label:'Pages' },
   // VARC practice
-  { id:'varcConcepts',   label:'V-Concepts' },
+  { id:'varcConcepts',   label:'V-Concepts', type:'text' },
   { id:'varcQuestions',  label:'V-Q' },
   { id:'varcMins',       label:'V-Mins' },
   // DILR practice
-  { id:'dilrConcepts',   label:'D-Concepts' },
+  { id:'dilrConcepts',   label:'D-Concepts', type:'text' },
   { id:'dilrQuestions',  label:'D-Q' },
   { id:'dilrMins',       label:'D-Mins' },
   // QA practice
-  { id:'qaConcepts',     label:'QA-Concepts' },
+  { id:'qaConcepts',     label:'QA-Concepts', type:'text' },
   { id:'qaQuestions',    label:'QA-Q' },
   { id:'qaMins',         label:'QA-Mins' },
   // VARC tests
