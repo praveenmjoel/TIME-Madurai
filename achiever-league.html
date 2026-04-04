@@ -888,6 +888,7 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <style>
   /* ── AUTH OVERLAY ── */
@@ -963,6 +964,91 @@
   body.student-mode .student-card[data-key]:not([data-key="__ACTIVE__"]) { display: none; }
   body.student-mode #adminLockBtn { display: none; }
   body.student-mode #uploadWrap  { display: none !important; }
+
+  /* ── DAILY LOG ── */
+  .dl-topbar {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .dl-date-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .dl-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .dl-date-input {
+    background: var(--card); border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text); border-radius: 8px; padding: 8px 12px; font-size: 0.9rem;
+    outline: none; cursor: pointer;
+  }
+  .dl-date-input:focus { border-color: var(--accent); }
+  .dl-save-btn {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 10px 22px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    transition: opacity .2s; align-self: flex-end;
+  }
+  .dl-save-btn:hover { opacity: .85; }
+  .dl-save-btn:disabled { opacity: .5; cursor: default; }
+  .dl-status { font-size: 0.85rem; align-self: flex-end; }
+  .dl-status.ok  { color: #4caf50; }
+  .dl-status.err { color: #f44336; }
+
+  .dl-form-grid {
+    background: var(--card); border-radius: 12px;
+    overflow: hidden; border: 1px solid rgba(255,255,255,0.07);
+  }
+  .dl-section-header {
+    padding: 10px 18px; font-weight: 700; font-size: 0.85rem;
+    letter-spacing: .07em; text-transform: uppercase; color: #fff;
+  }
+  .dl-sub-header {
+    background: rgba(255,255,255,0.06); padding: 7px 18px;
+    font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--muted);
+  }
+  .dl-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 18px; border-bottom: 1px solid rgba(255,255,255,0.05);
+    gap: 12px;
+  }
+  .dl-row:last-child { border-bottom: none; }
+  .dl-row label { font-size: 0.88rem; color: var(--text); flex: 1; }
+  .dl-num, .dl-text {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10);
+    color: var(--text); border-radius: 6px; padding: 5px 10px;
+    font-size: 0.88rem; width: 100px; text-align: right; outline: none;
+  }
+  .dl-text { width: 200px; text-align: left; }
+  .dl-num:focus, .dl-text:focus { border-color: var(--accent); }
+  .dl-check-row { justify-content: space-between; }
+  .dl-chk {
+    width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* History table */
+  .dl-history-table {
+    width: 100%; border-collapse: collapse; font-size: 0.8rem;
+    background: var(--card); border-radius: 10px; overflow: hidden;
+  }
+  .dl-history-table th {
+    background: rgba(255,255,255,0.08); padding: 8px 10px;
+    text-align: left; color: var(--muted); font-weight: 600;
+    white-space: nowrap;
+  }
+  .dl-history-table td {
+    padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--text); white-space: nowrap;
+  }
+  .dl-history-table tr:last-child td { border-bottom: none; }
+  .dl-history-table tr:hover td { background: rgba(255,255,255,0.04); }
+  .dl-load-row-btn {
+    background: none; border: 1px solid rgba(255,255,255,0.15);
+    color: var(--accent); border-radius: 6px; padding: 3px 10px;
+    font-size: 0.78rem; cursor: pointer;
+  }
+  .dl-load-row-btn:hover { background: rgba(255,255,255,0.06); }
+  @media (max-width: 600px) {
+    .dl-num { width: 72px; }
+    .dl-text { width: 130px; }
+    .dl-row label { font-size: 0.82rem; }
+  }
   </style>
 
 </head>
@@ -1023,6 +1109,7 @@
   <div class="tab" onclick="showTab('compare')">Subject Compare</div>
   <div class="tab" onclick="showTab('habits')">Habits & Reading</div>
   <div class="tab" onclick="showTab('aimcat')" style="color:var(--accent2);border-bottom-color:transparent" id="aimcatTab">⬡ Mock Analysis</div>
+  <div class="tab" onclick="showTab('dailylog')" id="dailylogTab">📋 Daily Log</div>
 </nav>
 
 <main>
@@ -1134,6 +1221,86 @@
     <div class="section-title">Habits & Reading</div>
     <p class="section-sub">Verbal habits, reading consistency & words collected for February</p>
     <div class="habits-grid" id="habitsGrid"></div>
+  </div>
+
+  <!-- DAILY LOG -->
+  <div class="section" id="sec-dailylog">
+    <div class="section-title">Daily Log</div>
+    <p class="section-sub" id="dlSubtitle">Record your daily study activity</p>
+
+    <!-- Date picker + save row -->
+    <div class="dl-topbar">
+      <div class="dl-date-wrap">
+        <label class="dl-label" for="dlDate">Date</label>
+        <input type="date" id="dlDate" class="dl-date-input" />
+      </div>
+      <button class="dl-save-btn" id="dlSaveBtn" onclick="saveDailyLog()">Save Entry</button>
+      <span class="dl-status" id="dlStatus"></span>
+    </div>
+
+    <!-- Admin student picker (hidden for students) -->
+    <div id="dlAdminPicker" style="display:none;margin-bottom:16px">
+      <label class="dl-label" for="dlStudentSelect">View / Enter log for:</label>
+      <select id="dlStudentSelect" class="dl-date-input" style="width:260px" onchange="loadDailyLogHistory()"></select>
+    </div>
+
+    <!-- Form -->
+    <div class="dl-form-grid" id="dlFormGrid">
+
+      <!-- ── SECTION 1: SPEED PRACTICE ── -->
+      <div class="dl-section-header" style="background:#6b2060">Speed Practice</div>
+      <div class="dl-row"><label>Speed Math Practice (mins)</label><input type="number" min="0" id="dl_speedMath" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Flash Cards Practice (mins)</label><input type="number" min="0" id="dl_flashCards" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Formula Practice (mins)</label><input type="number" min="0" id="dl_formulaPractice" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Words Collected</label><input type="number" min="0" id="dl_wordsCollected" class="dl-num" placeholder="0"></div>
+
+      <!-- ── SECTION 2: READING ── -->
+      <div class="dl-section-header" style="background:#2d2b6b">Reading & Verbal Habits</div>
+      <div class="dl-row dl-check-row"><label>Finshots</label><input type="checkbox" id="dl_finshots" class="dl-chk"></div>
+      <div class="dl-row dl-check-row"><label>The Ken</label><input type="checkbox" id="dl_theKen" class="dl-chk"></div>
+      <div class="dl-row dl-check-row"><label>Editorial Summary Writing</label><input type="checkbox" id="dl_editorial" class="dl-chk"></div>
+      <div class="dl-row"><label>Current Book</label><input type="text" id="dl_currentBook" class="dl-text" placeholder="Book title"></div>
+      <div class="dl-row"><label>Pages Read</label><input type="number" min="0" id="dl_pagesRead" class="dl-num" placeholder="0"></div>
+
+      <!-- ── SECTION 3: SUBJECT PRACTICE ── -->
+      <div class="dl-section-header" style="background:#1a4a8a">Subject Practice</div>
+      <div class="dl-sub-header">VARC</div>
+      <div class="dl-row"><label>New Concepts Learned</label><input type="number" min="0" id="dl_varcConcepts" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Practice Questions</label><input type="number" min="0" id="dl_varcQuestions" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Practice (mins)</label><input type="number" min="0" id="dl_varcMins" class="dl-num" placeholder="0"></div>
+      <div class="dl-sub-header">DILR</div>
+      <div class="dl-row"><label>New Concepts Learned</label><input type="number" min="0" id="dl_dilrConcepts" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Questions</label><input type="number" min="0" id="dl_dilrQuestions" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Practice (mins)</label><input type="number" min="0" id="dl_dilrMins" class="dl-num" placeholder="0"></div>
+      <div class="dl-sub-header">QA</div>
+      <div class="dl-row"><label>New Concepts Learned</label><input type="number" min="0" id="dl_qaConcepts" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Questions</label><input type="number" min="0" id="dl_qaQuestions" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Practice (mins)</label><input type="number" min="0" id="dl_qaMins" class="dl-num" placeholder="0"></div>
+
+      <!-- ── SECTION 4: TESTS ── -->
+      <div class="dl-section-header" style="background:#1565c0">Practice Tests</div>
+      <div class="dl-sub-header">VARC</div>
+      <div class="dl-row"><label>Tests Taken</label><input type="number" min="0" id="dl_varcTests" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Questions Covered</label><input type="number" min="0" id="dl_varcQCovered" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Accuracy %</label><input type="number" min="0" max="100" id="dl_varcAccuracy" class="dl-num" placeholder="0"></div>
+      <div class="dl-sub-header">DILR</div>
+      <div class="dl-row"><label>Tests Taken</label><input type="number" min="0" id="dl_dilrTests" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Questions Covered</label><input type="number" min="0" id="dl_dilrQCovered" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Accuracy %</label><input type="number" min="0" max="100" id="dl_dilrAccuracy" class="dl-num" placeholder="0"></div>
+      <div class="dl-sub-header">QA</div>
+      <div class="dl-row"><label>Tests Taken</label><input type="number" min="0" id="dl_qaTests" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Questions Covered</label><input type="number" min="0" id="dl_qaQCovered" class="dl-num" placeholder="0"></div>
+      <div class="dl-row"><label>Accuracy %</label><input type="number" min="0" max="100" id="dl_qaAccuracy" class="dl-num" placeholder="0"></div>
+
+    </div><!-- /dl-form-grid -->
+
+    <!-- Past entries table -->
+    <div style="margin-top:36px">
+      <div class="section-title" style="font-size:1rem;margin-bottom:12px">Past Entries</div>
+      <div id="dlHistoryWrap">
+        <p style="color:var(--muted);font-size:0.85rem">No entries yet.</p>
+      </div>
+    </div>
   </div>
 
   <!-- DETAIL (hidden by default, shown on click) -->
@@ -1582,6 +1749,8 @@ function showTab(tab) {
   if (aimcatTab) aimcatTab.style.color = tab === 'aimcat' ? 'var(--accent)' : 'var(--accent2)';
   // Refresh AIMCAT gate when switching to mock analysis tab
   if (tab === 'aimcat') refreshAimcatGate();
+  // Initialise Daily Log when that tab is selected
+  if (tab === 'dailylog') initDailyLog();
 }
 
 // ── XLSX UPLOAD ──
@@ -3027,6 +3196,255 @@ function applyStudentMode(user) {
   };
 
   trySelect(0);
+}
+
+// ════════════════════════════════════════════════════════════════
+// DAILY LOG — Firestore-backed study tracker
+// ════════════════════════════════════════════════════════════════
+
+// Field definitions (id → label for history table columns)
+const DL_FIELDS = [
+  // Speed
+  { id:'speedMath',      label:'Speed Math (m)' },
+  { id:'flashCards',     label:'Flash Cards (m)' },
+  { id:'formulaPractice',label:'Formula (m)' },
+  { id:'wordsCollected', label:'Words' },
+  // Reading
+  { id:'finshots',       label:'Finshots',  type:'bool' },
+  { id:'theKen',         label:'The Ken',   type:'bool' },
+  { id:'editorial',      label:'Editorial', type:'bool' },
+  { id:'currentBook',    label:'Book',      type:'text' },
+  { id:'pagesRead',      label:'Pages' },
+  // VARC practice
+  { id:'varcConcepts',   label:'V-Concepts' },
+  { id:'varcQuestions',  label:'V-Q' },
+  { id:'varcMins',       label:'V-Mins' },
+  // DILR practice
+  { id:'dilrConcepts',   label:'D-Concepts' },
+  { id:'dilrQuestions',  label:'D-Q' },
+  { id:'dilrMins',       label:'D-Mins' },
+  // QA practice
+  { id:'qaConcepts',     label:'QA-Concepts' },
+  { id:'qaQuestions',    label:'QA-Q' },
+  { id:'qaMins',         label:'QA-Mins' },
+  // VARC tests
+  { id:'varcTests',      label:'V-Tests' },
+  { id:'varcQCovered',   label:'V-QCov' },
+  { id:'varcAccuracy',   label:'V-Acc%' },
+  // DILR tests
+  { id:'dilrTests',      label:'D-Tests' },
+  { id:'dilrQCovered',   label:'D-QCov' },
+  { id:'dilrAccuracy',   label:'D-Acc%' },
+  // QA tests
+  { id:'qaTests',        label:'QA-Tests' },
+  { id:'qaQCovered',     label:'QA-QCov' },
+  { id:'qaAccuracy',     label:'QA-Acc%' },
+];
+
+let db = null;
+let dlCurrentEmail = null;   // email whose log is being edited/viewed
+
+// Called by showTab — initialise Firestore and set today's date
+function initDailyLog() {
+  if (!db) { db = firebase.firestore(); }
+
+  // Set date to today if not already set
+  const dateEl = document.getElementById('dlDate');
+  if (!dateEl.value) {
+    const today = new Date();
+    dateEl.value = today.toISOString().slice(0, 10);
+  }
+
+  const currentUser = firebase.auth().currentUser;
+  if (!currentUser) return;
+
+  const isAdmin = typeof ADMIN_EMAILS !== 'undefined' &&
+                  ADMIN_EMAILS.includes(currentUser.email.toLowerCase());
+
+  if (isAdmin) {
+    // Show the student picker for admins
+    const picker = document.getElementById('dlAdminPicker');
+    picker.style.display = 'block';
+    document.getElementById('dlSaveBtn').style.display = 'inline-block';
+    populateAdminStudentPicker(currentUser.email);
+  } else {
+    // Student — lock to their own email
+    document.getElementById('dlAdminPicker').style.display = 'none';
+    dlCurrentEmail = currentUser.email.toLowerCase();
+    document.getElementById('dlSubtitle').textContent =
+      'Recording study activity for ' + dlCurrentEmail;
+    loadDailyLogHistory();
+  }
+
+  // When date changes, load that date's entry into the form
+  dateEl.onchange = function() { loadEntryForDate(this.value); };
+  loadEntryForDate(dateEl.value);
+}
+
+// Populate the admin dropdown with all known student emails from auth users
+// (We use the RAW_DATA names as a proxy — real emails come from the student select)
+function populateAdminStudentPicker(adminEmail) {
+  const sel = document.getElementById('dlStudentSelect');
+  sel.innerHTML = '';
+
+  // Collect emails from RAW_DATA display names if available, else just use a text field
+  // Since we don't have a user list API here, we offer the admin their own email
+  // plus any emails already stored in Firestore (loaded on first open)
+  const opt = document.createElement('option');
+  opt.value = adminEmail.toLowerCase();
+  opt.textContent = adminEmail + ' (you)';
+  sel.appendChild(opt);
+
+  dlCurrentEmail = adminEmail.toLowerCase();
+
+  // Also load distinct emails from Firestore logs
+  db.collection('dailyLogs')
+    .orderBy('email')
+    .get()
+    .then(snap => {
+      const seen = new Set([adminEmail.toLowerCase()]);
+      snap.forEach(doc => {
+        const e = doc.data().email;
+        if (e && !seen.has(e)) {
+          seen.add(e);
+          const o = document.createElement('option');
+          o.value = e;
+          o.textContent = e;
+          sel.appendChild(o);
+        }
+      });
+    })
+    .catch(() => {});
+
+  sel.onchange = function() {
+    dlCurrentEmail = this.value;
+    loadDailyLogHistory();
+    loadEntryForDate(document.getElementById('dlDate').value);
+  };
+
+  loadDailyLogHistory();
+}
+
+// Firestore doc ID: email__YYYY-MM-DD
+function dlDocId(email, date) {
+  return email.replace(/[^a-z0-9]/gi, '_') + '__' + date;
+}
+
+// Load a previously saved entry for a given date into the form
+function loadEntryForDate(date) {
+  if (!db || !dlCurrentEmail || !date) return;
+  db.collection('dailyLogs').doc(dlDocId(dlCurrentEmail, date))
+    .get()
+    .then(doc => {
+      clearDailyLogForm();
+      if (!doc.exists) return;
+      const data = doc.data();
+      DL_FIELDS.forEach(f => {
+        const el = document.getElementById('dl_' + f.id);
+        if (!el) return;
+        if (f.type === 'bool') { el.checked = !!data[f.id]; }
+        else { el.value = data[f.id] !== undefined ? data[f.id] : ''; }
+      });
+    })
+    .catch(() => {});
+}
+
+// Clear all form inputs
+function clearDailyLogForm() {
+  DL_FIELDS.forEach(f => {
+    const el = document.getElementById('dl_' + f.id);
+    if (!el) return;
+    if (f.type === 'bool') el.checked = false;
+    else el.value = '';
+  });
+}
+
+// Save the form to Firestore
+function saveDailyLog() {
+  if (!db || !dlCurrentEmail) return;
+  const date = document.getElementById('dlDate').value;
+  if (!date) { setDlStatus('Please select a date.', true); return; }
+
+  const btn = document.getElementById('dlSaveBtn');
+  btn.disabled = true;
+  setDlStatus('Saving…', false);
+
+  const entry = { email: dlCurrentEmail, date: date, savedAt: firebase.firestore.FieldValue.serverTimestamp() };
+  DL_FIELDS.forEach(f => {
+    const el = document.getElementById('dl_' + f.id);
+    if (!el) return;
+    if (f.type === 'bool') { entry[f.id] = el.checked; }
+    else if (f.type === 'text') { entry[f.id] = el.value.trim(); }
+    else { entry[f.id] = el.value === '' ? null : Number(el.value); }
+  });
+
+  db.collection('dailyLogs').doc(dlDocId(dlCurrentEmail, date))
+    .set(entry)
+    .then(() => {
+      setDlStatus('✓ Saved!', false);
+      setTimeout(() => setDlStatus('', false), 3000);
+      loadDailyLogHistory();
+    })
+    .catch(err => {
+      setDlStatus('Error: ' + err.message, true);
+    })
+    .finally(() => { btn.disabled = false; });
+}
+
+function setDlStatus(msg, isErr) {
+  const el = document.getElementById('dlStatus');
+  el.textContent = msg;
+  el.className = 'dl-status' + (isErr ? ' err' : (msg ? ' ok' : ''));
+}
+
+// Load past entries for dlCurrentEmail into the history table
+function loadDailyLogHistory() {
+  if (!db || !dlCurrentEmail) return;
+  const wrap = document.getElementById('dlHistoryWrap');
+  wrap.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Loading…</p>';
+
+  db.collection('dailyLogs')
+    .where('email', '==', dlCurrentEmail)
+    .orderBy('date', 'desc')
+    .limit(60)
+    .get()
+    .then(snap => {
+      if (snap.empty) {
+        wrap.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">No entries yet.</p>';
+        return;
+      }
+      // Build scrollable table
+      const cols = ['date', ...DL_FIELDS.map(f => f.id)];
+      const labels = ['Date', ...DL_FIELDS.map(f => f.label)];
+      let html = '<div style="overflow-x:auto"><table class="dl-history-table"><thead><tr>';
+      html += '<th></th>';  // load button col
+      labels.forEach(l => { html += `<th>${l}</th>`; });
+      html += '</tr></thead><tbody>';
+      snap.forEach(doc => {
+        const d = doc.data();
+        html += `<tr><td><button class="dl-load-row-btn" onclick="loadRowIntoForm('${d.date}')">Load</button></td>`;
+        html += `<td>${d.date}</td>`;
+        DL_FIELDS.forEach(f => {
+          let val = d[f.id];
+          if (f.type === 'bool') val = val ? '✓' : '—';
+          else val = (val === undefined || val === null) ? '—' : val;
+          html += `<td>${val}</td>`;
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+      wrap.innerHTML = html;
+    })
+    .catch(err => {
+      wrap.innerHTML = `<p style="color:#f44336;font-size:0.85rem">Could not load history: ${err.message}</p>`;
+    });
+}
+
+// Load a historical row back into the form for editing
+function loadRowIntoForm(date) {
+  document.getElementById('dlDate').value = date;
+  loadEntryForDate(date);
+  window.scrollTo({ top: document.getElementById('sec-dailylog').offsetTop - 80, behavior: 'smooth' });
 }
 </script>
 
