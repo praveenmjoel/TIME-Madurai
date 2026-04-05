@@ -4,10 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Achiever League — T.I.M.E. Madurai</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico" sizes="32x32">
-<link rel="icon" type="image/png" href="favicon-192.png" sizes="192x192">
-<link rel="apple-touch-icon" href="favicon-192.png" sizes="180x180">
-<link rel="shortcut icon" href="favicon.ico">
+<link rel="icon" type="image/png" href="Favicon.png">
+<link rel="apple-touch-icon" href="Favicon.png">
+<link rel="shortcut icon" href="Favicon.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
@@ -1065,6 +1064,46 @@
     .dl-text { width: 130px; }
     .dl-row label { font-size: 0.82rem; }
   }
+  /* ── STUDENT DASHBOARD ── */
+  .dash-greeting { margin-bottom: 28px; }
+  .dash-greeting h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.06em; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+  .dash-greeting p { color: var(--muted); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .dash-kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .dash-kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 16px; }
+  .dash-kpi-val { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; line-height: 1; margin-bottom: 2px; }
+  .dash-kpi-lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+  .dash-kpi-rank { font-size: 0.72rem; color: var(--accent); font-weight: 600; margin-bottom: 3px; }
+  .dash-kpi-diff { font-size: 0.70rem; }
+  .dash-kpi-diff.up { color: var(--good); }
+  .dash-kpi-diff.down { color: var(--bad); }
+  .dash-kpi-diff.same { color: var(--muted); }
+  .nudge-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .nudge-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; display: flex; gap: 12px; align-items: flex-start; transition: border-color 0.2s; }
+  .nudge-card:hover { border-color: rgba(240,192,64,0.4); }
+  .nudge-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1.2; }
+  .nudge-text { font-size: 0.82rem; color: var(--text); line-height: 1.55; }
+  .nudge-text strong { color: var(--accent); }
+  .vs-section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 28px; }
+  .vs-section h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 18px; }
+  .vs-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .vs-row:last-child { margin-bottom: 0; }
+  .vs-metric-label { min-width: 100px; font-size: 0.78rem; color: var(--text); }
+  .vs-bars { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .vs-bar-row { display: flex; align-items: center; gap: 8px; }
+  .vs-bar-tag { min-width: 28px; font-size: 0.62rem; color: var(--muted); }
+  .vs-bar-bg { flex: 1; height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .vs-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .vs-bar-val { min-width: 48px; text-align: right; font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+  .subject-health { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+  .subj-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+  .subj-card-name { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
+  .subj-acc { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1; margin-bottom: 4px; }
+  .subj-qs { font-size: 0.72rem; color: var(--muted); }
+  .subj-rank { font-size: 0.7rem; margin-top: 4px; }
+  @media (max-width: 600px) { .subject-health { grid-template-columns: 1fr; } .nudge-row { grid-template-columns: 1fr; } }
+  /* Leaderboard "you" highlight */
+  .lb-table tr.lb-you td { background: rgba(91,143,255,0.07) !important; }
+  .lb-table tr.lb-you .lb-name::after { content: ' ← you'; font-size: 0.68rem; color: var(--accent2); font-weight: 400; }
   </style>
 
 </head>
@@ -1111,9 +1150,9 @@
       <button class="upload-btn" onclick="openSheetConfig()" id="configBtn">⚙ Sheets</button>
     </span>
     <!-- Book 1:1 -->
-    <a href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2AXC27Svpr_jNIwAbdPW6jH8p_nX-VQDupzK-jo3KfSovtvwaCnDLbgR7t2u7ECRb2XtKUxNlr" target="_blank" id="bookSlotBtn" style="display:none;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;text-decoration:none;letter-spacing:0.02em;white-space:nowrap">📅 Book 1:1 Slot</a>
+    <a href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2AXC27Svpr_jNIwAbdPW6jH8p_nX-VQDupzK-jo3KfSovtvwaCnDLbgR7t2u7ECRb2XtKUxNlr" target="_blank" id="bookSlotBtn" style="display:none;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;text-decoration:none;letter-spacing:0.02em;white-space:nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:5px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Book 1:1 Slot</a>
     <!-- Change Password -->
-    <button class="admin-unlock" onclick="openChangePwd()" id="changePwdBtn" style="display:none;border-color:rgba(96,165,250,0.4);color:rgba(96,165,250,0.85);">🔑 Change Password</button>
+    <button class="admin-unlock" onclick="openChangePwd()" id="changePwdBtn" style="display:none;border-color:rgba(96,165,250,0.4);color:rgba(96,165,250,0.85);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Password</button>
     <!-- Logout -->
     <button class="admin-unlock" onclick="doLogout()" id="logoutBtn" style="display:none;border-color:rgba(255,107,107,0.4);color:rgba(255,107,107,0.7);">Sign Out</button>
   </div>
@@ -1129,7 +1168,7 @@
   <div class="tab" onclick="showTab('compare')">Subject Compare</div>
   <div class="tab" onclick="showTab('habits')">Habits & Reading</div>
   <div class="tab" onclick="showTab('aimcat')" style="color:var(--accent2);border-bottom-color:transparent" id="aimcatTab">⬡ Mock Analysis</div>
-  <div class="tab" onclick="showTab('dailylog')" id="dailylogTab">📋 Daily Log</div>
+  <div class="tab" onclick="showTab('dailylog')" id="dailylogTab"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:5px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Daily Log</div>
 </nav>
 
 <!-- ── TIME FILTER BAR (hidden on Daily Log tab) ── -->
@@ -1224,9 +1263,14 @@
 
   <!-- OVERVIEW -->
   <div class="section active" id="sec-overview">
-    <div class="section-title">Squad Overview</div>
-    <p class="section-sub" id="overviewSub">Click any student for a detailed breakdown</p>
-    <div class="overview-grid" id="overviewGrid"></div>
+    <!-- Admin view (all student cards) -->
+    <div id="adminOverviewWrap">
+      <div class="section-title">Squad Overview</div>
+      <p class="section-sub" id="overviewSub">Click any student for a detailed breakdown</p>
+      <div class="overview-grid" id="overviewGrid"></div>
+    </div>
+    <!-- Student personal dashboard -->
+    <div id="studentDashWrap" style="display:none"></div>
   </div>
 
   <!-- LEADERBOARD -->
@@ -1408,6 +1452,13 @@
     <div style="font-size:0.72rem;color:var(--muted);margin-top:8px;margin-bottom:16px">Passcodes are saved in your browser. Students cannot see other students' data.</div>
     <button class="cfg-btn primary" onclick="saveStudentPasscodes()" style="width:100%;margin-bottom:8px">💾 Save Passcodes</button>
 
+    <!-- Section: Student Name Mappings -->
+    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:12px;padding-top:16px;border-top:1px solid var(--border)">Student Name Mappings</div>
+    <p style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;line-height:1.5">New students added only by email will show a generated name. Add proper name mappings here. These are saved locally and override the email prefix.</p>
+    <div id="cfgNameMappingsContainer" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+    <button class="cfg-btn secondary" onclick="addNameMappingRow()" style="width:100%;margin-bottom:8px;font-size:0.8rem">+ Add Email → Name</button>
+    <button class="cfg-btn primary" onclick="saveNameMappings()" style="width:100%;margin-bottom:16px">💾 Save Name Mappings</button>
+
     <div style="text-align:right;margin-top:8px">
       <button onclick="closeSheetConfig()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.8rem">Close</button>
     </div>
@@ -1420,7 +1471,7 @@
 <!-- ── CHANGE PASSWORD MODAL ── -->
 <div id="changePwdOverlay" onclick="if(event.target===this)closeChangePwd()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;backdrop-filter:blur(4px);align-items:center;justify-content:center">
   <div style="background:#0d1117;border:1px solid var(--border);border-radius:14px;padding:32px;width:min(420px,92vw);box-shadow:0 20px 60px rgba(0,0,0,0.6)">
-    <h3 style="margin:0 0 6px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.06em;font-size:1.4rem">🔑 Change Password</h3>
+    <h3 style="margin:0 0 6px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.06em;font-size:1.4rem">Change Password</h3>
     <p style="color:var(--muted);font-size:0.82rem;margin:0 0 24px">Enter your current password to verify, then set a new one.</p>
     <div style="display:flex;flex-direction:column;gap:14px">
       <div>
@@ -1579,6 +1630,21 @@ function effortScore(s) {
 
 // ── OVERVIEW ──
 function renderOverview() {
+  // In student mode: show personal dashboard
+  if (document.body.classList.contains('student-mode')) {
+    const adminWrap = document.getElementById('adminOverviewWrap');
+    const dashWrap = document.getElementById('studentDashWrap');
+    if (adminWrap) adminWrap.style.display = 'none';
+    if (dashWrap) dashWrap.style.display = 'block';
+    renderStudentDashboard();
+    return;
+  }
+  // Admin mode: show all-student grid
+  const adminWrap = document.getElementById('adminOverviewWrap');
+  const dashWrap = document.getElementById('studentDashWrap');
+  if (adminWrap) adminWrap.style.display = 'block';
+  if (dashWrap) dashWrap.style.display = 'none';
+
   const grid = document.getElementById('overviewGrid');
   const sorted = [...studentKeys].sort((a,b) => effortScore(RAW_DATA[b]) - effortScore(RAW_DATA[a]));
   const maxEff = Math.max(...sorted.map(k => effortScore(RAW_DATA[k])));
@@ -1588,10 +1654,9 @@ function renderOverview() {
     const m = s.monthly;
     const va = m.varc_accuracy, da = m.dilr_accuracy, qa = m.qa_accuracy;
     const eff = effortScore(s);
-    const effPct = Math.round(eff/maxEff*100);
     const medals = ['🥇','🥈','🥉'];
     return `
-    <div class="student-card" onclick="showDetail('${key}')">
+    <div class="student-card" data-key="${key}" onclick="showDetail('${key}')">
       <div class="card-name">${medals[i]||''} ${s.name}</div>
       <div class="card-rank">Effort Score: ${eff} · Rank #${i+1}</div>
       <div class="card-stats">
@@ -1617,6 +1682,168 @@ function renderOverview() {
   }).join('');
 }
 
+function renderStudentDashboard() {
+  const wrap = document.getElementById('studentDashWrap');
+  if (!wrap) return;
+  const globalSel = document.getElementById('globalStudentSelect');
+  const selectedKey = globalSel ? globalSel.value : '';
+  if (!selectedKey || !RAW_DATA[selectedKey]) {
+    wrap.innerHTML = `<div class="no-data-msg" style="padding:60px 20px"><div class="nd-icon">📊</div><div class="nd-title">No data yet for this period</div><p>Start filling in your Daily Log to see your progress here.</p></div>`;
+    return;
+  }
+  const s = RAW_DATA[selectedKey];
+  const m = s.monthly;
+  const firstName = s.name.split(' ')[0];
+  const n = studentKeys.length;
+  // Squad stats
+  const squads = studentKeys.map(k => RAW_DATA[k]).filter(Boolean);
+  const sqQ    = squads.map(sq => totalQ(sq));
+  const sqMins = squads.map(sq => totalMins(sq));
+  const sqPg   = squads.map(sq => sq.monthly.pages_read || 0);
+  const sqEff  = squads.map(sq => effortScore(sq));
+  const myQ    = totalQ(s);
+  const myMins = totalMins(s);
+  const myHrs  = Math.round(myMins / 60);
+  const myPg   = m.pages_read || 0;
+  const myEff  = effortScore(s);
+  function avg(arr) { return arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : 0; }
+  const avgQ    = avg(sqQ);
+  const avgMins = avg(sqMins);
+  const avgHrs  = Math.round(avgMins/60);
+  const avgPg   = avg(sqPg);
+  const avgEff  = avg(sqEff);
+  const maxQ    = Math.max(1,...sqQ);
+  const maxMins = Math.max(1,...sqMins);
+  const maxPg   = Math.max(1,...sqPg);
+  function rankOf(val, arr) { return [...arr].sort((a,b)=>b-a).indexOf(val)+1; }
+  const rankQ   = rankOf(myQ, sqQ);
+  const rankMin = rankOf(myMins, sqMins);
+  const rankPg  = rankOf(myPg, sqPg);
+  const rankEff = rankOf(myEff, sqEff);
+  function ordinal(r) { return r===1?'1st':r===2?'2nd':r===3?'3rd':r+'th'; }
+  function diffBadge(mine, a) {
+    if (!a) return '';
+    const pct2 = ((mine-a)/a*100).toFixed(0);
+    if (mine > a*1.08) return `<span class="dash-kpi-diff up">▲ ${pct2}% above avg</span>`;
+    if (mine < a*0.92) return `<span class="dash-kpi-diff down">▼ ${Math.abs(pct2)}% below avg</span>`;
+    return `<span class="dash-kpi-diff same">≈ near avg</span>`;
+  }
+  const periodLabel = (document.getElementById('filterLabel')?.textContent || 'This Period').replace(/→/g,'–').trim();
+  const hour = new Date().getHours();
+  const greet = hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+  // Nudges
+  const nudges = [];
+  if (myPg > avgPg*1.15 && myPg > 0) {
+    nudges.push({ icon:'📚', text:`<strong>${myPg} pages</strong> read — you're ahead of the squad average (${avgPg} pages). Strong verbal foundation!`, accent:'var(--good)' });
+  } else if (myPg < avgPg*0.75 && avgPg > 0) {
+    nudges.push({ icon:'📖', text:`You've logged <strong>${myPg} pages</strong> this period. Squad average is ${avgPg} — daily reading is the #1 RC habit.`, accent:'var(--mid)' });
+  } else if (myPg > 0) {
+    nudges.push({ icon:'📚', text:`<strong>${myPg} pages</strong> read — tracking well with the squad average of ${avgPg} pages.`, accent:'var(--muted)' });
+  } else {
+    nudges.push({ icon:'📖', text:`No reading logged yet. Even 20–30 pages a day builds strong RC instincts over time.`, accent:'var(--mid)' });
+  }
+  if (myQ > avgQ*1.15) {
+    nudges.push({ icon:'⚡', text:`<strong>${myQ} questions</strong> practiced — you're outworking the squad average of ${avgQ}. Excellent volume!`, accent:'var(--good)' });
+  } else if (myQ < avgQ*0.75 && avgQ > 0) {
+    nudges.push({ icon:'🎯', text:`<strong>${myQ} questions</strong> practiced vs squad avg of ${avgQ}. Ramping up daily practice compounds quickly!`, accent:'var(--mid)' });
+  }
+  const va = m.varc_accuracy, da = m.dilr_accuracy, qa2 = m.qa_accuracy;
+  const accs = [[va,'VARC'],[da,'DILR'],[qa2,'QA']].filter(([v])=>v!=null);
+  if (accs.length > 0) {
+    const worst = [...accs].sort((a,b)=>a[0]-b[0])[0];
+    const best  = [...accs].sort((a,b)=>b[0]-a[0])[0];
+    if (worst[0] < 0.55) nudges.push({ icon:'🔬', text:`<strong>${worst[1]} accuracy: ${pct(worst[0])}</strong> — your most critical area. Focus on concept clarity, not just question volume.`, accent:'var(--bad)' });
+    else if (best[0] >= 0.70) nudges.push({ icon:'✦', text:`<strong>${best[1]} accuracy: ${pct(best[0])}</strong> — excellent! Maintain this standard and close the gap in weaker sections.`, accent:'var(--good)' });
+  }
+  const fins = m.finshots || 0;
+  if (fins >= 0.8) nudges.push({ icon:'🗞', text:`Reading Finshots <strong>${Math.round(fins*100)}% of days</strong> — one of the best verbal habits in the squad!`, accent:'var(--good)' });
+  else if (fins < 0.3 && nudges.length < 3) nudges.push({ icon:'🗞', text:`Logged Finshots only ${Math.round(fins*100)}% of days. Daily current-affairs reading is a high-ROI verbal habit.`, accent:'var(--mid)' });
+  const showNudges = nudges.slice(0,3);
+  // Subject health
+  const subjData = [
+    { name:'VARC', color:'var(--varc)', acc:va, qs:m.varc_questions||0, sqAccs:squads.map(sq=>sq.monthly.varc_accuracy).filter(v=>v!=null) },
+    { name:'DILR', color:'var(--dilr)', acc:da, qs:m.dilr_questions||0, sqAccs:squads.map(sq=>sq.monthly.dilr_accuracy).filter(v=>v!=null) },
+    { name:'QA',   color:'var(--qa)',   acc:qa2, qs:m.qa_questions||0,  sqAccs:squads.map(sq=>sq.monthly.qa_accuracy).filter(v=>v!=null) },
+  ];
+  wrap.innerHTML = `
+    <div class="dash-greeting">
+      <h2>${greet}, ${firstName}!</h2>
+      <p>${periodLabel}</p>
+    </div>
+    <div class="dash-kpi-row">
+      <div class="dash-kpi" style="border-top:2px solid var(--varc)">
+        <div class="dash-kpi-val" style="color:var(--varc)">${myQ}</div>
+        <div class="dash-kpi-lbl">Questions Practiced</div>
+        <div class="dash-kpi-rank">${ordinal(rankQ)} of ${n}</div>
+        ${diffBadge(myQ,avgQ)}
+      </div>
+      <div class="dash-kpi" style="border-top:2px solid var(--accent)">
+        <div class="dash-kpi-val" style="color:var(--accent)">${myHrs}h</div>
+        <div class="dash-kpi-lbl">Practice Hours</div>
+        <div class="dash-kpi-rank">${ordinal(rankMin)} of ${n}</div>
+        ${diffBadge(myMins,avgMins)}
+      </div>
+      <div class="dash-kpi" style="border-top:2px solid var(--dilr)">
+        <div class="dash-kpi-val" style="color:var(--dilr)">${myPg}</div>
+        <div class="dash-kpi-lbl">Pages Read</div>
+        <div class="dash-kpi-rank">${ordinal(rankPg)} of ${n}</div>
+        ${diffBadge(myPg,avgPg)}
+      </div>
+      <div class="dash-kpi" style="border-top:2px solid var(--accent2)">
+        <div class="dash-kpi-val" style="color:var(--accent2)">${myEff}</div>
+        <div class="dash-kpi-lbl">Effort Score</div>
+        <div class="dash-kpi-rank">${ordinal(rankEff)} of ${n}</div>
+        ${diffBadge(myEff,avgEff)}
+      </div>
+    </div>
+    ${showNudges.length?`<div class="nudge-row">${showNudges.map(nd=>`
+      <div class="nudge-card" style="border-left:3px solid ${nd.accent}">
+        <div class="nudge-icon">${nd.icon}</div>
+        <div class="nudge-text">${nd.text}</div>
+      </div>`).join('')}</div>`:''}
+    <div class="vs-section">
+      <h4>You vs the Squad</h4>
+      ${[
+        {label:'Questions',    mine:myQ,   avg:avgQ,   max:maxQ,   color:'var(--varc)'},
+        {label:'Practice Hrs', mine:myHrs, avg:avgHrs, max:Math.max(1,...sqMins.map(v=>Math.round(v/60))), color:'var(--accent)'},
+        {label:'Pages Read',   mine:myPg,  avg:avgPg,  max:maxPg,  color:'var(--dilr)'},
+      ].map(v=>`
+        <div class="vs-row">
+          <div class="vs-metric-label">${v.label}</div>
+          <div class="vs-bars">
+            <div class="vs-bar-row">
+              <div class="vs-bar-tag" style="color:${v.color}">You</div>
+              <div class="vs-bar-bg"><div class="vs-bar-fill" style="width:${Math.round(v.mine/v.max*100)}%;background:${v.color}"></div></div>
+              <div class="vs-bar-val" style="color:${v.color}">${v.mine}</div>
+            </div>
+            <div class="vs-bar-row">
+              <div class="vs-bar-tag">Avg</div>
+              <div class="vs-bar-bg"><div class="vs-bar-fill" style="width:${Math.round(v.avg/v.max*100)}%;background:rgba(255,255,255,0.15)"></div></div>
+              <div class="vs-bar-val">${v.avg}</div>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="subject-health">
+      ${subjData.map(sj=>{
+        const sqAvg = sj.sqAccs.length?sj.sqAccs.reduce((a,b)=>a+b,0)/sj.sqAccs.length:null;
+        const aclr = sj.acc==null?'var(--muted)':sj.acc>=0.7?'var(--good)':sj.acc>=0.5?'var(--mid)':'var(--bad)';
+        const vsLabel = sj.acc!=null&&sqAvg!=null?(sj.acc>=sqAvg*0.97?`▲ above avg ${pct(sqAvg)}`:`▼ below avg ${pct(sqAvg)}`):'';
+        const vsClr   = sj.acc!=null&&sqAvg!=null?(sj.acc>=sqAvg*0.97?'var(--good)':'var(--bad)'):'var(--muted)';
+        return `<div class="subj-card" style="border-top:2px solid ${sj.color}">
+          <div class="subj-card-name" style="color:${sj.color}">${sj.name}</div>
+          <div class="subj-acc" style="color:${aclr}">${sj.acc!=null?pct(sj.acc):'—'}</div>
+          <div class="subj-qs">${sj.qs} questions</div>
+          ${vsLabel?`<div class="subj-rank" style="color:${vsClr};font-size:0.68rem">${vsLabel}</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="text-align:center;padding:4px 0 16px">
+      <button onclick="document.querySelector('.tab[onclick*=leaderboard]').click()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:8px 22px;border-radius:6px;font-family:inherit;font-size:0.78rem;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">View Full Leaderboard →</button>
+    </div>
+  `;
+}
+
 // ── LEADERBOARD ──
 function sortLB(by) {
   currentSort = by;
@@ -1638,6 +1865,7 @@ function renderLeaderboard() {
     tests: Math.max(...studentKeys.map(k => totalTests(RAW_DATA[k]))),
     effortScore: Math.max(...studentKeys.map(k => effortScore(RAW_DATA[k])))
   };
+  const currentLbKey = (() => { const sel = document.getElementById('globalStudentSelect'); return sel ? sel.value : ''; })();
 
   const tbl = document.getElementById('lbTable');
   tbl.innerHTML = `
@@ -1658,7 +1886,7 @@ function renderLeaderboard() {
     const rn = i===0?'gold':i===1?'silver':i===2?'bronze':'';
     const tq = totalQ(s); const tm = totalMins(s); const tt = totalTests(s); const es = effortScore(s);
     const barPct = Math.round((currentSort==='totalQ'?tq:currentSort==='totalMins'?tm:currentSort==='tests'?tt:es) / maxVal[currentSort] * 100);
-    return `<tr>
+    return `<tr${currentLbKey===key?' class="lb-you"':''}>
       <td><span class="rank-num ${rn}">${i+1}</span></td>
       <td class="lb-name">${s.name}</td>
       <td class="right">
@@ -3155,6 +3383,8 @@ function openSheetConfig() {
   renderPasscodeFields();
   // Load saved passcodes from localStorage
   STUDENT_PASSCODES = JSON.parse(localStorage.getItem('al_passcodes') || '{}');
+  // Render name mappings UI
+  renderNameMappingsUI();
   const overlay = document.getElementById('sheetConfigOverlay');
   overlay.style.display = 'flex';
 }
@@ -3443,6 +3673,19 @@ function applyCustomRange() {
   loadLeagueFromFirestore();
 }
 
+// ── NAME FALLBACK — generate a readable name from email if not in EMAIL_TO_NAME ──
+function prettyNameFromEmail(email) {
+  const prefix = email.split('@')[0];
+  return prefix
+    .replace(/[._\-+]/g, ' ')
+    .replace(/\d{4,}/g, '')      // strip long number runs (e.g. birth years)
+    .split(' ')
+    .filter(w => w.length > 0)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ')
+    .trim() || email;
+}
+
 // ══════════════════════════════════════════════════════════════
 // FIRESTORE → ACHIEVER LEAGUE  (replaces Google Sheets source)
 // ══════════════════════════════════════════════════════════════
@@ -3531,7 +3774,7 @@ function loadLeagueFromFirestore() {
 
     const newData = {};
     Object.entries(byEmail).forEach(([email, entries]) => {
-      const name = EMAIL_TO_NAME[email] || email;
+      const name = EMAIL_TO_NAME[email] || prettyNameFromEmail(email);
       entries.sort((a, b) => a.date.localeCompare(b.date));
       const totalDays = entries.length;
 
@@ -3896,6 +4139,61 @@ function loadRowIntoForm(date) {
   loadEntryForDate(date);
   window.scrollTo({ top: document.getElementById('sec-dailylog').offsetTop - 80, behavior: 'smooth' });
 }
+
+// ── STUDENT NAME MAPPINGS (admin-managed, stored in localStorage) ──
+function loadSavedNameMappings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('al_name_mappings') || '{}');
+    Object.assign(EMAIL_TO_NAME, saved);
+  } catch(e) {}
+}
+
+function renderNameMappingsUI() {
+  const container = document.getElementById('cfgNameMappingsContainer');
+  if (!container) return;
+  // Show existing EMAIL_TO_NAME entries as editable rows
+  const saved = {};
+  try { Object.assign(saved, JSON.parse(localStorage.getItem('al_name_mappings') || '{}')); } catch(e){}
+  container.innerHTML = '';
+  Object.entries(saved).forEach(([email, name]) => {
+    addNameMappingRow(email, name);
+  });
+}
+
+function addNameMappingRow(email='', name='') {
+  const container = document.getElementById('cfgNameMappingsContainer');
+  if (!container) return;
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:6px;align-items:center';
+  row.innerHTML = `
+    <input type="email" placeholder="student@gmail.com" value="${email}"
+      style="flex:1.4;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:0.78rem;outline:none">
+    <input type="text"  placeholder="Display Name" value="${name}"
+      style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:0.78rem;outline:none">
+    <button onclick="this.parentElement.remove()" style="background:none;border:1px solid rgba(255,107,107,0.3);color:rgba(255,107,107,0.7);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:0.78rem;flex-shrink:0">✕</button>
+  `;
+  container.appendChild(row);
+}
+
+function saveNameMappings() {
+  const container = document.getElementById('cfgNameMappingsContainer');
+  if (!container) return;
+  const rows = container.querySelectorAll('div');
+  const map = {};
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const email = inputs[0]?.value.trim().toLowerCase();
+    const name  = inputs[1]?.value.trim();
+    if (email && name) map[email] = name;
+  });
+  localStorage.setItem('al_name_mappings', JSON.stringify(map));
+  Object.assign(EMAIL_TO_NAME, map);
+  showToast('Name mappings saved. Reloading data…');
+  setTimeout(() => loadLeagueFromFirestore(), 800);
+}
+
+// Call at startup to load any saved mappings
+loadSavedNameMappings();
 </script>
 
 </body>
