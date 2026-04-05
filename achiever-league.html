@@ -1694,9 +1694,11 @@ function renderStudentDashboard() {
   const s = RAW_DATA[selectedKey];
   const m = s.monthly;
   const firstName = s.name.split(' ')[0];
-  const n = studentKeys.length;
-  // Squad stats
-  const squads = studentKeys.map(k => RAW_DATA[k]).filter(Boolean);
+  // Squad stats — exclude empty shells (only real students who have logged data)
+  const squads = studentKeys.map(k => RAW_DATA[k]).filter(sq => sq && totalQ(sq) + totalMins(sq) + (sq.monthly.pages_read||0) > 0);
+  // If no squad data at all (everyone on empty shells), fall back to self-only
+  if (squads.length === 0) squads.push(s);
+  const n = squads.length;
   const sqQ    = squads.map(sq => totalQ(sq));
   const sqMins = squads.map(sq => totalMins(sq));
   const sqPg   = squads.map(sq => sq.monthly.pages_read || 0);
@@ -3894,6 +3896,10 @@ function applyStudentMode(user) {
       });
       if (sel) { sel.value = matched; sel.disabled = true; }
       onGlobalStudentChange();
+      // Re-render overview now that sel.value is set — loadLeagueFromFirestore()
+      // already ran renderOverview() before trySelect completed, so the dashboard
+      // showed the empty-key fallback. Trigger it again with the correct key.
+      renderOverview();
     } else {
       // Truly unknown email — not in EMAIL_TO_NAME and no data in Firestore
       document.querySelector('main').innerHTML = `
