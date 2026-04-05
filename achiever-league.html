@@ -190,7 +190,7 @@
     background: #0d0f15;
     border-left: 1px solid #2a2d3e;
     z-index: 1001;
-    display: flex;
+    display: none;
     flex-direction: column;
     box-shadow: -20px 0 60px rgba(0,0,0,0.5);
   }
@@ -671,8 +671,8 @@
   .rank-num.bronze { color: #cd7f32; }
   .lb-name { font-weight: 500; }
 
-  .bar-wrap { width: 120px; height: 6px; background: var(--border); border-radius: 3px; display: inline-block; vertical-align: middle; margin-left: 8px; }
-  .bar-fill { height: 100%; border-radius: 3px; }
+  .bar-wrap { width: 120px; height: 6px; background: var(--border); border-radius: 3px; display: inline-block; vertical-align: middle; margin-left: 8px; overflow: hidden; }
+  .bar-fill { display: block; height: 100%; border-radius: 3px; transition: width 0.4s ease; }
 
   /* ── WEEKLY TRENDS ── */
   .trends-grid {
@@ -960,10 +960,22 @@
   }
   @keyframes aspin { to { transform: rotate(360deg); } }
 
+  /* ── TIME FILTER BAR ── */
+  .tf-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); padding: 5px 12px; border-radius: 20px;
+    font-size: 0.76rem; cursor: pointer; font-family: inherit;
+    transition: all 0.15s;
+  }
+  .tf-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .tf-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
+  #timeFilterBar.hidden { display: none !important; }
+
   /* Student-mode: hide other students' cards */
   body.student-mode .student-card[data-key]:not([data-key="__ACTIVE__"]) { display: none; }
-  body.student-mode #adminLockBtn { display: none; }
-  body.student-mode #uploadWrap  { display: none !important; }
+  body.student-mode #adminLockBtn       { display: none; }
+  body.student-mode #uploadWrap         { display: none !important; }
+  body.student-mode #globalStudentWrap  { display: none !important; }
 
   /* ── DAILY LOG ── */
   .dl-topbar {
@@ -1080,7 +1092,7 @@
   </div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <!-- Student selector -->
-    <div style="display:flex;align-items:center;gap:8px">
+    <div id="globalStudentWrap" style="display:flex;align-items:center;gap:8px">
       <label style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em">Student:</label>
       <select class="aimcat-select" id="globalStudentSelect" onchange="onGlobalStudentChange()" style="min-width:170px">
         <option value="">— Select —</option>
@@ -1111,6 +1123,28 @@
   <div class="tab" onclick="showTab('aimcat')" style="color:var(--accent2);border-bottom-color:transparent" id="aimcatTab">⬡ Mock Analysis</div>
   <div class="tab" onclick="showTab('dailylog')" id="dailylogTab">📋 Daily Log</div>
 </nav>
+
+<!-- ── TIME FILTER BAR (hidden on Daily Log tab) ── -->
+<div id="timeFilterBar" style="background:var(--card);border-bottom:1px solid var(--border);padding:10px 32px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+  <span style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-right:4px">Period:</span>
+  <div style="display:flex;gap:6px;flex-wrap:wrap" id="filterBtnGroup">
+    <button class="tf-btn active" onclick="setFilter('this_month')">This Month</button>
+    <button class="tf-btn" onclick="setFilter('last_month')">Last Month</button>
+    <button class="tf-btn" onclick="setFilter('this_week')">This Week</button>
+    <button class="tf-btn" onclick="setFilter('last_week')">Last Week</button>
+    <button class="tf-btn" onclick="setFilter('today')">Today</button>
+    <button class="tf-btn" onclick="setFilter('yesterday')">Yesterday</button>
+    <button class="tf-btn" onclick="setFilter('all_time')">All Time</button>
+    <button class="tf-btn" onclick="setFilter('custom')">Custom…</button>
+  </div>
+  <div id="customRangeWrap" style="display:none;gap:6px;align-items:center">
+    <input type="date" id="customStart" class="dl-date-input" style="font-size:0.8rem;padding:5px 8px">
+    <span style="color:var(--muted);font-size:0.8rem">→</span>
+    <input type="date" id="customEnd"   class="dl-date-input" style="font-size:0.8rem;padding:5px 8px">
+    <button class="tf-btn active" onclick="applyCustomRange()">Apply</button>
+  </div>
+  <span id="filterLabel" style="margin-left:auto;font-size:0.78rem;color:var(--muted);font-style:italic"></span>
+</div>
 
 <main>
 
@@ -1182,14 +1216,14 @@
   <!-- OVERVIEW -->
   <div class="section active" id="sec-overview">
     <div class="section-title">Squad Overview</div>
-    <p class="section-sub">Click any student for a detailed breakdown</p>
+    <p class="section-sub" id="overviewSub">Click any student for a detailed breakdown</p>
     <div class="overview-grid" id="overviewGrid"></div>
   </div>
 
   <!-- LEADERBOARD -->
   <div class="section" id="sec-leaderboard">
     <div class="section-title">Leaderboard</div>
-    <p class="section-sub">February Monthly Summary — ranked by total practice questions</p>
+    <p class="section-sub" id="lbSub">Ranked by total practice questions</p>
     <div class="controls">
       <label>Sort by:</label>
       <button class="sort-btn active" onclick="sortLB('totalQ')">Total Questions</button>
@@ -1296,10 +1330,11 @@
 
     <!-- Past entries table -->
     <div style="margin-top:36px">
-      <div class="section-title" style="font-size:1rem;margin-bottom:12px">Past Entries</div>
-      <div id="dlHistoryWrap">
-        <p style="color:var(--muted);font-size:0.85rem">No entries yet.</p>
-      </div>
+      <button onclick="toggleDlHistory()" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);padding:12px 18px;border-radius:10px;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-family:inherit;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+        <span>📅 Past Entries</span>
+        <span id="dlHistoryChevron" style="font-size:0.78rem;color:var(--muted)">▼ Show</span>
+      </button>
+      <div id="dlHistoryWrap" style="display:none;margin-top:12px"></div>
     </div>
   </div>
 
@@ -1375,7 +1410,7 @@
 
 <!-- ── AI INSIGHTS OVERLAY ── -->
 <div id="aiOverlay" onclick="closeAIInsights()"></div>
-<div id="aiPanel">
+<div id="aiPanel" style="display:none">
   <div id="aiPanelHeader">
     <div>
       <h2>✦ AI Insights</h2>
@@ -1439,8 +1474,28 @@
 </div>
 
 <script>
-// ── EMBEDDED DATA (from XLSX parsed) ──
-const RAW_DATA = {"Philip Ephraim":{"name":"Philip Ephraim","weeks":{"Week 1":{"speed_math_mins":0,"flash_cards_mins":8,"formula_practice_mins":0,"words_collected":5,"finshots":1,"the_ken":0,"editorial_writing":1,"pages_read":0,"varc_questions":0,"varc_mins":0,"dilr_questions":11,"dilr_mins":70,"qa_questions":3,"qa_mins":20,"varc_tests":1,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":1,"dilr_test_questions":10,"dilr_accuracy":0.6,"qa_tests":1,"qa_test_questions":10,"qa_accuracy":0.9},"Week 2":{"speed_math_mins":130,"flash_cards_mins":30,"formula_practice_mins":0,"words_collected":25,"finshots":4,"the_ken":2,"editorial_writing":3,"pages_read":107,"varc_questions":20,"varc_mins":95,"dilr_questions":75,"dilr_mins":570,"qa_questions":86,"qa_mins":790,"varc_tests":1,"varc_test_questions":11,"varc_accuracy":0.6363,"dilr_tests":1,"dilr_test_questions":8,"dilr_accuracy":1,"qa_tests":1,"qa_test_questions":13,"qa_accuracy":1},"Week 3":{"speed_math_mins":110,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":19,"finshots":5,"the_ken":0,"editorial_writing":4,"pages_read":111,"varc_questions":39,"varc_mins":195,"dilr_questions":85,"dilr_mins":600,"qa_questions":63,"qa_mins":600,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":90,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":10,"finshots":1,"the_ken":0,"editorial_writing":2,"pages_read":0,"varc_questions":48,"varc_mins":270,"dilr_questions":38,"dilr_mins":290,"qa_questions":74,"qa_mins":765,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":370,"flash_cards_mins":38,"formula_practice_mins":0,"words_collected":60,"finshots":0.5357,"the_ken":0.0714,"editorial_writing":0.4643,"pages_read":240,"varc_questions":123,"varc_mins":670,"dilr_questions":250,"dilr_mins":1880,"qa_questions":303,"qa_mins":3100,"varc_tests":3,"varc_test_questions":19,"varc_accuracy":0.5789,"dilr_tests":3,"dilr_test_questions":27,"dilr_accuracy":0.7407,"qa_tests":2,"qa_test_questions":23,"qa_accuracy":0.9565}},"ROKINI":{"name":"Rokini","weeks":{"Week 1":{"speed_math_mins":30,"flash_cards_mins":5,"formula_practice_mins":2,"words_collected":29,"finshots":1,"the_ken":0,"editorial_writing":0,"pages_read":30,"varc_questions":0,"varc_mins":0,"dilr_questions":5,"dilr_mins":10,"qa_questions":20,"qa_mins":40,"varc_tests":1,"varc_test_questions":24,"varc_accuracy":null,"dilr_tests":1,"dilr_test_questions":15,"dilr_accuracy":0.6666,"qa_tests":1,"qa_test_questions":15,"qa_accuracy":0.4666},"Week 2":{"speed_math_mins":75,"flash_cards_mins":90,"formula_practice_mins":27,"words_collected":188,"finshots":7,"the_ken":1,"editorial_writing":5,"pages_read":170,"varc_questions":67,"varc_mins":310,"dilr_questions":18,"dilr_mins":120,"qa_questions":126,"qa_mins":610,"varc_tests":4,"varc_test_questions":32,"varc_accuracy":0.28125,"dilr_tests":1,"dilr_test_questions":5,"dilr_accuracy":0.8,"qa_tests":4,"qa_test_questions":49,"qa_accuracy":0.6632},"Week 3":{"speed_math_mins":53,"flash_cards_mins":40,"formula_practice_mins":87,"words_collected":119,"finshots":5,"the_ken":1,"editorial_writing":3,"pages_read":145,"varc_questions":26,"varc_mins":235,"dilr_questions":30,"dilr_mins":350,"qa_questions":143,"qa_mins":979,"varc_tests":1,"varc_test_questions":5,"varc_accuracy":0.4,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":35,"flash_cards_mins":50,"formula_practice_mins":22,"words_collected":79,"finshots":2,"the_ken":0,"editorial_writing":3,"pages_read":124,"varc_questions":37,"varc_mins":175,"dilr_questions":62,"dilr_mins":515,"qa_questions":74,"qa_mins":679,"varc_tests":1,"varc_test_questions":8,"varc_accuracy":0.6666,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":423,"flash_cards_mins":212,"formula_practice_mins":184,"words_collected":461,"finshots":0.6429,"the_ken":0.0714,"editorial_writing":0.4286,"pages_read":526,"varc_questions":178,"varc_mins":945,"dilr_questions":142,"dilr_mins":1290,"qa_questions":436,"qa_mins":3175,"varc_tests":8,"varc_test_questions":80,"varc_accuracy":null,"dilr_tests":3,"dilr_test_questions":29,"dilr_accuracy":0.7586,"qa_tests":5,"qa_test_questions":64,"qa_accuracy":0.6172}},"Aravind C":{"name":"Aravind C","weeks":{"Week 1":{"speed_math_mins":10,"flash_cards_mins":0,"formula_practice_mins":10,"words_collected":0,"finshots":1,"the_ken":0,"editorial_writing":1,"pages_read":6,"varc_questions":6,"varc_mins":19,"dilr_questions":0,"dilr_mins":0,"qa_questions":0,"qa_mins":0,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 2":{"speed_math_mins":105,"flash_cards_mins":0,"formula_practice_mins":120,"words_collected":150,"finshots":5,"the_ken":1,"editorial_writing":7,"pages_read":28,"varc_questions":60,"varc_mins":180,"dilr_questions":53,"dilr_mins":185,"qa_questions":50,"qa_mins":130,"varc_tests":4,"varc_test_questions":75,"varc_accuracy":0.5333,"dilr_tests":4,"dilr_test_questions":75,"dilr_accuracy":0.4613,"qa_tests":3,"qa_test_questions":45,"qa_accuracy":0.55},"Week 3":{"speed_math_mins":70,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":122,"finshots":1,"the_ken":0,"editorial_writing":6,"pages_read":0,"varc_questions":40,"varc_mins":105,"dilr_questions":55,"dilr_mins":185,"qa_questions":45,"qa_mins":110,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":145,"flash_cards_mins":0,"formula_practice_mins":80,"words_collected":65,"finshots":3,"the_ken":0,"editorial_writing":6,"pages_read":0,"varc_questions":20,"varc_mins":0,"dilr_questions":35,"dilr_mins":45,"qa_questions":20,"qa_mins":60,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":375,"flash_cards_mins":0,"formula_practice_mins":210,"words_collected":367,"finshots":0.3571,"the_ken":0.0357,"editorial_writing":0.8214,"pages_read":34,"varc_questions":126,"varc_mins":304,"dilr_questions":170,"dilr_mins":565,"qa_questions":165,"qa_mins":510,"varc_tests":5,"varc_test_questions":99,"varc_accuracy":0.5131,"dilr_tests":5,"dilr_test_questions":85,"dilr_accuracy":0.4953,"qa_tests":4,"qa_test_questions":55,"qa_accuracy":0.5409}},"Aravindhan ML":{"name":"Aravindhan ML","weeks":{"Week 1":{"speed_math_mins":0,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":5,"finshots":0,"the_ken":1,"editorial_writing":0,"pages_read":0,"varc_questions":0,"varc_mins":0,"dilr_questions":0,"dilr_mins":0,"qa_questions":30,"qa_mins":90,"varc_tests":1,"varc_test_questions":12,"varc_accuracy":0.5833,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 2":{"speed_math_mins":70,"flash_cards_mins":25,"formula_practice_mins":15,"words_collected":16,"finshots":2,"the_ken":1,"editorial_writing":3,"pages_read":0,"varc_questions":0,"varc_mins":0,"dilr_questions":55,"dilr_mins":250,"qa_questions":170,"qa_mins":425,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":3,"qa_test_questions":20,"qa_accuracy":0.7763},"Week 3":{"speed_math_mins":60,"flash_cards_mins":10,"formula_practice_mins":40,"words_collected":25,"finshots":0,"the_ken":0,"editorial_writing":1,"pages_read":0,"varc_questions":4,"varc_mins":40,"dilr_questions":27,"dilr_mins":140,"qa_questions":55,"qa_mins":205,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":3,"qa_test_questions":36,"qa_accuracy":0.8233},"Week 4":{"speed_math_mins":30,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":10,"finshots":1,"the_ken":0,"editorial_writing":2,"pages_read":0,"varc_questions":25,"varc_mins":100,"dilr_questions":30,"dilr_mins":25,"qa_questions":50,"qa_mins":100,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":230,"flash_cards_mins":50,"formula_practice_mins":55,"words_collected":61,"finshots":0.1071,"the_ken":0.0714,"editorial_writing":0.25,"pages_read":0,"varc_questions":33,"varc_mins":190,"dilr_questions":132,"dilr_mins":485,"qa_questions":330,"qa_mins":910,"varc_tests":1,"varc_test_questions":12,"varc_accuracy":0.5833,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":6,"qa_test_questions":56,"qa_accuracy":0.8065}},"Bardeep M.R":{"name":"Bardeep M.R","weeks":{"Week 1":{"speed_math_mins":10,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":11,"finshots":0,"the_ken":1,"editorial_writing":0,"pages_read":5,"varc_questions":7,"varc_mins":30,"dilr_questions":15,"dilr_mins":40,"qa_questions":10,"qa_mins":30,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":10,"dilr_accuracy":0.5,"qa_tests":0,"qa_test_questions":5,"qa_accuracy":0.4},"Week 2":{"speed_math_mins":100,"flash_cards_mins":0,"formula_practice_mins":15,"words_collected":58,"finshots":2,"the_ken":4,"editorial_writing":3,"pages_read":29,"varc_questions":48,"varc_mins":190,"dilr_questions":10,"dilr_mins":30,"qa_questions":92,"qa_mins":210,"varc_tests":0,"varc_test_questions":8,"varc_accuracy":0.37,"dilr_tests":0,"dilr_test_questions":11,"dilr_accuracy":0.35,"qa_tests":0,"qa_test_questions":12,"qa_accuracy":0.505},"Week 3":{"speed_math_mins":140,"flash_cards_mins":10,"formula_practice_mins":85,"words_collected":22,"finshots":5,"the_ken":2,"editorial_writing":1,"pages_read":5,"varc_questions":40,"varc_mins":160,"dilr_questions":50,"dilr_mins":210,"qa_questions":34,"qa_mins":180,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":60,"flash_cards_mins":10,"formula_practice_mins":60,"words_collected":83,"finshots":4,"the_ken":0,"editorial_writing":1,"pages_read":22,"varc_questions":35,"varc_mins":140,"dilr_questions":28,"dilr_mins":140,"qa_questions":12,"qa_mins":60,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":345,"flash_cards_mins":20,"formula_practice_mins":190,"words_collected":174,"finshots":0.5357,"the_ken":0.25,"editorial_writing":0.2143,"pages_read":61,"varc_questions":130,"varc_mins":520,"dilr_questions":130,"dilr_mins":540,"qa_questions":167,"qa_mins":600,"varc_tests":0,"varc_test_questions":8,"varc_accuracy":0.37,"dilr_tests":0,"dilr_test_questions":28,"dilr_accuracy":0.4586,"qa_tests":0,"qa_test_questions":17,"qa_accuracy":0.4741}},"Anushuya Kumar":{"name":"Anushuya V.K","weeks":{"Week 1":{"speed_math_mins":15,"flash_cards_mins":10,"formula_practice_mins":0,"words_collected":12,"finshots":1,"the_ken":1,"editorial_writing":1,"pages_read":0,"varc_questions":0,"varc_mins":0,"dilr_questions":10,"dilr_mins":40,"qa_questions":12,"qa_mins":35,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":1,"dilr_test_questions":11,"dilr_accuracy":0.878,"qa_tests":1,"qa_test_questions":7,"qa_accuracy":0.857},"Week 2":{"speed_math_mins":75,"flash_cards_mins":55,"formula_practice_mins":0,"words_collected":80,"finshots":5,"the_ken":0,"editorial_writing":2,"pages_read":30,"varc_questions":32,"varc_mins":100,"dilr_questions":58,"dilr_mins":240,"qa_questions":80,"qa_mins":370,"varc_tests":1,"varc_test_questions":12,"varc_accuracy":0.42,"dilr_tests":1,"dilr_test_questions":14,"dilr_accuracy":0.785,"qa_tests":1,"qa_test_questions":12,"qa_accuracy":0.916},"Week 3":{"speed_math_mins":110,"flash_cards_mins":60,"formula_practice_mins":0,"words_collected":58,"finshots":3,"the_ken":0,"editorial_writing":0,"pages_read":17,"varc_questions":72,"varc_mins":230,"dilr_questions":39,"dilr_mins":215,"qa_questions":59,"qa_mins":230,"varc_tests":1,"varc_test_questions":10,"varc_accuracy":0.5,"dilr_tests":1,"dilr_test_questions":7,"dilr_accuracy":0.86,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":60,"flash_cards_mins":60,"formula_practice_mins":0,"words_collected":25,"finshots":4,"the_ken":0,"editorial_writing":1,"pages_read":15,"varc_questions":45,"varc_mins":150,"dilr_questions":75,"dilr_mins":310,"qa_questions":75,"qa_mins":370,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":1,"qa_test_questions":9,"qa_accuracy":0.66}},"monthly":{"speed_math_mins":310,"flash_cards_mins":215,"formula_practice_mins":0,"words_collected":180,"finshots":0.5,"the_ken":0.0357,"editorial_writing":0.1429,"pages_read":65,"varc_questions":194,"varc_mins":565,"dilr_questions":205,"dilr_mins":900,"qa_questions":316,"qa_mins":1485,"varc_tests":2,"varc_test_questions":22,"varc_accuracy":0.4564,"dilr_tests":4,"dilr_test_questions":39,"dilr_accuracy":0.812,"qa_tests":3,"qa_test_questions":28,"qa_accuracy":0.819}},"Joy Maria Varshaa":{"name":"Joy Maria Varshaa","weeks":{"Week 1":{"speed_math_mins":13,"flash_cards_mins":4,"formula_practice_mins":0,"words_collected":7,"finshots":1,"the_ken":1,"editorial_writing":0,"pages_read":5,"varc_questions":0,"varc_mins":0,"dilr_questions":23,"dilr_mins":50,"qa_questions":10,"qa_mins":40,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":1,"dilr_test_questions":10,"dilr_accuracy":0.6,"qa_tests":1,"qa_test_questions":8,"qa_accuracy":0.4},"Week 2":{"speed_math_mins":30,"flash_cards_mins":40,"formula_practice_mins":41,"words_collected":26,"finshots":7,"the_ken":2,"editorial_writing":1,"pages_read":43,"varc_questions":50,"varc_mins":129,"dilr_questions":77,"dilr_mins":192,"qa_questions":60,"qa_mins":205,"varc_tests":5,"varc_test_questions":70,"varc_accuracy":0.5712,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":2,"qa_test_questions":18,"qa_accuracy":0.3333},"Week 3":{"speed_math_mins":85,"flash_cards_mins":27,"formula_practice_mins":22,"words_collected":8,"finshots":5,"the_ken":2,"editorial_writing":0,"pages_read":25,"varc_questions":21,"varc_mins":75,"dilr_questions":29,"dilr_mins":165,"qa_questions":12,"qa_mins":55,"varc_tests":2,"varc_test_questions":23,"varc_accuracy":0.4670,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":57,"flash_cards_mins":47,"formula_practice_mins":38,"words_collected":43,"finshots":6,"the_ken":1,"editorial_writing":0,"pages_read":10,"varc_questions":13,"varc_mins":65,"dilr_questions":41,"dilr_mins":151,"qa_questions":84,"qa_mins":363,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":1,"dilr_test_questions":15,"dilr_accuracy":0.724,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":240,"flash_cards_mins":128,"formula_practice_mins":123,"words_collected":94,"finshots":0.7143,"the_ken":0.2143,"editorial_writing":0.0357,"pages_read":83,"varc_questions":154,"varc_mins":279,"dilr_questions":196,"dilr_mins":638,"qa_questions":191,"qa_mins":823,"varc_tests":8,"varc_test_questions":104,"varc_accuracy":0.5441,"dilr_tests":2,"dilr_test_questions":25,"dilr_accuracy":0.6744,"qa_tests":3,"qa_test_questions":26,"qa_accuracy":0.3538}},"Niranjanaa":{"name":"Niranjanaa","weeks":{"Week 1":{"speed_math_mins":15,"flash_cards_mins":10,"formula_practice_mins":0,"words_collected":15,"finshots":1,"the_ken":0,"editorial_writing":1,"pages_read":0,"varc_questions":20,"varc_mins":70,"dilr_questions":20,"dilr_mins":90,"qa_questions":15,"qa_mins":40,"varc_tests":1,"varc_test_questions":15,"varc_accuracy":0.47,"dilr_tests":1,"dilr_test_questions":15,"dilr_accuracy":0.87,"qa_tests":1,"qa_test_questions":9,"qa_accuracy":0.56},"Week 2":{"speed_math_mins":65,"flash_cards_mins":70,"formula_practice_mins":7,"words_collected":115,"finshots":6,"the_ken":3,"editorial_writing":5,"pages_read":105,"varc_questions":60,"varc_mins":290,"dilr_questions":95,"dilr_mins":340,"qa_questions":110,"qa_mins":510,"varc_tests":6,"varc_test_questions":71,"varc_accuracy":0.5206,"dilr_tests":3,"dilr_test_questions":53,"dilr_accuracy":0.6755,"qa_tests":2,"qa_test_questions":15,"qa_accuracy":0.58},"Week 3":{"speed_math_mins":35,"flash_cards_mins":70,"formula_practice_mins":5,"words_collected":110,"finshots":5,"the_ken":1,"editorial_writing":4,"pages_read":145,"varc_questions":55,"varc_mins":160,"dilr_questions":35,"dilr_mins":105,"qa_questions":70,"qa_mins":260,"varc_tests":2,"varc_test_questions":23,"varc_accuracy":0.69,"dilr_tests":1,"dilr_test_questions":13,"dilr_accuracy":0.7,"qa_tests":2,"qa_test_questions":22,"qa_accuracy":0.6818},"Week 4":{"speed_math_mins":20,"flash_cards_mins":60,"formula_practice_mins":8,"words_collected":95,"finshots":3,"the_ken":0,"editorial_writing":4,"pages_read":170,"varc_questions":20,"varc_mins":60,"dilr_questions":55,"dilr_mins":200,"qa_questions":45,"qa_mins":125,"varc_tests":2,"varc_test_questions":26,"varc_accuracy":0.6127,"dilr_tests":1,"dilr_test_questions":15,"dilr_accuracy":0.81,"qa_tests":1,"qa_test_questions":10,"qa_accuracy":0.5}},"monthly":{"speed_math_mins":165,"flash_cards_mins":260,"formula_practice_mins":27,"words_collected":395,"finshots":0.6071,"the_ken":0.1429,"editorial_writing":0.6786,"pages_read":490,"varc_questions":192,"varc_mins":685,"dilr_questions":245,"dilr_mins":850,"qa_questions":255,"qa_mins":965,"varc_tests":12,"varc_test_questions":146,"varc_accuracy":0.5539,"dilr_tests":9,"dilr_test_questions":135,"dilr_accuracy":0.6877,"qa_tests":7,"qa_test_questions":66,"qa_accuracy":0.6021}},"SANDHYA":{"name":"Sandhya","weeks":{"Week 1":{"speed_math_mins":10,"flash_cards_mins":5,"formula_practice_mins":0,"words_collected":10,"finshots":1,"the_ken":1,"editorial_writing":0,"pages_read":30,"varc_questions":0,"varc_mins":0,"dilr_questions":10,"dilr_mins":30,"qa_questions":5,"qa_mins":20,"varc_tests":1,"varc_test_questions":19,"varc_accuracy":0.4736,"dilr_tests":1,"dilr_test_questions":9,"dilr_accuracy":0.55,"qa_tests":1,"qa_test_questions":6,"qa_accuracy":0.6666},"Week 2":{"speed_math_mins":45,"flash_cards_mins":75,"formula_practice_mins":40,"words_collected":95,"finshots":7,"the_ken":2,"editorial_writing":6,"pages_read":170,"varc_questions":38,"varc_mins":150,"dilr_questions":54,"dilr_mins":184,"qa_questions":77,"qa_mins":320,"varc_tests":4,"varc_test_questions":35,"varc_accuracy":0.5114,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":1,"qa_test_questions":14,"qa_accuracy":0.4285},"Week 3":{"speed_math_mins":30,"flash_cards_mins":25,"formula_practice_mins":0,"words_collected":40,"finshots":6,"the_ken":1,"editorial_writing":2,"pages_read":55,"varc_questions":38,"varc_mins":85,"dilr_questions":38,"dilr_mins":112,"qa_questions":35,"qa_mins":135,"varc_tests":2,"varc_test_questions":9,"varc_accuracy":0.5556,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":28,"flash_cards_mins":5,"formula_practice_mins":10,"words_collected":28,"finshots":4,"the_ken":0,"editorial_writing":5,"pages_read":179,"varc_questions":30,"varc_mins":52,"dilr_questions":82,"dilr_mins":238,"qa_questions":50,"qa_mins":292,"varc_tests":3,"varc_test_questions":31,"varc_accuracy":0.6774,"dilr_tests":1,"dilr_test_questions":12,"dilr_accuracy":0.6666,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":153,"flash_cards_mins":115,"formula_practice_mins":75,"words_collected":200,"finshots":0.75,"the_ken":0.1429,"editorial_writing":0.5,"pages_read":456,"varc_questions":111,"varc_mins":302,"dilr_questions":232,"dilr_mins":710,"qa_questions":204,"qa_mins":940,"varc_tests":10,"varc_test_questions":94,"varc_accuracy":0.5627,"dilr_tests":2,"dilr_test_questions":21,"dilr_accuracy":0.6166,"qa_tests":2,"qa_test_questions":20,"qa_accuracy":0.4999}},"Keerthypriya":{"name":"Keerthypriya","weeks":{"Week 1":{"speed_math_mins":10,"flash_cards_mins":10,"formula_practice_mins":5,"words_collected":36,"finshots":1,"the_ken":0,"editorial_writing":1,"pages_read":44,"varc_questions":15,"varc_mins":30,"dilr_questions":0,"dilr_mins":0,"qa_questions":16,"qa_mins":48,"varc_tests":1,"varc_test_questions":12,"varc_accuracy":0.3333,"dilr_tests":1,"dilr_test_questions":10,"dilr_accuracy":0.6666,"qa_tests":1,"qa_test_questions":10,"qa_accuracy":0.6666},"Week 2":{"speed_math_mins":135,"flash_cards_mins":120,"formula_practice_mins":70,"words_collected":212,"finshots":7,"the_ken":1,"editorial_writing":7,"pages_read":170,"varc_questions":94,"varc_mins":359,"dilr_questions":81,"dilr_mins":339,"qa_questions":65,"qa_mins":302,"varc_tests":5,"varc_test_questions":63,"varc_accuracy":0.6435,"dilr_tests":3,"dilr_test_questions":37,"dilr_accuracy":0.5735,"qa_tests":3,"qa_test_questions":37,"qa_accuracy":0.656},"Week 3":{"speed_math_mins":65,"flash_cards_mins":77,"formula_practice_mins":70,"words_collected":156,"finshots":7,"the_ken":0,"editorial_writing":6,"pages_read":100,"varc_questions":60,"varc_mins":258,"dilr_questions":78,"dilr_mins":349,"qa_questions":51,"qa_mins":230,"varc_tests":6,"varc_test_questions":72,"varc_accuracy":0.5044,"dilr_tests":1,"dilr_test_questions":13,"dilr_accuracy":0.46,"qa_tests":3,"qa_test_questions":33,"qa_accuracy":0.5164},"Week 4":{"speed_math_mins":40,"flash_cards_mins":70,"formula_practice_mins":40,"words_collected":180,"finshots":7,"the_ken":0,"editorial_writing":5,"pages_read":160,"varc_questions":45,"varc_mins":170,"dilr_questions":44,"dilr_mins":196,"qa_questions":28,"qa_mins":143,"varc_tests":4,"varc_test_questions":47,"varc_accuracy":0.607,"dilr_tests":1,"dilr_test_questions":15,"dilr_accuracy":0.69,"qa_tests":4,"qa_test_questions":49,"qa_accuracy":0.608}},"monthly":{"speed_math_mins":310,"flash_cards_mins":341,"formula_practice_mins":205,"words_collected":706,"finshots":0.9643,"the_ken":0.0357,"editorial_writing":0.8929,"pages_read":544,"varc_questions":268,"varc_mins":1043,"dilr_questions":208,"dilr_mins":912,"qa_questions":208,"qa_mins":987,"varc_tests":19,"varc_test_questions":229,"varc_accuracy":0.5897,"dilr_tests":7,"dilr_test_questions":87,"dilr_accuracy":0.5675,"qa_tests":12,"qa_test_questions":142,"qa_accuracy":0.6035}}};
+// ── DATA — loaded from Firestore on login ──
+// Email → display name map (add new students here)
+const EMAIL_TO_NAME = {
+  'philipephraim2004@gmail.com':    'Philip Ephraim',
+  'rokininavaneeth@gmail.com':      'Rokini',
+  'aravindc20712@gmail.com':        'Aravind C',
+  'anushuyakumar2006@gmail.com':    'Anushuya V.K',
+  'niranjanaa3105007@gmail.com':    'Niranjanaa',
+  'riajoyin@gmail.com':             'Joy Maria Varshaa',
+  'sandhyasrinivasan1908@gmail.com':'Sandhya',
+  'keerthypriya16102002@gmail.com': 'Keerthypriya',
+  'jenanii286@gmail.com':           'Jenani I',
+  'aravindml2005@gmail.com':        'Aravindhan ML',
+  'bardeepwi28@gmail.com':          'Bardeep M.R',
+};
+// Reverse map built at load time: display-name key → email
+const KEY_TO_EMAIL = {};
+
+let RAW_DATA = {}; // Populated by loadLeagueFromFirestore()
+
+// ── (Legacy XLSX placeholder removed — data now comes from Firestore) ──
+const _REMOVED = {"Philip Ephraim":{"name":"Philip Ephraim","weeks":{"Week 1":{"speed_math_mins":0,"flash_cards_mins":8,"formula_practice_mins":0,"words_collected":5,"finshots":1,"the_ken":0,"editorial_writing":1,"pages_read":0,"varc_questions":0,"varc_mins":0,"dilr_questions":11,"dilr_mins":70,"qa_questions":3,"qa_mins":20,"varc_tests":1,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":1,"dilr_test_questions":10,"dilr_accuracy":0.6,"qa_tests":1,"qa_test_questions":10,"qa_accuracy":0.9},"Week 2":{"speed_math_mins":130,"flash_cards_mins":30,"formula_practice_mins":0,"words_collected":25,"finshots":4,"the_ken":2,"editorial_writing":3,"pages_read":107,"varc_questions":20,"varc_mins":95,"dilr_questions":75,"dilr_mins":570,"qa_questions":86,"qa_mins":790,"varc_tests":1,"varc_test_questions":11,"varc_accuracy":0.6363,"dilr_tests":1,"dilr_test_questions":8,"dilr_accuracy":1,"qa_tests":1,"qa_test_questions":13,"qa_accuracy":1},"Week 3":{"speed_math_mins":110,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":19,"finshots":5,"the_ken":0,"editorial_writing":4,"pages_read":111,"varc_questions":39,"varc_mins":195,"dilr_questions":85,"dilr_mins":600,"qa_questions":63,"qa_mins":600,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":90,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":10,"finshots":1,"the_ken":0,"editorial_writing":2,"pages_read":0,"varc_questions":48,"varc_mins":270,"dilr_questions":38,"dilr_mins":290,"qa_questions":74,"qa_mins":765,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":370,"flash_cards_mins":38,"formula_practice_mins":0,"words_collected":60,"finshots":0.5357,"the_ken":0.0714,"editorial_writing":0.4643,"pages_read":240,"varc_questions":123,"varc_mins":670,"dilr_questions":250,"dilr_mins":1880,"qa_questions":303,"qa_mins":3100,"varc_tests":3,"varc_test_questions":19,"varc_accuracy":0.5789,"dilr_tests":3,"dilr_test_questions":27,"dilr_accuracy":0.7407,"qa_tests":2,"qa_test_questions":23,"qa_accuracy":0.9565}},"ROKINI":{"name":"Rokini","weeks":{"Week 1":{"speed_math_mins":30,"flash_cards_mins":5,"formula_practice_mins":2,"words_collected":29,"finshots":1,"the_ken":0,"editorial_writing":0,"pages_read":30,"varc_questions":0,"varc_mins":0,"dilr_questions":5,"dilr_mins":10,"qa_questions":20,"qa_mins":40,"varc_tests":1,"varc_test_questions":24,"varc_accuracy":null,"dilr_tests":1,"dilr_test_questions":15,"dilr_accuracy":0.6666,"qa_tests":1,"qa_test_questions":15,"qa_accuracy":0.4666},"Week 2":{"speed_math_mins":75,"flash_cards_mins":90,"formula_practice_mins":27,"words_collected":188,"finshots":7,"the_ken":1,"editorial_writing":5,"pages_read":170,"varc_questions":67,"varc_mins":310,"dilr_questions":18,"dilr_mins":120,"qa_questions":126,"qa_mins":610,"varc_tests":4,"varc_test_questions":32,"varc_accuracy":0.28125,"dilr_tests":1,"dilr_test_questions":5,"dilr_accuracy":0.8,"qa_tests":4,"qa_test_questions":49,"qa_accuracy":0.6632},"Week 3":{"speed_math_mins":53,"flash_cards_mins":40,"formula_practice_mins":87,"words_collected":119,"finshots":5,"the_ken":1,"editorial_writing":3,"pages_read":145,"varc_questions":26,"varc_mins":235,"dilr_questions":30,"dilr_mins":350,"qa_questions":143,"qa_mins":979,"varc_tests":1,"varc_test_questions":5,"varc_accuracy":0.4,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":35,"flash_cards_mins":50,"formula_practice_mins":22,"words_collected":79,"finshots":2,"the_ken":0,"editorial_writing":3,"pages_read":124,"varc_questions":37,"varc_mins":175,"dilr_questions":62,"dilr_mins":515,"qa_questions":74,"qa_mins":679,"varc_tests":1,"varc_test_questions":8,"varc_accuracy":0.6666,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":423,"flash_cards_mins":212,"formula_practice_mins":184,"words_collected":461,"finshots":0.6429,"the_ken":0.0714,"editorial_writing":0.4286,"pages_read":526,"varc_questions":178,"varc_mins":945,"dilr_questions":142,"dilr_mins":1290,"qa_questions":436,"qa_mins":3175,"varc_tests":8,"varc_test_questions":80,"varc_accuracy":null,"dilr_tests":3,"dilr_test_questions":29,"dilr_accuracy":0.7586,"qa_tests":5,"qa_test_questions":64,"qa_accuracy":0.6172}},"Aravind C":{"name":"Aravind C","weeks":{"Week 1":{"speed_math_mins":10,"flash_cards_mins":0,"formula_practice_mins":10,"words_collected":0,"finshots":1,"the_ken":0,"editorial_writing":1,"pages_read":6,"varc_questions":6,"varc_mins":19,"dilr_questions":0,"dilr_mins":0,"qa_questions":0,"qa_mins":0,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 2":{"speed_math_mins":105,"flash_cards_mins":0,"formula_practice_mins":120,"words_collected":150,"finshots":5,"the_ken":1,"editorial_writing":7,"pages_read":28,"varc_questions":60,"varc_mins":180,"dilr_questions":53,"dilr_mins":185,"qa_questions":50,"qa_mins":130,"varc_tests":4,"varc_test_questions":75,"varc_accuracy":0.5333,"dilr_tests":4,"dilr_test_questions":75,"dilr_accuracy":0.4613,"qa_tests":3,"qa_test_questions":45,"qa_accuracy":0.55},"Week 3":{"speed_math_mins":70,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":122,"finshots":1,"the_ken":0,"editorial_writing":6,"pages_read":0,"varc_questions":40,"varc_mins":105,"dilr_questions":55,"dilr_mins":185,"qa_questions":45,"qa_mins":110,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":145,"flash_cards_mins":0,"formula_practice_mins":80,"words_collected":65,"finshots":3,"the_ken":0,"editorial_writing":6,"pages_read":0,"varc_questions":20,"varc_mins":0,"dilr_questions":35,"dilr_mins":45,"qa_questions":20,"qa_mins":60,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":375,"flash_cards_mins":0,"formula_practice_mins":210,"words_collected":367,"finshots":0.3571,"the_ken":0.0357,"editorial_writing":0.8214,"pages_read":34,"varc_questions":126,"varc_mins":304,"dilr_questions":170,"dilr_mins":565,"qa_questions":165,"qa_mins":510,"varc_tests":5,"varc_test_questions":99,"varc_accuracy":0.5131,"dilr_tests":5,"dilr_test_questions":85,"dilr_accuracy":0.4953,"qa_tests":4,"qa_test_questions":55,"qa_accuracy":0.5409}},"Aravindhan ML":{"name":"Aravindhan ML","weeks":{"Week 1":{"speed_math_mins":0,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":5,"finshots":0,"the_ken":1,"editorial_writing":0,"pages_read":0,"varc_questions":0,"varc_mins":0,"dilr_questions":0,"dilr_mins":0,"qa_questions":30,"qa_mins":90,"varc_tests":1,"varc_test_questions":12,"varc_accuracy":0.5833,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 2":{"speed_math_mins":70,"flash_cards_mins":25,"formula_practice_mins":15,"words_collected":16,"finshots":2,"the_ken":1,"editorial_writing":3,"pages_read":0,"varc_questions":0,"varc_mins":0,"dilr_questions":55,"dilr_mins":250,"qa_questions":170,"qa_mins":425,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":3,"qa_test_questions":20,"qa_accuracy":0.7763},"Week 3":{"speed_math_mins":60,"flash_cards_mins":10,"formula_practice_mins":40,"words_collected":25,"finshots":0,"the_ken":0,"editorial_writing":1,"pages_read":0,"varc_questions":4,"varc_mins":40,"dilr_questions":27,"dilr_mins":140,"qa_questions":55,"qa_mins":205,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":3,"qa_test_questions":36,"qa_accuracy":0.8233},"Week 4":{"speed_math_mins":30,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":10,"finshots":1,"the_ken":0,"editorial_writing":2,"pages_read":0,"varc_questions":25,"varc_mins":100,"dilr_questions":30,"dilr_mins":25,"qa_questions":50,"qa_mins":100,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":230,"flash_cards_mins":50,"formula_practice_mins":55,"words_collected":61,"finshots":0.1071,"the_ken":0.0714,"editorial_writing":0.25,"pages_read":0,"varc_questions":33,"varc_mins":190,"dilr_questions":132,"dilr_mins":485,"qa_questions":330,"qa_mins":910,"varc_tests":1,"varc_test_questions":12,"varc_accuracy":0.5833,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":6,"qa_test_questions":56,"qa_accuracy":0.8065}},"Bardeep M.R":{"name":"Bardeep M.R","weeks":{"Week 1":{"speed_math_mins":10,"flash_cards_mins":0,"formula_practice_mins":0,"words_collected":11,"finshots":0,"the_ken":1,"editorial_writing":0,"pages_read":5,"varc_questions":7,"varc_mins":30,"dilr_questions":15,"dilr_mins":40,"qa_questions":10,"qa_mins":30,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":10,"dilr_accuracy":0.5,"qa_tests":0,"qa_test_questions":5,"qa_accuracy":0.4},"Week 2":{"speed_math_mins":100,"flash_cards_mins":0,"formula_practice_mins":15,"words_collected":58,"finshots":2,"the_ken":4,"editorial_writing":3,"pages_read":29,"varc_questions":48,"varc_mins":190,"dilr_questions":10,"dilr_mins":30,"qa_questions":92,"qa_mins":210,"varc_tests":0,"varc_test_questions":8,"varc_accuracy":0.37,"dilr_tests":0,"dilr_test_questions":11,"dilr_accuracy":0.35,"qa_tests":0,"qa_test_questions":12,"qa_accuracy":0.505},"Week 3":{"speed_math_mins":140,"flash_cards_mins":10,"formula_practice_mins":85,"words_collected":22,"finshots":5,"the_ken":2,"editorial_writing":1,"pages_read":5,"varc_questions":40,"varc_mins":160,"dilr_questions":50,"dilr_mins":210,"qa_questions":34,"qa_mins":180,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":60,"flash_cards_mins":10,"formula_practice_mins":60,"words_collected":83,"finshots":4,"the_ken":0,"editorial_writing":1,"pages_read":22,"varc_questions":35,"varc_mins":140,"dilr_questions":28,"dilr_mins":140,"qa_questions":12,"qa_mins":60,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":345,"flash_cards_mins":20,"formula_practice_mins":190,"words_collected":174,"finshots":0.5357,"the_ken":0.25,"editorial_writing":0.2143,"pages_read":61,"varc_questions":130,"varc_mins":520,"dilr_questions":130,"dilr_mins":540,"qa_questions":167,"qa_mins":600,"varc_tests":0,"varc_test_questions":8,"varc_accuracy":0.37,"dilr_tests":0,"dilr_test_questions":28,"dilr_accuracy":0.4586,"qa_tests":0,"qa_test_questions":17,"qa_accuracy":0.4741}},"Anushuya Kumar":{"name":"Anushuya V.K","weeks":{"Week 1":{"speed_math_mins":15,"flash_cards_mins":10,"formula_practice_mins":0,"words_collected":12,"finshots":1,"the_ken":1,"editorial_writing":1,"pages_read":0,"varc_questions":0,"varc_mins":0,"dilr_questions":10,"dilr_mins":40,"qa_questions":12,"qa_mins":35,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":1,"dilr_test_questions":11,"dilr_accuracy":0.878,"qa_tests":1,"qa_test_questions":7,"qa_accuracy":0.857},"Week 2":{"speed_math_mins":75,"flash_cards_mins":55,"formula_practice_mins":0,"words_collected":80,"finshots":5,"the_ken":0,"editorial_writing":2,"pages_read":30,"varc_questions":32,"varc_mins":100,"dilr_questions":58,"dilr_mins":240,"qa_questions":80,"qa_mins":370,"varc_tests":1,"varc_test_questions":12,"varc_accuracy":0.42,"dilr_tests":1,"dilr_test_questions":14,"dilr_accuracy":0.785,"qa_tests":1,"qa_test_questions":12,"qa_accuracy":0.916},"Week 3":{"speed_math_mins":110,"flash_cards_mins":60,"formula_practice_mins":0,"words_collected":58,"finshots":3,"the_ken":0,"editorial_writing":0,"pages_read":17,"varc_questions":72,"varc_mins":230,"dilr_questions":39,"dilr_mins":215,"qa_questions":59,"qa_mins":230,"varc_tests":1,"varc_test_questions":10,"varc_accuracy":0.5,"dilr_tests":1,"dilr_test_questions":7,"dilr_accuracy":0.86,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":60,"flash_cards_mins":60,"formula_practice_mins":0,"words_collected":25,"finshots":4,"the_ken":0,"editorial_writing":1,"pages_read":15,"varc_questions":45,"varc_mins":150,"dilr_questions":75,"dilr_mins":310,"qa_questions":75,"qa_mins":370,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":1,"qa_test_questions":9,"qa_accuracy":0.66}},"monthly":{"speed_math_mins":310,"flash_cards_mins":215,"formula_practice_mins":0,"words_collected":180,"finshots":0.5,"the_ken":0.0357,"editorial_writing":0.1429,"pages_read":65,"varc_questions":194,"varc_mins":565,"dilr_questions":205,"dilr_mins":900,"qa_questions":316,"qa_mins":1485,"varc_tests":2,"varc_test_questions":22,"varc_accuracy":0.4564,"dilr_tests":4,"dilr_test_questions":39,"dilr_accuracy":0.812,"qa_tests":3,"qa_test_questions":28,"qa_accuracy":0.819}},"Joy Maria Varshaa":{"name":"Joy Maria Varshaa","weeks":{"Week 1":{"speed_math_mins":13,"flash_cards_mins":4,"formula_practice_mins":0,"words_collected":7,"finshots":1,"the_ken":1,"editorial_writing":0,"pages_read":5,"varc_questions":0,"varc_mins":0,"dilr_questions":23,"dilr_mins":50,"qa_questions":10,"qa_mins":40,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":1,"dilr_test_questions":10,"dilr_accuracy":0.6,"qa_tests":1,"qa_test_questions":8,"qa_accuracy":0.4},"Week 2":{"speed_math_mins":30,"flash_cards_mins":40,"formula_practice_mins":41,"words_collected":26,"finshots":7,"the_ken":2,"editorial_writing":1,"pages_read":43,"varc_questions":50,"varc_mins":129,"dilr_questions":77,"dilr_mins":192,"qa_questions":60,"qa_mins":205,"varc_tests":5,"varc_test_questions":70,"varc_accuracy":0.5712,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":2,"qa_test_questions":18,"qa_accuracy":0.3333},"Week 3":{"speed_math_mins":85,"flash_cards_mins":27,"formula_practice_mins":22,"words_collected":8,"finshots":5,"the_ken":2,"editorial_writing":0,"pages_read":25,"varc_questions":21,"varc_mins":75,"dilr_questions":29,"dilr_mins":165,"qa_questions":12,"qa_mins":55,"varc_tests":2,"varc_test_questions":23,"varc_accuracy":0.4670,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":57,"flash_cards_mins":47,"formula_practice_mins":38,"words_collected":43,"finshots":6,"the_ken":1,"editorial_writing":0,"pages_read":10,"varc_questions":13,"varc_mins":65,"dilr_questions":41,"dilr_mins":151,"qa_questions":84,"qa_mins":363,"varc_tests":0,"varc_test_questions":0,"varc_accuracy":null,"dilr_tests":1,"dilr_test_questions":15,"dilr_accuracy":0.724,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":240,"flash_cards_mins":128,"formula_practice_mins":123,"words_collected":94,"finshots":0.7143,"the_ken":0.2143,"editorial_writing":0.0357,"pages_read":83,"varc_questions":154,"varc_mins":279,"dilr_questions":196,"dilr_mins":638,"qa_questions":191,"qa_mins":823,"varc_tests":8,"varc_test_questions":104,"varc_accuracy":0.5441,"dilr_tests":2,"dilr_test_questions":25,"dilr_accuracy":0.6744,"qa_tests":3,"qa_test_questions":26,"qa_accuracy":0.3538}},"Niranjanaa":{"name":"Niranjanaa","weeks":{"Week 1":{"speed_math_mins":15,"flash_cards_mins":10,"formula_practice_mins":0,"words_collected":15,"finshots":1,"the_ken":0,"editorial_writing":1,"pages_read":0,"varc_questions":20,"varc_mins":70,"dilr_questions":20,"dilr_mins":90,"qa_questions":15,"qa_mins":40,"varc_tests":1,"varc_test_questions":15,"varc_accuracy":0.47,"dilr_tests":1,"dilr_test_questions":15,"dilr_accuracy":0.87,"qa_tests":1,"qa_test_questions":9,"qa_accuracy":0.56},"Week 2":{"speed_math_mins":65,"flash_cards_mins":70,"formula_practice_mins":7,"words_collected":115,"finshots":6,"the_ken":3,"editorial_writing":5,"pages_read":105,"varc_questions":60,"varc_mins":290,"dilr_questions":95,"dilr_mins":340,"qa_questions":110,"qa_mins":510,"varc_tests":6,"varc_test_questions":71,"varc_accuracy":0.5206,"dilr_tests":3,"dilr_test_questions":53,"dilr_accuracy":0.6755,"qa_tests":2,"qa_test_questions":15,"qa_accuracy":0.58},"Week 3":{"speed_math_mins":35,"flash_cards_mins":70,"formula_practice_mins":5,"words_collected":110,"finshots":5,"the_ken":1,"editorial_writing":4,"pages_read":145,"varc_questions":55,"varc_mins":160,"dilr_questions":35,"dilr_mins":105,"qa_questions":70,"qa_mins":260,"varc_tests":2,"varc_test_questions":23,"varc_accuracy":0.69,"dilr_tests":1,"dilr_test_questions":13,"dilr_accuracy":0.7,"qa_tests":2,"qa_test_questions":22,"qa_accuracy":0.6818},"Week 4":{"speed_math_mins":20,"flash_cards_mins":60,"formula_practice_mins":8,"words_collected":95,"finshots":3,"the_ken":0,"editorial_writing":4,"pages_read":170,"varc_questions":20,"varc_mins":60,"dilr_questions":55,"dilr_mins":200,"qa_questions":45,"qa_mins":125,"varc_tests":2,"varc_test_questions":26,"varc_accuracy":0.6127,"dilr_tests":1,"dilr_test_questions":15,"dilr_accuracy":0.81,"qa_tests":1,"qa_test_questions":10,"qa_accuracy":0.5}},"monthly":{"speed_math_mins":165,"flash_cards_mins":260,"formula_practice_mins":27,"words_collected":395,"finshots":0.6071,"the_ken":0.1429,"editorial_writing":0.6786,"pages_read":490,"varc_questions":192,"varc_mins":685,"dilr_questions":245,"dilr_mins":850,"qa_questions":255,"qa_mins":965,"varc_tests":12,"varc_test_questions":146,"varc_accuracy":0.5539,"dilr_tests":9,"dilr_test_questions":135,"dilr_accuracy":0.6877,"qa_tests":7,"qa_test_questions":66,"qa_accuracy":0.6021}},"SANDHYA":{"name":"Sandhya","weeks":{"Week 1":{"speed_math_mins":10,"flash_cards_mins":5,"formula_practice_mins":0,"words_collected":10,"finshots":1,"the_ken":1,"editorial_writing":0,"pages_read":30,"varc_questions":0,"varc_mins":0,"dilr_questions":10,"dilr_mins":30,"qa_questions":5,"qa_mins":20,"varc_tests":1,"varc_test_questions":19,"varc_accuracy":0.4736,"dilr_tests":1,"dilr_test_questions":9,"dilr_accuracy":0.55,"qa_tests":1,"qa_test_questions":6,"qa_accuracy":0.6666},"Week 2":{"speed_math_mins":45,"flash_cards_mins":75,"formula_practice_mins":40,"words_collected":95,"finshots":7,"the_ken":2,"editorial_writing":6,"pages_read":170,"varc_questions":38,"varc_mins":150,"dilr_questions":54,"dilr_mins":184,"qa_questions":77,"qa_mins":320,"varc_tests":4,"varc_test_questions":35,"varc_accuracy":0.5114,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":1,"qa_test_questions":14,"qa_accuracy":0.4285},"Week 3":{"speed_math_mins":30,"flash_cards_mins":25,"formula_practice_mins":0,"words_collected":40,"finshots":6,"the_ken":1,"editorial_writing":2,"pages_read":55,"varc_questions":38,"varc_mins":85,"dilr_questions":38,"dilr_mins":112,"qa_questions":35,"qa_mins":135,"varc_tests":2,"varc_test_questions":9,"varc_accuracy":0.5556,"dilr_tests":0,"dilr_test_questions":0,"dilr_accuracy":null,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null},"Week 4":{"speed_math_mins":28,"flash_cards_mins":5,"formula_practice_mins":10,"words_collected":28,"finshots":4,"the_ken":0,"editorial_writing":5,"pages_read":179,"varc_questions":30,"varc_mins":52,"dilr_questions":82,"dilr_mins":238,"qa_questions":50,"qa_mins":292,"varc_tests":3,"varc_test_questions":31,"varc_accuracy":0.6774,"dilr_tests":1,"dilr_test_questions":12,"dilr_accuracy":0.6666,"qa_tests":0,"qa_test_questions":0,"qa_accuracy":null}},"monthly":{"speed_math_mins":153,"flash_cards_mins":115,"formula_practice_mins":75,"words_collected":200,"finshots":0.75,"the_ken":0.1429,"editorial_writing":0.5,"pages_read":456,"varc_questions":111,"varc_mins":302,"dilr_questions":232,"dilr_mins":710,"qa_questions":204,"qa_mins":940,"varc_tests":10,"varc_test_questions":94,"varc_accuracy":0.5627,"dilr_tests":2,"dilr_test_questions":21,"dilr_accuracy":0.6166,"qa_tests":2,"qa_test_questions":20,"qa_accuracy":0.4999}},"Keerthypriya":{"name":"Keerthypriya","weeks":{"Week 1":{"speed_math_mins":10,"flash_cards_mins":10,"formula_practice_mins":5,"words_collected":36,"finshots":1,"the_ken":0,"editorial_writing":1,"pages_read":44,"varc_questions":15,"varc_mins":30,"dilr_questions":0,"dilr_mins":0,"qa_questions":16,"qa_mins":48,"varc_tests":1,"varc_test_questions":12,"varc_accuracy":0.3333,"dilr_tests":1,"dilr_test_questions":10,"dilr_accuracy":0.6666,"qa_tests":1,"qa_test_questions":10,"qa_accuracy":0.6666},"Week 2":{"speed_math_mins":135,"flash_cards_mins":120,"formula_practice_mins":70,"words_collected":212,"finshots":7,"the_ken":1,"editorial_writing":7,"pages_read":170,"varc_questions":94,"varc_mins":359,"dilr_questions":81,"dilr_mins":339,"qa_questions":65,"qa_mins":302,"varc_tests":5,"varc_test_questions":63,"varc_accuracy":0.6435,"dilr_tests":3,"dilr_test_questions":37,"dilr_accuracy":0.5735,"qa_tests":3,"qa_test_questions":37,"qa_accuracy":0.656},"Week 3":{"speed_math_mins":65,"flash_cards_mins":77,"formula_practice_mins":70,"words_collected":156,"finshots":7,"the_ken":0,"editorial_writing":6,"pages_read":100,"varc_questions":60,"varc_mins":258,"dilr_questions":78,"dilr_mins":349,"qa_questions":51,"qa_mins":230,"varc_tests":6,"varc_test_questions":72,"varc_accuracy":0.5044,"dilr_tests":1,"dilr_test_questions":13,"dilr_accuracy":0.46,"qa_tests":3,"qa_test_questions":33,"qa_accuracy":0.5164},"Week 4":{"speed_math_mins":40,"flash_cards_mins":70,"formula_practice_mins":40,"words_collected":180,"finshots":7,"the_ken":0,"editorial_writing":5,"pages_read":160,"varc_questions":45,"varc_mins":170,"dilr_questions":44,"dilr_mins":196,"qa_questions":28,"qa_mins":143,"varc_tests":4,"varc_test_questions":47,"varc_accuracy":0.607,"dilr_tests":1,"dilr_test_questions":15,"dilr_accuracy":0.69,"qa_tests":4,"qa_test_questions":49,"qa_accuracy":0.608}},"monthly":{"speed_math_mins":310,"flash_cards_mins":341,"formula_practice_mins":205,"words_collected":706,"finshots":0.9643,"the_ken":0.0357,"editorial_writing":0.8929,"pages_read":544,"varc_questions":268,"varc_mins":1043,"dilr_questions":208,"dilr_mins":912,"qa_questions":208,"qa_mins":987,"varc_tests":19,"varc_test_questions":229,"varc_accuracy":0.5897,"dilr_tests":7,"dilr_test_questions":87,"dilr_accuracy":0.5675,"qa_tests":12,"qa_test_questions":142,"qa_accuracy":0.6035}}};
 
 let currentSort = 'totalQ';
 let studentKeys = Object.keys(RAW_DATA);
@@ -1586,9 +1641,22 @@ function renderTrends() {
     { key: 'pages_read', label: 'Pages Read', color: 'var(--accent3)' },
   ];
 
-  const weeks = ['Week 1','Week 2','Week 3','Week 4'];
-  const grid = document.getElementById('trendsGrid');
+  if (!studentKeys || studentKeys.length === 0) {
+    document.getElementById('trendsGrid').innerHTML = '<p style="color:var(--muted);padding:20px">Loading data…</p>';
+    return;
+  }
+  // Collect all week keys from all students and sort chronologically
+  const allWeekSet = new Set();
+  studentKeys.forEach(k => Object.keys(RAW_DATA[k].weeks || {}).forEach(w => allWeekSet.add(w)));
+  const weeks = [...allWeekSet].sort((a, b) => {
+    // Sort "Week N" numerically
+    const na = parseInt(a.replace(/\D/g,'')) || 0;
+    const nb = parseInt(b.replace(/\D/g,'')) || 0;
+    return na - nb;
+  });
+  if (weeks.length === 0) return;
 
+  const grid = document.getElementById('trendsGrid');
   grid.innerHTML = studentKeys.map(key => {
     const s = RAW_DATA[key];
     const weekTotals = weeks.map(w => {
@@ -1747,6 +1815,9 @@ function showTab(tab) {
   // Restore aimcat tab color when not active
   const aimcatTab = document.getElementById('aimcatTab');
   if (aimcatTab) aimcatTab.style.color = tab === 'aimcat' ? 'var(--accent)' : 'var(--accent2)';
+  // Hide time filter bar on Daily Log and Mock Analysis tabs
+  const filterBar = document.getElementById('timeFilterBar');
+  if (filterBar) filterBar.classList.toggle('hidden', tab === 'dailylog' || tab === 'aimcat');
   // Refresh AIMCAT gate when switching to mock analysis tab
   if (tab === 'aimcat') refreshAimcatGate();
   // Initialise Daily Log when that tab is selected
@@ -3148,45 +3219,266 @@ function hideAuthOverlay(user) {
     isAdminMode = true;
     console.log('%c✅ Admin mode', 'color:gold;font-weight:bold');
   } else {
-    // Student mode — find their profile by Firebase display name
+    // Student mode — find their profile by Firebase email
     applyStudentMode(user);
   }
+
+  // Load all league data fresh from Firestore
+  loadLeagueFromFirestore();
+}
+
+// ══════════════════════════════════════════════════════════════
+// TIME FILTER
+// ══════════════════════════════════════════════════════════════
+let activeFilter = 'this_month';
+let filterStart  = '';  // YYYY-MM-DD
+let filterEnd    = '';  // YYYY-MM-DD
+
+function isoDate(d) { return d.toISOString().slice(0, 10); }
+function startOfWeek(d) {
+  const dt = new Date(d);
+  const day = dt.getDay();                  // 0=Sun
+  const diff = day === 0 ? -6 : 1 - day;   // Monday
+  dt.setDate(dt.getDate() + diff);
+  return dt;
+}
+
+function computeFilterRange(key) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  let s, e;
+  if (key === 'today') {
+    s = e = isoDate(today);
+  } else if (key === 'yesterday') {
+    const y = new Date(today); y.setDate(y.getDate() - 1);
+    s = e = isoDate(y);
+  } else if (key === 'this_week') {
+    s = isoDate(startOfWeek(today));
+    e = isoDate(today);
+  } else if (key === 'last_week') {
+    const lw = startOfWeek(today); lw.setDate(lw.getDate() - 7);
+    const lwe = new Date(lw); lwe.setDate(lwe.getDate() + 6);
+    s = isoDate(lw); e = isoDate(lwe);
+  } else if (key === 'this_month') {
+    s = isoDate(new Date(today.getFullYear(), today.getMonth(), 1));
+    e = isoDate(today);
+  } else if (key === 'last_month') {
+    const first = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const last  = new Date(today.getFullYear(), today.getMonth(), 0);
+    s = isoDate(first); e = isoDate(last);
+  } else {
+    s = '2026-01-01'; e = '2099-12-31';  // all_time
+  }
+  return { s, e };
+}
+
+function filterLabel(key, s, e) {
+  const names = {
+    today:'Today', yesterday:'Yesterday', this_week:'This Week',
+    last_week:'Last Week', this_month:'This Month', last_month:'Last Month',
+    all_time:'All Time', custom:'Custom',
+  };
+  return `${names[key] || key}  (${s} → ${e})`;
+}
+
+function setFilter(key) {
+  activeFilter = key;
+  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const customWrap = document.getElementById('customRangeWrap');
+  if (key === 'custom') {
+    customWrap.style.display = 'flex';
+    return;
+  }
+  customWrap.style.display = 'none';
+  const { s, e } = computeFilterRange(key);
+  filterStart = s; filterEnd = e;
+  document.getElementById('filterLabel').textContent = filterLabel(key, s, e);
+  loadLeagueFromFirestore();
+}
+
+function applyCustomRange() {
+  filterStart = document.getElementById('customStart').value;
+  filterEnd   = document.getElementById('customEnd').value;
+  if (!filterStart || !filterEnd) return;
+  if (filterStart > filterEnd) { alert('Start date must be before end date.'); return; }
+  document.getElementById('filterLabel').textContent = filterLabel('custom', filterStart, filterEnd);
+  loadLeagueFromFirestore();
+}
+
+// ══════════════════════════════════════════════════════════════
+// FIRESTORE → ACHIEVER LEAGUE  (replaces Google Sheets source)
+// ══════════════════════════════════════════════════════════════
+function loadLeagueFromFirestore() {
+  if (!filterStart) {
+    // First call: compute default filter (this month)
+    const { s, e } = computeFilterRange('this_month');
+    filterStart = s; filterEnd = e;
+    document.getElementById('filterLabel').textContent = filterLabel('this_month', s, e);
+  }
+
+  const fdb = firebase.firestore();
+
+  function weekLabel(dateStr, refStr) {
+    const ref = new Date(refStr + 'T00:00:00');
+    const d   = new Date(dateStr + 'T00:00:00');
+    const wn  = Math.floor((d - ref) / (7 * 24 * 60 * 60 * 1000)) + 1;
+    return 'Week ' + Math.max(1, wn);
+  }
+
+  function emptyBucket() {
+    return {
+      speed_math_mins:0, flash_cards_mins:0, formula_practice_mins:0,
+      words_collected:0, finshots:0, the_ken:0, editorial_writing:0,
+      pages_read:0,
+      varc_questions:0, varc_mins:0, dilr_questions:0, dilr_mins:0,
+      qa_questions:0,   qa_mins:0,
+      varc_tests:0, varc_test_questions:0, _varc_num:0,
+      dilr_tests:0, dilr_test_questions:0, _dilr_num:0,
+      qa_tests:0,   qa_test_questions:0,   _qa_num:0,
+    };
+  }
+  function addEntry(b, e) {
+    b.speed_math_mins       += e.speedMath        || 0;
+    b.flash_cards_mins      += e.flashCards       || 0;
+    b.formula_practice_mins += e.formulaPractice  || 0;
+    b.words_collected       += e.wordsCollected   || 0;
+    b.finshots              += e.finshots ? 1 : 0;
+    b.the_ken               += e.theKen   ? 1 : 0;
+    b.editorial_writing     += e.editorial ? 1 : 0;
+    b.pages_read            += e.pagesRead || 0;
+    b.varc_questions        += e.varcQuestions || 0;
+    b.varc_mins             += e.varcMins     || 0;
+    b.dilr_questions        += e.dilrQuestions || 0;
+    b.dilr_mins             += e.dilrMins      || 0;
+    b.qa_questions          += e.qaQuestions  || 0;
+    b.qa_mins               += e.qaMins       || 0;
+    b.varc_tests            += e.varcTests    || 0;
+    b.dilr_tests            += e.dilrTests    || 0;
+    b.qa_tests              += e.qaTests      || 0;
+    const vq = e.varcQCovered || 0;
+    const dq = e.dilrQCovered || 0;
+    const qq = e.qaQCovered   || 0;
+    b.varc_test_questions   += vq;
+    b.dilr_test_questions   += dq;
+    b.qa_test_questions     += qq;
+    b._varc_num += (e.varcAccuracy || 0) * vq;
+    b._dilr_num += (e.dilrAccuracy || 0) * dq;
+    b._qa_num   += (e.qaAccuracy   || 0) * qq;
+  }
+  function finalize(b, totalDays, isRange) {
+    b.varc_accuracy = b.varc_test_questions > 0 ? b._varc_num / b.varc_test_questions : null;
+    b.dilr_accuracy = b.dilr_test_questions > 0 ? b._dilr_num / b.dilr_test_questions : null;
+    b.qa_accuracy   = b.qa_test_questions   > 0 ? b._qa_num   / b.qa_test_questions   : null;
+    if (isRange && totalDays > 0) {
+      b.finshots          = b.finshots          / totalDays;
+      b.the_ken           = b.the_ken           / totalDays;
+      b.editorial_writing = b.editorial_writing / totalDays;
+    }
+    return b;
+  }
+
+  // Firestore query filtered by date range
+  let query = fdb.collection('dailyLogs')
+    .where('date', '>=', filterStart)
+    .where('date', '<=', filterEnd);
+
+  query.get().then(snap => {
+    const byEmail = {};
+    snap.forEach(doc => {
+      const d = doc.data();
+      if (!d.email || !d.date) return;
+      if (!byEmail[d.email]) byEmail[d.email] = [];
+      byEmail[d.email].push(d);
+    });
+
+    const newData = {};
+    Object.entries(byEmail).forEach(([email, entries]) => {
+      const name = EMAIL_TO_NAME[email] || email;
+      entries.sort((a, b) => a.date.localeCompare(b.date));
+      const totalDays = entries.length;
+
+      // Build weekly buckets relative to start of filter period
+      const weekBuckets = {};
+      entries.forEach(e => {
+        const wl = weekLabel(e.date, filterStart);
+        if (!weekBuckets[wl]) weekBuckets[wl] = emptyBucket();
+        addEntry(weekBuckets[wl], e);
+      });
+      const weeks = {};
+      Object.entries(weekBuckets).forEach(([wl, b]) => {
+        weeks[wl] = finalize(b, 0, false);
+      });
+
+      // Period aggregate
+      const monthly = emptyBucket();
+      entries.forEach(e => addEntry(monthly, e));
+      finalize(monthly, totalDays, true);
+
+      KEY_TO_EMAIL[name] = email;
+      newData[name] = { name, weeks, monthly };
+    });
+
+    // Replace data entirely (don't merge with old data from different period)
+    Object.keys(RAW_DATA).forEach(k => delete RAW_DATA[k]);
+    Object.assign(RAW_DATA, newData);
+    studentKeys = Object.keys(RAW_DATA);
+
+    // Update section subtitles with the active filter label
+    const lbl = document.getElementById('filterLabel').textContent || filterLabel(activeFilter, filterStart, filterEnd);
+    const periodText = lbl.replace(/→/g, '–').trim();
+    const sub = el => { const e = document.getElementById(el); if (e) e.textContent = periodText; };
+    sub('overviewSub'); sub('lbSub');
+
+    renderOverview();
+    renderLeaderboard();
+    renderTrends();
+    renderCompare();
+    renderHabits();
+    populateGlobalStudentSelect();
+  }).catch(err => {
+    console.warn('League data load error:', err.message);
+  });
 }
 
 function applyStudentMode(user) {
   document.body.classList.add('student-mode');
 
-  // Try matching by displayName, then email prefix
-  const displayName = (user.displayName || '').trim();
-  const emailPrefix  = user.email.split('@')[0].replace(/[._]/g, ' ');
+  // Hide the student dropdown — students see their own data only
+  const studentWrap = document.getElementById('globalStudentWrap');
+  if (studentWrap) studentWrap.style.display = 'none';
 
-  // Wait for data to load (poll until studentKeys is populated)
+  const userEmail = user.email.toLowerCase();
+
+  // Wait for Firestore data to load (loadLeagueFromFirestore is async)
   const trySelect = (attempts) => {
     if (!studentKeys || studentKeys.length === 0) {
-      if (attempts < 30) setTimeout(() => trySelect(attempts + 1), 300);
+      if (attempts < 40) setTimeout(() => trySelect(attempts + 1), 300);
       return;
     }
 
-    // Find matching student key (case-insensitive partial match)
-    const targets = [displayName, emailPrefix].filter(Boolean).map(t => t.toLowerCase());
-    const matched = studentKeys.find(k => {
-      const name = (RAW_DATA[k]?.name || k).toLowerCase();
-      return targets.some(t => name.includes(t) || t.includes(name.split(' ')[0]));
-    });
+    // Primary: match by email via KEY_TO_EMAIL map
+    let matched = studentKeys.find(k => (KEY_TO_EMAIL[k] || '').toLowerCase() === userEmail);
+
+    // Fallback: partial name match
+    if (!matched) {
+      const emailPrefix = userEmail.split('@')[0].replace(/[._]/g, ' ').toLowerCase();
+      matched = studentKeys.find(k => {
+        const name = (RAW_DATA[k]?.name || k).toLowerCase();
+        return name.includes(emailPrefix.split(' ')[0]) || emailPrefix.includes(name.split(' ')[0]);
+      });
+    }
 
     const sel = document.getElementById('globalStudentSelect');
 
     if (matched) {
-      // Lock all cards except matched student
+      // Lock all overview cards to this student only
       document.querySelectorAll('.student-card[data-key]').forEach(el => {
         if (el.dataset.key !== matched) el.style.display = 'none';
       });
-      // Auto-select in dropdown and lock it
-      sel.value = matched;
-      sel.disabled = true;
+      if (sel) { sel.value = matched; sel.disabled = true; }
       onGlobalStudentChange();
     } else {
-      // No match — show helpful message
       document.querySelector('main').innerHTML = `
         <div class="no-data-msg" style="padding:80px 20px">
           <div class="nd-icon">👤</div>
@@ -3274,7 +3566,7 @@ function initDailyLog() {
     dlCurrentEmail = currentUser.email.toLowerCase();
     document.getElementById('dlSubtitle').textContent =
       'Recording study activity for ' + dlCurrentEmail;
-    loadDailyLogHistory();
+    // History loads on demand via "Past Entries" toggle
   }
 
   // When date changes, load that date's entry into the form
@@ -3319,11 +3611,13 @@ function populateAdminStudentPicker(adminEmail) {
 
   sel.onchange = function() {
     dlCurrentEmail = this.value;
-    loadDailyLogHistory();
+    // Refresh history if the panel is already open
+    if (document.getElementById('dlHistoryWrap').style.display !== 'none') {
+      loadDailyLogHistory();
+    }
     loadEntryForDate(document.getElementById('dlDate').value);
   };
-
-  loadDailyLogHistory();
+  // History loads on demand via "Past Entries" toggle
 }
 
 // Firestore doc ID: email__YYYY-MM-DD
@@ -3384,7 +3678,10 @@ function saveDailyLog() {
     .then(() => {
       setDlStatus('✓ Saved!', false);
       setTimeout(() => setDlStatus('', false), 3000);
-      loadDailyLogHistory();
+      // Refresh history only if panel is already open
+      if (document.getElementById('dlHistoryWrap').style.display !== 'none') {
+        loadDailyLogHistory();
+      }
     })
     .catch(err => {
       setDlStatus('Error: ' + err.message, true);
@@ -3396,6 +3693,21 @@ function setDlStatus(msg, isErr) {
   const el = document.getElementById('dlStatus');
   el.textContent = msg;
   el.className = 'dl-status' + (isErr ? ' err' : (msg ? ' ok' : ''));
+}
+
+// Toggle Past Entries panel open/closed
+function toggleDlHistory() {
+  const wrap = document.getElementById('dlHistoryWrap');
+  const chevron = document.getElementById('dlHistoryChevron');
+  const isHidden = wrap.style.display === 'none';
+  if (isHidden) {
+    wrap.style.display = 'block';
+    chevron.textContent = '▲ Hide';
+    loadDailyLogHistory();
+  } else {
+    wrap.style.display = 'none';
+    chevron.textContent = '▼ Show';
+  }
 }
 
 // Load past entries for dlCurrentEmail into the history table
