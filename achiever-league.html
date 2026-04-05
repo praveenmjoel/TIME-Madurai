@@ -1112,6 +1112,8 @@
     </span>
     <!-- Book 1:1 -->
     <a href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2AXC27Svpr_jNIwAbdPW6jH8p_nX-VQDupzK-jo3KfSovtvwaCnDLbgR7t2u7ECRb2XtKUxNlr" target="_blank" id="bookSlotBtn" style="display:none;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;text-decoration:none;letter-spacing:0.02em;white-space:nowrap">📅 Book 1:1 Slot</a>
+    <!-- Change Password -->
+    <button class="admin-unlock" onclick="openChangePwd()" id="changePwdBtn" style="display:none;border-color:rgba(96,165,250,0.4);color:rgba(96,165,250,0.85);">🔑 Change Password</button>
     <!-- Logout -->
     <button class="admin-unlock" onclick="doLogout()" id="logoutBtn" style="display:none;border-color:rgba(255,107,107,0.4);color:rgba(255,107,107,0.7);">Sign Out</button>
   </div>
@@ -1414,6 +1416,46 @@
 
 <!-- ── TOAST ── -->
 <div class="sync-toast" id="syncToast"></div>
+
+<!-- ── CHANGE PASSWORD MODAL ── -->
+<div id="changePwdOverlay" onclick="if(event.target===this)closeChangePwd()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:#0d1117;border:1px solid var(--border);border-radius:14px;padding:32px;width:min(420px,92vw);box-shadow:0 20px 60px rgba(0,0,0,0.6)">
+    <h3 style="margin:0 0 6px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.06em;font-size:1.4rem">🔑 Change Password</h3>
+    <p style="color:var(--muted);font-size:0.82rem;margin:0 0 24px">Enter your current password to verify, then set a new one.</p>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:5px">Current Password</label>
+        <input type="password" id="cpwdCurrent" placeholder="Current password" autocomplete="current-password"
+          style="width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 14px;font-size:0.9rem;font-family:inherit;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div>
+        <label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:5px">New Password</label>
+        <input type="password" id="cpwdNew" placeholder="New password (min 8 characters)" autocomplete="new-password"
+          style="width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 14px;font-size:0.9rem;font-family:inherit;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div>
+        <label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:5px">Confirm New Password</label>
+        <input type="password" id="cpwdConfirm" placeholder="Repeat new password" autocomplete="new-password"
+          onkeydown="if(event.key==='Enter')doChangePwd()"
+          style="width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 14px;font-size:0.9rem;font-family:inherit;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div id="cpwdError" style="font-size:0.8rem;min-height:18px;color:#ff6b6b"></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button onclick="doChangePwd()" id="cpwdSubmit"
+          style="flex:1;background:var(--accent);color:#000;border:none;padding:11px;border-radius:8px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:inherit">
+          Update Password
+        </button>
+        <button onclick="closeChangePwd()"
+          style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:11px 18px;border-radius:8px;font-size:0.9rem;cursor:pointer;font-family:inherit">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ── AI INSIGHTS OVERLAY ── -->
 <div id="aiOverlay" onclick="closeAIInsights()"></div>
@@ -3207,11 +3249,73 @@ function doLogout() {
   if (confirm('Sign out of Achiever League?')) auth.signOut();
 }
 
+// ── CHANGE PASSWORD ──
+function openChangePwd() {
+  ['cpwdCurrent','cpwdNew','cpwdConfirm'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('cpwdError').textContent = '';
+  const btn = document.getElementById('cpwdSubmit');
+  btn.disabled = false; btn.textContent = 'Update Password';
+  const overlay = document.getElementById('changePwdOverlay');
+  overlay.style.display = 'flex';
+  document.getElementById('cpwdCurrent').focus();
+}
+
+function closeChangePwd() {
+  document.getElementById('changePwdOverlay').style.display = 'none';
+}
+
+async function doChangePwd() {
+  const current  = document.getElementById('cpwdCurrent').value;
+  const newPwd   = document.getElementById('cpwdNew').value;
+  const confirm  = document.getElementById('cpwdConfirm').value;
+  const errEl    = document.getElementById('cpwdError');
+  const btn      = document.getElementById('cpwdSubmit');
+
+  errEl.style.color = '#ff6b6b';
+  errEl.textContent = '';
+
+  if (!current)              { errEl.textContent = 'Please enter your current password.'; return; }
+  if (newPwd.length < 8)    { errEl.textContent = 'New password must be at least 8 characters.'; return; }
+  if (newPwd !== confirm)   { errEl.textContent = 'New passwords do not match.'; return; }
+  if (newPwd === current)   { errEl.textContent = 'New password must be different from your current password.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Updating…';
+
+  const user = auth.currentUser;
+  if (!user) { errEl.textContent = 'Not signed in. Please refresh.'; btn.disabled = false; btn.textContent = 'Update Password'; return; }
+
+  try {
+    // Re-authenticate first
+    const credential = firebase.auth.EmailAuthProvider.credential(user.email, current);
+    await user.reauthenticateWithCredential(credential);
+    // Update password
+    await user.updatePassword(newPwd);
+    errEl.style.color = '#34d399';
+    errEl.textContent = '✓ Password updated successfully!';
+    btn.textContent = '✓ Done';
+    setTimeout(closeChangePwd, 1500);
+  } catch (e) {
+    const msgs = {
+      'auth/wrong-password':          'Current password is incorrect.',
+      'auth/invalid-credential':      'Current password is incorrect.',
+      'auth/too-many-requests':       'Too many attempts. Please try again later.',
+      'auth/weak-password':           'New password is too weak. Use at least 8 characters.',
+      'auth/requires-recent-login':   'Session expired. Please sign out and sign back in, then try again.',
+    };
+    errEl.style.color = '#ff6b6b';
+    errEl.textContent = msgs[e.code] || 'Failed: ' + e.message;
+    btn.disabled = false;
+    btn.textContent = 'Update Password';
+  }
+}
+
 // ── SHOW/HIDE OVERLAY ──
 function showAuthOverlay() {
   document.getElementById('authOverlay').style.display = 'flex';
   document.getElementById('logoutBtn').style.display = 'none';
   document.getElementById('bookSlotBtn').style.display = 'none';
+  document.getElementById('changePwdBtn').style.display = 'none';
   // Reset the button in case it was left in "Signing in…" state from a previous attempt
   const btn = document.getElementById('authSubmit');
   if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
@@ -3223,6 +3327,7 @@ function hideAuthOverlay(user) {
   document.getElementById('authOverlay').style.display = 'none';
   document.getElementById('logoutBtn').style.display = 'inline-block';
   document.getElementById('bookSlotBtn').style.display = 'inline-block';
+  document.getElementById('changePwdBtn').style.display = 'inline-block';
 
   const isAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
 
