@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Achiever League — T.I.M.E. Madurai</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="apple-touch-icon" href="favicon-192.png">
+<link rel="icon" type="image/x-icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" href="favicon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="favicon-192.png" sizes="180x180">
+<link rel="shortcut icon" href="favicon.ico">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
@@ -1108,6 +1110,8 @@
       <button class="upload-btn" style="background:var(--good);color:#000" onclick="liveSync()" id="syncBtn">⟳ Sync</button>
       <button class="upload-btn" onclick="openSheetConfig()" id="configBtn">⚙ Sheets</button>
     </span>
+    <!-- Book 1:1 -->
+    <a href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2AXC27Svpr_jNIwAbdPW6jH8p_nX-VQDupzK-jo3KfSovtvwaCnDLbgR7t2u7ECRb2XtKUxNlr" target="_blank" id="bookSlotBtn" style="display:none;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;text-decoration:none;letter-spacing:0.02em;white-space:nowrap">📅 Book 1:1 Slot</a>
     <!-- Logout -->
     <button class="admin-unlock" onclick="doLogout()" id="logoutBtn" style="display:none;border-color:rgba(255,107,107,0.4);color:rgba(255,107,107,0.7);">Sign Out</button>
   </div>
@@ -1139,11 +1143,12 @@
     <button class="tf-btn" onclick="setFilter('all_time')">All Time</button>
     <button class="tf-btn" onclick="setFilter('custom')">Custom…</button>
   </div>
-  <div id="customRangeWrap" style="display:none;gap:6px;align-items:center">
-    <input type="date" id="customStart" class="dl-date-input" style="font-size:0.8rem;padding:5px 8px">
-    <span style="color:var(--muted);font-size:0.8rem">→</span>
-    <input type="date" id="customEnd"   class="dl-date-input" style="font-size:0.8rem;padding:5px 8px">
-    <button class="tf-btn active" onclick="applyCustomRange()">Apply</button>
+  <div id="customRangeWrap" style="display:none;gap:8px;align-items:center;flex-wrap:wrap">
+    <label style="font-size:0.72rem;color:var(--muted)">From:</label>
+    <input type="date" id="customStart" style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 10px;font-size:0.82rem;font-family:inherit;cursor:pointer;color-scheme:dark">
+    <label style="font-size:0.72rem;color:var(--muted)">To:</label>
+    <input type="date" id="customEnd"   style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 10px;font-size:0.82rem;font-family:inherit;cursor:pointer;color-scheme:dark">
+    <button class="tf-btn active" onclick="applyCustomRange()" style="padding:5px 16px">Apply</button>
   </div>
   <span id="filterLabel" style="margin-left:auto;font-size:0.78rem;color:var(--muted);font-style:italic"></span>
 </div>
@@ -3206,6 +3211,7 @@ function doLogout() {
 function showAuthOverlay() {
   document.getElementById('authOverlay').style.display = 'flex';
   document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('bookSlotBtn').style.display = 'none';
   // Reset the button in case it was left in "Signing in…" state from a previous attempt
   const btn = document.getElementById('authSubmit');
   if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
@@ -3216,6 +3222,7 @@ function showAuthOverlay() {
 function hideAuthOverlay(user) {
   document.getElementById('authOverlay').style.display = 'none';
   document.getElementById('logoutBtn').style.display = 'inline-block';
+  document.getElementById('bookSlotBtn').style.display = 'inline-block';
 
   const isAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
 
@@ -3241,18 +3248,32 @@ let activeFilter = 'this_month';
 let filterStart  = '';  // YYYY-MM-DD
 let filterEnd    = '';  // YYYY-MM-DD
 
-function isoDate(d) { return d.toISOString().slice(0, 10); }
-function startOfWeek(d) {
+// Use local date (avoids UTC timezone shift)
+function isoDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+// Returns the Monday of the week containing d
+function mondayOf(d) {
   const dt = new Date(d);
-  const day = dt.getDay();                  // 0=Sun
-  const diff = day === 0 ? -6 : 1 - day;   // Monday
+  const day = dt.getDay(); // 0=Sun, 1=Mon...
+  const diff = day === 0 ? -6 : 1 - day;
   dt.setDate(dt.getDate() + diff);
   return dt;
+}
+// Returns the Sunday of the week containing d
+function sundayOf(d) {
+  const mon = mondayOf(d);
+  const sun = new Date(mon);
+  sun.setDate(sun.getDate() + 6);
+  return sun;
 }
 
 function computeFilterRange(key) {
   const today = new Date();
-  today.setHours(0,0,0,0);
+  today.setHours(0, 0, 0, 0);
   let s, e;
   if (key === 'today') {
     s = e = isoDate(today);
@@ -3260,21 +3281,25 @@ function computeFilterRange(key) {
     const y = new Date(today); y.setDate(y.getDate() - 1);
     s = e = isoDate(y);
   } else if (key === 'this_week') {
-    s = isoDate(startOfWeek(today));
-    e = isoDate(today);
+    // Monday → Sunday of current calendar week
+    s = isoDate(mondayOf(today));
+    e = isoDate(sundayOf(today));
   } else if (key === 'last_week') {
-    const lw = startOfWeek(today); lw.setDate(lw.getDate() - 7);
-    const lwe = new Date(lw); lwe.setDate(lwe.getDate() + 6);
-    s = isoDate(lw); e = isoDate(lwe);
+    // Monday → Sunday of previous calendar week
+    const thisMon = mondayOf(today);
+    const lastMon = new Date(thisMon); lastMon.setDate(lastMon.getDate() - 7);
+    const lastSun = new Date(lastMon); lastSun.setDate(lastSun.getDate() + 6);
+    s = isoDate(lastMon); e = isoDate(lastSun);
   } else if (key === 'this_month') {
+    // 1st of current month → last day of current month
     s = isoDate(new Date(today.getFullYear(), today.getMonth(), 1));
-    e = isoDate(today);
+    e = isoDate(new Date(today.getFullYear(), today.getMonth() + 1, 0));
   } else if (key === 'last_month') {
-    const first = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const last  = new Date(today.getFullYear(), today.getMonth(), 0);
-    s = isoDate(first); e = isoDate(last);
+    // 1st → last day of previous calendar month
+    s = isoDate(new Date(today.getFullYear(), today.getMonth() - 1, 1));
+    e = isoDate(new Date(today.getFullYear(), today.getMonth(), 0));
   } else {
-    s = '2026-01-01'; e = '2099-12-31';  // all_time
+    s = '2026-01-01'; e = '2099-12-31'; // all_time
   }
   return { s, e };
 }
