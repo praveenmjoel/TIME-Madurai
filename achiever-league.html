@@ -3810,6 +3810,7 @@ function loadLeagueFromFirestore() {
     const sub = el => { const e = document.getElementById(el); if (e) e.textContent = periodText; };
     sub('overviewSub'); sub('lbSub');
 
+    window._firestoreLoaded = true;
     renderOverview();
     renderLeaderboard();
     renderTrends();
@@ -3817,6 +3818,7 @@ function loadLeagueFromFirestore() {
     renderHabits();
     populateGlobalStudentSelect();
   }).catch(err => {
+    window._firestoreLoaded = true; // flag even on error so trySelect doesn't wait forever
     console.warn('League data load error:', err.message);
   });
 }
@@ -3830,17 +3832,44 @@ function applyStudentMode(user) {
 
   const userEmail = user.email.toLowerCase();
 
+  // Resolve the student's display name from the email map (works even if they
+  // have zero entries in the current filter period)
+  const resolvedName = EMAIL_TO_NAME[userEmail] || prettyNameFromEmail(userEmail);
+
+  function ensureProfileExists(key, name, email) {
+    // If student has no data in this period, create an empty shell so the
+    // dashboard still renders (shows zeros / nudges to start logging)
+    if (!RAW_DATA[key]) {
+      RAW_DATA[key] = { name, weeks: {}, monthly: {} };
+      studentKeys = Object.keys(RAW_DATA);
+    }
+    KEY_TO_EMAIL[key] = email;
+    // Make sure the option exists in the select
+    const sel = document.getElementById('globalStudentSelect');
+    if (sel && !sel.querySelector(`option[value="${CSS.escape(key)}"]`)) {
+      const opt = document.createElement('option');
+      opt.value = key; opt.textContent = name;
+      sel.appendChild(opt);
+    }
+  }
+
   // Wait for Firestore data to load (loadLeagueFromFirestore is async)
   const trySelect = (attempts) => {
-    if (!studentKeys || studentKeys.length === 0) {
-      if (attempts < 40) setTimeout(() => trySelect(attempts + 1), 300);
+    // Keep waiting until Firestore has responded (even an empty result sets studentKeys)
+    if (attempts < 40 && !window._firestoreLoaded) {
+      setTimeout(() => trySelect(attempts + 1), 300);
       return;
     }
 
     // Primary: match by email via KEY_TO_EMAIL map
     let matched = studentKeys.find(k => (KEY_TO_EMAIL[k] || '').toLowerCase() === userEmail);
 
-    // Fallback: partial name match
+    // Secondary: match by resolved name key
+    if (!matched && resolvedName) {
+      matched = studentKeys.find(k => k === resolvedName || RAW_DATA[k]?.name === resolvedName);
+    }
+
+    // Fallback: partial email-prefix name match
     if (!matched) {
       const emailPrefix = userEmail.split('@')[0].replace(/[._]/g, ' ').toLowerCase();
       matched = studentKeys.find(k => {
@@ -3849,9 +3878,16 @@ function applyStudentMode(user) {
       });
     }
 
+    // Last resort: we know the email — create an empty profile shell
+    if (!matched && resolvedName) {
+      ensureProfileExists(resolvedName, resolvedName, userEmail);
+      matched = resolvedName;
+    }
+
     const sel = document.getElementById('globalStudentSelect');
 
     if (matched) {
+      ensureProfileExists(matched, RAW_DATA[matched]?.name || matched, userEmail);
       // Lock all overview cards to this student only
       document.querySelectorAll('.student-card[data-key]').forEach(el => {
         if (el.dataset.key !== matched) el.style.display = 'none';
@@ -3859,6 +3895,7 @@ function applyStudentMode(user) {
       if (sel) { sel.value = matched; sel.disabled = true; }
       onGlobalStudentChange();
     } else {
+      // Truly unknown email — not in EMAIL_TO_NAME and no data in Firestore
       document.querySelector('main').innerHTML = `
         <div class="no-data-msg" style="padding:80px 20px">
           <div class="nd-icon">👤</div>
