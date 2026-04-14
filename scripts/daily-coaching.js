@@ -66,47 +66,68 @@ function dateNDaysAgo(n) {
   return d.toISOString().slice(0, 10);
 }
 
-/** Aggregate daily log entries into a summary object for one student */
+/** Aggregate daily log entries into a summary object for one student.
+ *  Field names match exactly what the app writes to Firestore. */
 function aggregateEntries(entries) {
-  let totalMins = 0, totalQ = 0, totalTests = 0;
-  let varcQ = 0, varcCorrect = 0;
-  let dilrQ = 0, dilrCorrect = 0;
-  let qaQ   = 0, qaCorrect   = 0;
-  let activeDays = new Set();
+  let activeDays  = new Set();
+  let totalMins   = 0;
+  let totalTests  = 0;
+
+  // Practice question counts
+  let varcPracticeQ = 0, dilrPracticeQ = 0, qaPracticeQ = 0;
+
+  // Test question counts (used for accuracy calculation)
+  let varcTestQ = 0, dilrTestQ = 0, qaTestQ = 0;
+  let varcCorrect = 0, dilrCorrect = 0, qaCorrect = 0;
 
   for (const e of entries) {
-    const date = e.date || '';
-    if (date) activeDays.add(date);
+    if (e.date) activeDays.add(e.date);
 
-    totalMins  += (e.studyMins    || 0);
-    totalTests += (e.testsGiven   || 0);
+    // Study minutes across all subjects + speed drills
+    totalMins += (e.varcMins       || 0)
+               + (e.dilrMins       || 0)
+               + (e.qaMins         || 0)
+               + (e.speedMath      || 0)
+               + (e.flashCards     || 0)
+               + (e.formulaPractice|| 0);
 
-    const vq = e.varcQuestions  || 0;
-    const dq = e.dilrQuestions  || 0;
-    const qq = e.qaQuestions    || 0;
+    // Tests taken
+    totalTests += (e.varcTests || 0) + (e.dilrTests || 0) + (e.qaTests || 0);
 
-    varcQ   += vq;
-    dilrQ   += dq;
-    qaQ     += qq;
-    totalQ  += vq + dq + qq;
+    // Practice questions (direct drill)
+    varcPracticeQ += (e.varcQuestions || 0);
+    dilrPracticeQ += (e.dilrQuestions || 0);
+    qaPracticeQ   += (e.qaQuestions   || 0);
 
-    varcCorrect += ((e.varcAccuracy  || 0) / 100) * vq;
-    dilrCorrect += ((e.dilrAccuracy  || 0) / 100) * dq;
-    qaCorrect   += ((e.qaAccuracy    || 0) / 100) * qq;
+    // Test questions covered (for accuracy)
+    const vq = e.varcQCovered || 0;
+    const dq = e.dilrQCovered || 0;
+    const qq = e.qaQCovered   || 0;
+    varcTestQ += vq;
+    dilrTestQ += dq;
+    qaTestQ   += qq;
+
+    // Accuracy stored as 0-100 in Firestore
+    varcCorrect += ((e.varcAccuracy || 0) / 100) * vq;
+    dilrCorrect += ((e.dilrAccuracy || 0) / 100) * dq;
+    qaCorrect   += ((e.qaAccuracy   || 0) / 100) * qq;
   }
 
   const pct = (correct, total) => total > 0 ? Math.round((correct / total) * 100) : null;
+  const totalQ = varcPracticeQ + dilrPracticeQ + qaPracticeQ + varcTestQ + dilrTestQ + qaTestQ;
 
   return {
-    activeDays:   activeDays.size,
+    activeDays:    activeDays.size,
     totalMins,
-    totalHours:   Math.round(totalMins / 60 * 10) / 10,
+    totalHours:    Math.round(totalMins / 60 * 10) / 10,
     totalQ,
     totalTests,
-    varcAcc:  pct(varcCorrect, varcQ),
-    dilrAcc:  pct(dilrCorrect, dilrQ),
-    qaAcc:    pct(qaCorrect,   qaQ),
-    varcQ, dilrQ, qaQ,
+    varcAcc:       pct(varcCorrect, varcTestQ),
+    dilrAcc:       pct(dilrCorrect, dilrTestQ),
+    qaAcc:         pct(qaCorrect,   qaTestQ),
+    varcQ:         varcPracticeQ + varcTestQ,
+    dilrQ:         dilrPracticeQ + dilrTestQ,
+    qaQ:           qaPracticeQ   + qaTestQ,
     avgMinsPerDay: activeDays.size > 0 ? Math.round(totalMins / activeDays.size) : 0,
   };
 }
@@ -211,11 +232,11 @@ async function fetchAllStudentData(db) {
     .where('date', '<=', endDate)
     .get();
 
-  // Group by student email
+  // Group by student email (Firestore field is 'email', not 'userEmail')
   const byEmail = {};
   for (const doc of snap.docs) {
     const data = doc.data();
-    const email = (data.userEmail || '').toLowerCase();
+    const email = (data.email || '').toLowerCase();
     if (!email) continue;
     if (!byEmail[email]) byEmail[email] = [];
     byEmail[email].push(data);
