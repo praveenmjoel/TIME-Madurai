@@ -354,7 +354,8 @@ async function main() {
     );
     if (res.ok) {
       const data = await res.json();
-      return data.id || data.channel?.id;
+      console.log(`DM channel response for ${studentName}:`, JSON.stringify(data));
+      return data.id || data.channel?.id || data.data?.id;
     }
 
     const errText = await res.text();
