@@ -1143,11 +1143,21 @@
     </div>
     <!-- AI Insights — hidden, activate later -->
     <button class="upload-btn" style="display:none;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff" onclick="openAIInsights()">✦ AI Insights</button>
-    <!-- Admin controls -->
+    <!-- Admin controls (hidden until admin login) -->
     <button class="admin-unlock" onclick="promptAdminUnlock()" id="adminLockBtn">🔒 Admin</button>
     <span id="uploadWrap" style="display:none;gap:8px;align-items:center">
       <button class="upload-btn" style="background:var(--good);color:#000" onclick="liveSync()" id="syncBtn">⟳ Sync</button>
       <button class="upload-btn" onclick="openSheetConfig()" id="configBtn">⚙ Sheets</button>
+    </span>
+    <!-- Admin-only: Settings + View-as-Student (shown on admin login) -->
+    <button class="admin-unlock" id="adminSettingsBtn" onclick="openSheetConfig()" style="display:none;border-color:rgba(240,192,64,0.4);color:rgba(240,192,64,0.85);">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
+    </button>
+    <span id="viewAsWrap" style="display:none;align-items:center;gap:6px">
+      <label style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap">View as:</label>
+      <select class="aimcat-select" id="viewAsSelect" onchange="onViewAsChange()" style="min-width:160px;font-size:0.8rem;padding:6px 10px">
+        <option value="">— Admin View —</option>
+      </select>
     </span>
     <!-- Book 1:1 -->
     <a href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2AXC27Svpr_jNIwAbdPW6jH8p_nX-VQDupzK-jo3KfSovtvwaCnDLbgR7t2u7ECRb2XtKUxNlr" target="_blank" id="bookSlotBtn" style="display:none;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;text-decoration:none;letter-spacing:0.02em;white-space:nowrap"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:5px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Book 1:1 Slot</a>
@@ -2757,6 +2767,20 @@ function populateGlobalStudentSelect() {
     if (current && el.querySelector(`option[value="${CSS.escape(current)}"]`)) el.value = current;
   });
 
+  // Populate View-as-Student dropdown for admin
+  const viewAsSel = document.getElementById('viewAsSelect');
+  if (viewAsSel && isAdminMode) {
+    const curViewAs = viewAsSel.value;
+    viewAsSel.innerHTML = '<option value="">— Admin View —</option>';
+    allStudents.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = RAW_DATA[k] ? RAW_DATA[k].name : k;
+      viewAsSel.appendChild(opt);
+    });
+    if (curViewAs && viewAsSel.querySelector(`option[value="${CSS.escape(curViewAs)}"]`)) viewAsSel.value = curViewAs;
+  }
+
   // Show inline picker on AIMCAT tab for admin
   const picker = document.getElementById('aimcatAdminPicker');
   if (picker && isAdminMode) picker.style.display = 'block';
@@ -2771,6 +2795,64 @@ function onAimcatInlineStudentChange() {
   const globalSel = document.getElementById('globalStudentSelect');
   if (inlineSel && globalSel) globalSel.value = inlineSel.value;
   onGlobalStudentChange();
+}
+
+// ── VIEW-AS-STUDENT (admin impersonation) ──
+let _adminModeSnapshot = false; // tracks whether we entered student-view from admin
+
+function onViewAsChange() {
+  const sel = document.getElementById('viewAsSelect');
+  if (!sel) return;
+  const key = sel.value;
+  if (!key) {
+    exitViewAsStudent();
+  } else {
+    enterViewAsStudent(key);
+  }
+}
+
+function enterViewAsStudent(key) {
+  _adminModeSnapshot = true;
+  // Set global student selector so all downstream reads work
+  const globalSel = document.getElementById('globalStudentSelect');
+  if (globalSel) { globalSel.value = key; }
+  // Apply student-mode CSS (hides admin-only elements)
+  document.body.classList.add('student-mode');
+  // Hide admin-only header items
+  document.getElementById('adminSettingsBtn').style.display = 'none';
+  // Show a banner so admin knows they are in student view
+  let banner = document.getElementById('viewAsBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'viewAsBanner';
+    banner.style.cssText = 'background:rgba(240,192,64,0.12);border-bottom:1px solid rgba(240,192,64,0.3);padding:6px 40px;font-size:0.76rem;color:var(--accent);display:flex;align-items:center;gap:12px';
+    banner.innerHTML = `<span>👁 Viewing as <strong id="viewAsBannerName"></strong> — student perspective</span><button onclick="exitViewAsStudentFromBanner()" style="margin-left:auto;background:none;border:1px solid rgba(240,192,64,0.4);color:var(--accent);padding:3px 12px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:0.76rem">Exit Student View</button>`;
+    document.querySelector('nav').before(banner);
+  }
+  banner.style.display = 'flex';
+  const nameEl = document.getElementById('viewAsBannerName');
+  if (nameEl) nameEl.textContent = RAW_DATA[key]?.name || key;
+  // Re-render so the student dashboard appears
+  renderOverview();
+}
+
+function exitViewAsStudent() {
+  _adminModeSnapshot = false;
+  document.body.classList.remove('student-mode');
+  const globalSel = document.getElementById('globalStudentSelect');
+  if (globalSel) globalSel.value = '';
+  const banner = document.getElementById('viewAsBanner');
+  if (banner) banner.style.display = 'none';
+  document.getElementById('adminSettingsBtn').style.display = 'inline-flex';
+  const viewAsWrap = document.getElementById('viewAsWrap');
+  if (viewAsWrap) viewAsWrap.style.display = 'flex';
+  renderOverview();
+}
+
+function exitViewAsStudentFromBanner() {
+  const viewAsSel = document.getElementById('viewAsSelect');
+  if (viewAsSel) viewAsSel.value = '';
+  exitViewAsStudent();
 }
 
 function refreshAIStudentList() {
@@ -3589,12 +3671,14 @@ function hideAuthOverlay(user) {
   const isAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
 
   if (isAdmin) {
-    // Admin mode — hide student-facing controls
-    document.getElementById('adminLockBtn').style.display    = 'none';
+    // Admin mode — show admin controls, hide student-facing controls
+    document.getElementById('adminLockBtn').style.display      = 'none';
     document.getElementById('globalStudentWrap').style.display = 'none';
-    document.getElementById('bookSlotBtn').style.display     = 'none';
-    document.getElementById('changePwdBtn').style.display    = 'none';
-    // uploadWrap (Sync/Sheets) intentionally not shown — Firestore is the source now
+    document.getElementById('bookSlotBtn').style.display       = 'none';
+    document.getElementById('changePwdBtn').style.display      = 'none';
+    document.getElementById('adminSettingsBtn').style.display  = 'inline-flex';
+    document.getElementById('viewAsWrap').style.display        = 'flex';
+    document.getElementById('dailylogTab').style.display       = 'none';
     isAdminMode = true;
     console.log('%c✅ Admin mode', 'color:gold;font-weight:bold');
   } else {
