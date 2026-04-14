@@ -1212,11 +1212,19 @@
       <div id="aimcatPasscodeError" style="font-size:0.8rem;color:var(--bad);margin-top:10px;display:none">Incorrect passcode. Try again.</div>
     </div>
 
+    <!-- Admin inline student picker for AIMCAT -->
+    <div id="aimcatAdminPicker" style="display:none;margin-bottom:20px">
+      <label style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);display:block;margin-bottom:6px">Select Student</label>
+      <select class="aimcat-select" id="aimcatInlineStudentSelect" onchange="onAimcatInlineStudentChange()" style="min-width:220px">
+        <option value="">— Select a student —</option>
+      </select>
+    </div>
+
     <!-- Select student prompt -->
     <div id="aimcatSelectPrompt" class="no-data-msg">
       <div class="nd-icon">👤</div>
       <div class="nd-title">Select a student</div>
-      <p>Use the Student dropdown at the top to select yourself, then enter your passcode.</p>
+      <p id="aimcatSelectPromptText">Use the selector above to choose a student, then enter your passcode.</p>
     </div>
 
     <div id="aimcatNoData" class="no-data-msg" style="display:none">
@@ -2733,17 +2741,36 @@ let STUDENT_PASSCODES = JSON.parse(localStorage.getItem('al_passcodes') || '{}')
 // ── Global student selector ──
 function populateGlobalStudentSelect() {
   const sel = document.getElementById('globalStudentSelect');
-  if (!sel) return;
-  const current = sel.value;
-  sel.innerHTML = '<option value="">— Select —</option>';
+  const inlineSel = document.getElementById('aimcatInlineStudentSelect');
   const allStudents = new Set([...Object.keys(RAW_DATA), ...Object.keys(AIMCAT_DATA)]);
-  allStudents.forEach(k => {
-    const opt = document.createElement('option');
-    opt.value = k;
-    opt.textContent = RAW_DATA[k] ? RAW_DATA[k].name : k;
-    sel.appendChild(opt);
+
+  [sel, inlineSel].forEach(el => {
+    if (!el) return;
+    const current = el.value;
+    el.innerHTML = el === sel ? '<option value="">— Select —</option>' : '<option value="">— Select a student —</option>';
+    allStudents.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = RAW_DATA[k] ? RAW_DATA[k].name : k;
+      el.appendChild(opt);
+    });
+    if (current && el.querySelector(`option[value="${CSS.escape(current)}"]`)) el.value = current;
   });
-  if (current && sel.querySelector(`option[value="${current}"]`)) sel.value = current;
+
+  // Show inline picker on AIMCAT tab for admin
+  const picker = document.getElementById('aimcatAdminPicker');
+  if (picker && isAdminMode) picker.style.display = 'block';
+
+  // Update student prompt text for students (no header dropdown)
+  const promptText = document.getElementById('aimcatSelectPromptText');
+  if (promptText && !isAdminMode) promptText.textContent = 'Please select a student from the dropdown above, then enter your passcode.';
+}
+
+function onAimcatInlineStudentChange() {
+  const inlineSel = document.getElementById('aimcatInlineStudentSelect');
+  const globalSel = document.getElementById('globalStudentSelect');
+  if (inlineSel && globalSel) globalSel.value = inlineSel.value;
+  onGlobalStudentChange();
 }
 
 function refreshAIStudentList() {
@@ -3558,19 +3585,22 @@ function showAuthOverlay() {
 function hideAuthOverlay(user) {
   document.getElementById('authOverlay').style.display = 'none';
   document.getElementById('logoutBtn').style.display = 'inline-block';
-  document.getElementById('bookSlotBtn').style.display = 'inline-block';
-  document.getElementById('changePwdBtn').style.display = 'inline-block';
 
   const isAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
 
   if (isAdmin) {
-    // Full access — unlock admin controls automatically
-    document.getElementById('adminLockBtn').style.display = 'none';
-    document.getElementById('uploadWrap').style.display   = 'flex';
+    // Admin mode — hide student-facing controls
+    document.getElementById('adminLockBtn').style.display    = 'none';
+    document.getElementById('globalStudentWrap').style.display = 'none';
+    document.getElementById('bookSlotBtn').style.display     = 'none';
+    document.getElementById('changePwdBtn').style.display    = 'none';
+    // uploadWrap (Sync/Sheets) intentionally not shown — Firestore is the source now
     isAdminMode = true;
     console.log('%c✅ Admin mode', 'color:gold;font-weight:bold');
   } else {
-    // Student mode — find their profile by Firebase email
+    // Student mode — show student-facing controls, find their profile
+    document.getElementById('bookSlotBtn').style.display  = 'inline-block';
+    document.getElementById('changePwdBtn').style.display = 'inline-block';
     applyStudentMode(user);
   }
 
@@ -3744,9 +3774,10 @@ function loadLeagueFromFirestore() {
     b.varc_test_questions   += vq;
     b.dilr_test_questions   += dq;
     b.qa_test_questions     += qq;
-    b._varc_num += (e.varcAccuracy || 0) * vq;
-    b._dilr_num += (e.dilrAccuracy || 0) * dq;
-    b._qa_num   += (e.qaAccuracy   || 0) * qq;
+    // Accuracy is stored as 0–100 in Firestore; normalise to 0–1 fraction
+    b._varc_num += ((e.varcAccuracy || 0) / 100) * vq;
+    b._dilr_num += ((e.dilrAccuracy || 0) / 100) * dq;
+    b._qa_num   += ((e.qaAccuracy   || 0) / 100) * qq;
   }
   function finalize(b, totalDays, isRange) {
     b.varc_accuracy = b.varc_test_questions > 0 ? b._varc_num / b.varc_test_questions : null;
