@@ -22,7 +22,6 @@ import Anthropic from '@anthropic-ai/sdk';
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const CLICKUP_CHANNEL_ID  = '4-90162164615-8';
 const CLICKUP_WORKSPACE_ID = '9016591512';
 const CLICKUP_API_BASE    = 'https://api.clickup.com/api/v3';
 
@@ -39,6 +38,21 @@ const EMAIL_TO_NAME = {
   'jenanii286@gmail.com':           'Jenani I',
   'divyaamu2004@gmail.com':         'Dhivya Dharshinii',
   'rishirko1924@gmail.com':         'Rishi Kumar',
+};
+
+// ClickUp user IDs for each student (looked up from workspace)
+const EMAIL_TO_CLICKUP_ID = {
+  'philipephraim2004@gmail.com':    '278545313',
+  'rokininavaneeth@gmail.com':      '101035344',
+  'aravindc20712@gmail.com':        '101035340',
+  'anushuyakumar2006@gmail.com':    '278545438',
+  'niranjanaa3105007@gmail.com':    '278545512',
+  'riajoyin@gmail.com':             '278553959',
+  'sandhyasrinivasan1908@gmail.com':'278545206',
+  'keerthypriya16102002@gmail.com': '278545720',
+  'jenanii286@gmail.com':           '101035342',
+  'divyaamu2004@gmail.com':         '101035341',
+  'rishirko1924@gmail.com':         '101035343',
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -301,53 +315,101 @@ async function main() {
 
   const rawFeedback = message.content[0].text;
 
-  // Build ClickUp message
+  // Split into per-student sections (separated by ---)
+  const feedbackBlocks = rawFeedback
+    .split(/^---$/m)
+    .map(b => b.trim())
+    .filter(b => b.length > 0);
+
+  // Theme label for the DM header
   const themeLabels = {
-    monday:    '📅 WEEKLY KICKOFF',
-    tuesday:   '📖 VARC DAY',
-    wednesday: '🧩 DILR DAY',
-    thursday:  '🔢 QA DAY',
-    friday:    '⚡ PRACTICE QUALITY',
-    saturday:  '🧠 HABITS & MINDSET',
-    sunday:    '🏆 SQUAD LEADERBOARD',
+    monday:    '📅 Weekly Kickoff',
+    tuesday:   '📖 VARC Day',
+    wednesday: '🧩 DILR Day',
+    thursday:  '🔢 QA Day',
+    friday:    '⚡ Practice Quality',
+    saturday:  '🧠 Habits & Mindset',
+    sunday:    '🏆 Squad Leaderboard',
   };
+  const themeLabel = themeLabels[theme] || 'Daily Coaching';
 
-  const header = `*🎯 TIME Madurai – Daily Coaching Report*
-*${themeLabels[theme] || 'DAILY COACHING'} | ${dateStr}*
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-`;
-
-  const footer = `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-_Keep going. 99%ile is earned one session at a time._`;
-
-  const fullMessage = header + rawFeedback + footer;
-
-  // Post to ClickUp
-  console.log('Posting to ClickUp...');
-  const response = await fetch(
-    `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_ID}/chat/channels/${CLICKUP_CHANNEL_ID}/messages`,
-    {
-      method:  'POST',
-      headers: {
-        'Authorization': process.env.CLICKUP_API_KEY,
-        'Content-Type':  'application/json',
-      },
-      body: JSON.stringify({
-        content:        fullMessage,
-        content_format: 'text/md',
-      }),
+  // Helper: find or create a DM channel with a ClickUp user
+  async function getDmChannelId(clickupUserId) {
+    const res = await fetch(
+      `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_ID}/chat/channels`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': process.env.CLICKUP_API_KEY,
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({
+          type:       'DM',
+          member_ids: [clickupUserId],
+        }),
+      }
+    );
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Failed to get DM channel for user ${clickupUserId}: ${res.status} ${text}`);
     }
-  );
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`ClickUp API error ${response.status}: ${text}`);
+    const data = await res.json();
+    return data.id || data.channel?.id;
   }
 
-  const result = await response.json();
-  console.log('Posted successfully. Message ID:', result.id || result.message?.id || 'unknown');
+  // Helper: post a message to a channel
+  async function postToChannel(channelId, content) {
+    const res = await fetch(
+      `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_ID}/chat/channels/${channelId}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': process.env.CLICKUP_API_KEY,
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({ content, content_format: 'text/md' }),
+      }
+    );
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Failed to post to channel ${channelId}: ${res.status} ${text}`);
+    }
+    return res.json();
+  }
+
+  // Send individual DMs
+  console.log(`Sending ${feedbackBlocks.length} individual DMs...`);
+  let sent = 0, failed = 0;
+
+  for (let i = 0; i < students.length; i++) {
+    const student   = students[i];
+    const feedback  = feedbackBlocks[i];
+    const clickupId = EMAIL_TO_CLICKUP_ID[student.email.toLowerCase()];
+
+    if (!clickupId) {
+      console.warn(`No ClickUp ID for ${student.name} (${student.email}), skipping.`);
+      failed++;
+      continue;
+    }
+    if (!feedback) {
+      console.warn(`No feedback block for ${student.name}, skipping.`);
+      failed++;
+      continue;
+    }
+
+    try {
+      const dmContent = `*🎯 TIME Madurai Coaching | ${themeLabel} | ${dateStr}*\n\n${feedback}\n\n_Keep going. 99%ile is earned one session at a time._`;
+      const channelId = await getDmChannelId(clickupId);
+      await postToChannel(channelId, dmContent);
+      console.log(`Sent to ${student.name}`);
+      sent++;
+    } catch (err) {
+      console.error(`Failed for ${student.name}: ${err.message}`);
+      failed++;
+    }
+  }
+
+  console.log(`Done. Sent: ${sent}, Failed: ${failed}`);
 }
 
 main().catch(err => {
