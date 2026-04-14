@@ -192,7 +192,8 @@ Your coaching style:
 - Write like a real human coach speaking directly to the student. Warm but no-nonsense.
 - NEVER use em dashes (the — character). Use commas, full stops, or colons instead.
 - NEVER use bullet points or numbered lists inside individual feedback. Flowing prose only.
-- Avoid stiff, corporate or AI-sounding phrasing. Keep it natural and conversational.`;
+- Avoid stiff, corporate or AI-sounding phrasing. Keep it natural and conversational.
+- When previous coaching history is provided, you MUST reference it. A coach who repeats the same advice without checking if it was followed is useless. Show the student you remember what you said and you are watching their progress closely.`;
 
   const THEMES = {
     monday: `Today's theme: WEEKLY KICKOFF & GOAL SETTING
@@ -240,21 +241,41 @@ Light a fire under the underperformers. Acknowledge top performers and raise the
 }
 
 function buildUserPrompt(theme, students) {
-  const lines = students.map(({ firstName, stats, rank, total }) => {
+  const lines = students.map(({ firstName, stats, rank, total, previousReports }) => {
     const s = stats;
+
+    // Build previous coaching context if available
+    let historySection = '';
+    if (previousReports && previousReports.length > 0) {
+      const history = previousReports.map(r =>
+        `  [${r.date} – ${r.theme}]: ${r.message}`
+      ).join('\n');
+      historySection = `\n  Previous coaching (newest first):\n${history}`;
+    }
+
     return `Student: ${firstName}
   - Active days (last 14): ${s.activeDays}/14
   - Total study: ${s.totalHours}h (avg ${s.avgMinsPerDay} min/day)
   - Questions attempted: ${s.totalQ} (VARC: ${s.varcQ}, DILR: ${s.dilrQ}, QA: ${s.qaQ})
   - Accuracy: VARC ${s.varcAcc !== null ? s.varcAcc + '%' : 'N/A'}, DILR ${s.dilrAcc !== null ? s.dilrAcc + '%' : 'N/A'}, QA ${s.qaAcc !== null ? s.qaAcc + '%' : 'N/A'}
   - Tests given: ${s.totalTests}
-  - Squad rank by effort: #${rank} of ${total}`;
+  - Squad rank by effort: #${rank} of ${total}${historySection}`;
   }).join('\n\n');
 
-  return `Here is the 14-day performance data for all students. Write individual coaching feedback for EACH student. Separate each student's feedback with a line containing only "---". Address each student by their first name only. Be brutal about weaknesses, inspiring about potential.\n\n${lines}`;
+  return `Here is the 14-day performance data for all students, along with their previous coaching history where available.
+
+Write individual coaching feedback for EACH student. Separate each student's feedback with a line containing only "---".
+
+Address each student by their first name only. Be brutal about weaknesses, inspiring about potential.
+
+IMPORTANT — when previous coaching exists for a student:
+- Explicitly reference what was flagged before. Did they act on it or ignore it?
+- If they improved, acknowledge it specifically and raise the bar.
+- If nothing changed, call it out directly. Name the pattern. Make the accountability real.
+- Do not repeat generic advice that was already given. Build on the history.\n\n${lines}`;
 }
 
-// ─── Firestore Reader ─────────────────────────────────────────────────────────
+// ─── Firestore Readers / Writers ──────────────────────────────────────────────
 
 async function fetchAllStudentData(db) {
   const startDate = dateNDaysAgo(14);
@@ -278,6 +299,30 @@ async function fetchAllStudentData(db) {
   return byEmail;
 }
 
+/** Fetch the last `limit` coaching reports for a student, newest first */
+async function fetchPreviousReports(db, email, limit = 3) {
+  const snap = await db.collection('coachingReports')
+    .where('email', '==', email.toLowerCase())
+    .orderBy('date', 'desc')
+    .limit(limit)
+    .get();
+
+  return snap.docs.map(d => d.data());
+}
+
+/** Save a coaching report to Firestore after it is sent */
+async function saveCoachingReport(db, email, date, theme, message, stats) {
+  const docId = email.replace(/[^a-z0-9]/gi, '_') + '__' + date;
+  await db.collection('coachingReports').doc(docId).set({
+    email:   email.toLowerCase(),
+    date,
+    theme,
+    message,
+    stats,
+    savedAt: new Date().toISOString(),
+  });
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -297,13 +342,16 @@ async function main() {
   // Fetch data
   const byEmail = await fetchAllStudentData(db);
 
-  // Build student list with aggregated stats
-  const students = Object.entries(EMAIL_TO_NAME).map(([email, name]) => {
-    const entries   = byEmail[email.toLowerCase()] || [];
-    const stats     = aggregateEntries(entries);
-    const firstName = EMAIL_TO_FIRST_NAME[email.toLowerCase()] || name.split(' ')[0];
-    return { email, name, firstName, stats };
-  });
+  // Build student list with aggregated stats + previous coaching history
+  const students = await Promise.all(
+    Object.entries(EMAIL_TO_NAME).map(async ([email, name]) => {
+      const entries         = byEmail[email.toLowerCase()] || [];
+      const stats           = aggregateEntries(entries);
+      const firstName       = EMAIL_TO_FIRST_NAME[email.toLowerCase()] || name.split(' ')[0];
+      const previousReports = await fetchPreviousReports(db, email, 3);
+      return { email, name, firstName, stats, previousReports };
+    })
+  );
 
   // Sort by effort score (hours * active days) for ranking
   const sorted = [...students].sort((a, b) => {
@@ -392,6 +440,8 @@ async function main() {
     try {
       const dmContent = `Good Morning ${student.firstName},\n\n${feedback}\n\n_Keep going. 99%ile is earned one session at a time._`;
       await postToChannel(channelId, dmContent);
+      // Save report to Firestore for future cross-referencing
+      await saveCoachingReport(db, student.email, dateStr, theme, feedback, student.stats);
       console.log(`Sent to ${student.name}`);
       sent++;
     } catch (err) {
