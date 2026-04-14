@@ -3919,6 +3919,15 @@ function loadLeagueFromFirestore() {
     // Replace data entirely (don't merge with old data from different period)
     Object.keys(RAW_DATA).forEach(k => delete RAW_DATA[k]);
     Object.assign(RAW_DATA, newData);
+
+    // Ensure every known student appears in admin view even if they have no logs yet
+    Object.entries(EMAIL_TO_NAME).forEach(([email, name]) => {
+      if (!RAW_DATA[name]) {
+        RAW_DATA[name] = { name, weeks: {}, monthly: emptyBucket() };
+        KEY_TO_EMAIL[name] = email;
+      }
+    });
+
     studentKeys = Object.keys(RAW_DATA);
 
     // Update section subtitles with the active filter label
