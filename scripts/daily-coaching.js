@@ -22,9 +22,8 @@ import Anthropic from '@anthropic-ai/sdk';
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const CLICKUP_WORKSPACE_ID       = '9016591512';  // numeric, used for message posting
-const CLICKUP_WORKSPACE_SHORT_ID = '8cpwh4r';     // alphanumeric, used for DM creation
-const CLICKUP_API_BASE           = 'https://api.clickup.com/api/v3';
+const CLICKUP_WORKSPACE_ID = '9016591512';
+const CLICKUP_API_BASE     = 'https://api.clickup.com/api/v3';
 
 // Students to coach (email → display name)
 const EMAIL_TO_NAME = {
@@ -41,19 +40,19 @@ const EMAIL_TO_NAME = {
   'rishirko1924@gmail.com':         'Rishi Kumar',
 };
 
-// ClickUp user IDs for each student (looked up from workspace)
-const EMAIL_TO_CLICKUP_ID = {
-  'philipephraim2004@gmail.com':    '278545313',
-  'rokininavaneeth@gmail.com':      '101035344',
-  'aravindc20712@gmail.com':        '101035340',
-  'anushuyakumar2006@gmail.com':    '278545438',
-  'niranjanaa3105007@gmail.com':    '278545512',
-  'riajoyin@gmail.com':             '278553959',
-  'sandhyasrinivasan1908@gmail.com':'278545206',
-  'keerthypriya16102002@gmail.com': '278545720',
-  'jenanii286@gmail.com':           '101035342',
-  'divyaamu2004@gmail.com':         '101035341',
-  'rishirko1924@gmail.com':         '101035343',
+// ClickUp DM channel IDs (one per student, hardcoded after manual creation)
+const EMAIL_TO_DM_CHANNEL = {
+  'philipephraim2004@gmail.com':    '8cpwh4r-27656',
+  'rokininavaneeth@gmail.com':      '8cpwh4r-27696',
+  'aravindc20712@gmail.com':        '8cpwh4r-27576',
+  'anushuyakumar2006@gmail.com':    '8cpwh4r-27556',
+  'niranjanaa3105007@gmail.com':    '8cpwh4r-27536',
+  'riajoyin@gmail.com':             '8cpwh4r-26456',
+  'sandhyasrinivasan1908@gmail.com':'8cpwh4r-27716',
+  'keerthypriya16102002@gmail.com': '8cpwh4r-27636',
+  'jenanii286@gmail.com':           '8cpwh4r-27616',
+  'divyaamu2004@gmail.com':         '8cpwh4r-27596',
+  'rishirko1924@gmail.com':         '8cpwh4r-27676',
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -334,64 +333,6 @@ async function main() {
   };
   const themeLabel = themeLabels[theme] || 'Daily Coaching';
 
-  // Helper: find or create a DM channel with a ClickUp user.
-  // Tries several known API formats until one works.
-  async function getDmChannelId(clickupUserId, studentName) {
-    const headers = {
-      'Authorization': process.env.CLICKUP_API_KEY,
-      'Content-Type':  'application/json',
-    };
-    const uid = Number(clickupUserId); // ClickUp user IDs are integers
-
-    const attempts = [
-      // 1. Short workspace ID, no name (DMs don't need names)
-      {
-        url:  `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_SHORT_ID}/chat/channels`,
-        body: { type: 'DM', member_ids: [uid] },
-      },
-      // 2. Short workspace ID, with name
-      {
-        url:  `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_SHORT_ID}/chat/channels`,
-        body: { type: 'DM', name: studentName, member_ids: [uid] },
-      },
-      // 3. Numeric workspace ID, integer member ID
-      {
-        url:  `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_ID}/chat/channels`,
-        body: { type: 'DM', name: studentName, member_ids: [uid] },
-      },
-      // 4. Dedicated DMs endpoint (short workspace ID)
-      {
-        url:  `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_SHORT_ID}/chat/dms`,
-        body: { user_id: uid },
-      },
-      // 5. Dedicated DMs endpoint (numeric workspace ID)
-      {
-        url:  `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_ID}/chat/dms`,
-        body: { user_id: uid },
-      },
-    ];
-
-    const errors = [];
-    for (const attempt of attempts) {
-      const res = await fetch(attempt.url, {
-        method:  'POST',
-        headers,
-        body:    JSON.stringify(attempt.body),
-      });
-      const text = await res.text();
-      if (res.ok) {
-        const data = JSON.parse(text);
-        const channelId = data.id || data.channel?.id || data.data?.id;
-        console.log(`DM created for ${studentName} via ${attempt.url}: ${channelId}`);
-        console.log('Response:', text.slice(0, 300));
-        return channelId;
-      }
-      errors.push(`${attempt.url} → ${res.status}: ${text.slice(0, 120)}`);
-    }
-
-    throw new Error(`All DM channel attempts failed for ${studentName}:\n${errors.join('\n')}`);
-  }
-
   // Helper: post a message to a channel
   async function postToChannel(channelId, content) {
     const res = await fetch(
@@ -419,10 +360,10 @@ async function main() {
   for (let i = 0; i < students.length; i++) {
     const student   = students[i];
     const feedback  = feedbackBlocks[i];
-    const clickupId = EMAIL_TO_CLICKUP_ID[student.email.toLowerCase()];
+    const channelId = EMAIL_TO_DM_CHANNEL[student.email.toLowerCase()];
 
-    if (!clickupId) {
-      console.warn(`No ClickUp ID for ${student.name} (${student.email}), skipping.`);
+    if (!channelId) {
+      console.warn(`No DM channel for ${student.name} (${student.email}), skipping.`);
       failed++;
       continue;
     }
@@ -434,7 +375,6 @@ async function main() {
 
     try {
       const dmContent = `*🎯 TIME Madurai Coaching | ${themeLabel} | ${dateStr}*\n\n${feedback}\n\n_Keep going. 99%ile is earned one session at a time._`;
-      const channelId = await getDmChannelId(clickupId, student.name);
       await postToChannel(channelId, dmContent);
       console.log(`Sent to ${student.name}`);
       sent++;
