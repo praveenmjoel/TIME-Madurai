@@ -22,8 +22,9 @@ import Anthropic from '@anthropic-ai/sdk';
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const CLICKUP_CHANNEL_ID = '4-90162164615-8';
-const CLICKUP_API_BASE   = 'https://api.clickup.com/api/v2';
+const CLICKUP_CHANNEL_ID  = '4-90162164615-8';
+const CLICKUP_WORKSPACE_ID = '9016591512';
+const CLICKUP_API_BASE    = 'https://api.clickup.com/api/v3';
 
 // Students to coach (email → display name)
 const EMAIL_TO_NAME = {
@@ -301,7 +302,7 @@ _Keep going. 99%ile is earned one session at a time._`;
   // Post to ClickUp
   console.log('Posting to ClickUp...');
   const response = await fetch(
-    `${CLICKUP_API_BASE}/chat/channel/${CLICKUP_CHANNEL_ID}/message`,
+    `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_ID}/chat/channels/${CLICKUP_CHANNEL_ID}/messages`,
     {
       method:  'POST',
       headers: {
@@ -309,9 +310,8 @@ _Keep going. 99%ile is earned one session at a time._`;
         'Content-Type':  'application/json',
       },
       body: JSON.stringify({
-        content:         fullMessage,
-        content_format:  'text/md',
-        notification_level: 'mention',
+        content:        fullMessage,
+        content_format: 'text/md',
       }),
     }
   );
