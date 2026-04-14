@@ -333,8 +333,10 @@ async function main() {
   };
   const themeLabel = themeLabels[theme] || 'Daily Coaching';
 
-  // Helper: find or create a DM channel with a ClickUp user
-  async function getDmChannelId(clickupUserId) {
+  // Helper: find or create a DM channel with a ClickUp user.
+  // Tries the v3 channels endpoint first; falls back to v2 direct-message endpoint.
+  async function getDmChannelId(clickupUserId, studentName) {
+    // Attempt 1: v3 channels endpoint
     const res = await fetch(
       `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_ID}/chat/channels`,
       {
@@ -345,16 +347,40 @@ async function main() {
         },
         body: JSON.stringify({
           type:       'DM',
-          member_ids: [clickupUserId],
+          name:       studentName,
+          member_ids: [String(clickupUserId)],
         }),
       }
     );
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Failed to get DM channel for user ${clickupUserId}: ${res.status} ${text}`);
+    if (res.ok) {
+      const data = await res.json();
+      return data.id || data.channel?.id;
     }
-    const data = await res.json();
-    return data.id || data.channel?.id;
+
+    const errText = await res.text();
+
+    // Attempt 2: v2 direct message endpoint (older API path)
+    const res2 = await fetch(
+      `https://api.clickup.com/api/v2/team/${CLICKUP_WORKSPACE_ID}/channel`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': process.env.CLICKUP_API_KEY,
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({
+          type:       'dm',
+          member_ids: [String(clickupUserId)],
+        }),
+      }
+    );
+    if (res2.ok) {
+      const data2 = await res2.json();
+      return data2.id || data2.channel?.id;
+    }
+
+    const errText2 = await res2.text();
+    throw new Error(`Failed to get DM channel for user ${clickupUserId}. v3: ${res.status} ${errText} | v2: ${res2.status} ${errText2}`);
   }
 
   // Helper: post a message to a channel
@@ -399,7 +425,7 @@ async function main() {
 
     try {
       const dmContent = `*🎯 TIME Madurai Coaching | ${themeLabel} | ${dateStr}*\n\n${feedback}\n\n_Keep going. 99%ile is earned one session at a time._`;
-      const channelId = await getDmChannelId(clickupId);
+      const channelId = await getDmChannelId(clickupId, student.name);
       await postToChannel(channelId, dmContent);
       console.log(`Sent to ${student.name}`);
       sent++;
