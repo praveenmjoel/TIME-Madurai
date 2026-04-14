@@ -28,17 +28,17 @@ const CLICKUP_API_BASE    = 'https://api.clickup.com/api/v3';
 
 // Students to coach (email → display name)
 const EMAIL_TO_NAME = {
-  'philipephraim2004@gmail.com':   'Philip Ephraim',
-  'rokininavaneeth@gmail.com':     'Rokini',
-  'aravindc20712@gmail.com':       'Aravind C',
-  'anushuyakumar2006@gmail.com':   'Anushuya V.K',
-  'niranjanaa3105007@gmail.com':   'Niranjanaa',
-  'riajoyin@gmail.com':            'Joy Maria Varshaa',
+  'philipephraim2004@gmail.com':    'Philip Ephraim',
+  'rokininavaneeth@gmail.com':      'Rokini',
+  'aravindc20712@gmail.com':        'Aravind C',
+  'anushuyakumar2006@gmail.com':    'Anushuya V.K',
+  'niranjanaa3105007@gmail.com':    'Niranjanaa',
+  'riajoyin@gmail.com':             'Joy Maria Varsha',
   'sandhyasrinivasan1908@gmail.com':'Sandhya',
-  'keerthypriya16102002@gmail.com':'Keerthypriya',
-  'jenanii286@gmail.com':          'Jenani I',
-  'aravindml2005@gmail.com':       'Aravindhan ML',
-  'bardeepwi28@gmail.com':         'Bardeep M.R',
+  'keerthypriya16102002@gmail.com': 'Keerthypriya',
+  'jenanii286@gmail.com':           'Jenani I',
+  'divyaamu2004@gmail.com':         'Dhivya Dharshinii',
+  'rishirko1924@gmail.com':         'Rishi Kumar',
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
