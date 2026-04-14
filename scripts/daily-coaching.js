@@ -22,8 +22,9 @@ import Anthropic from '@anthropic-ai/sdk';
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const CLICKUP_WORKSPACE_ID = '9016591512';
-const CLICKUP_API_BASE    = 'https://api.clickup.com/api/v3';
+const CLICKUP_WORKSPACE_ID       = '9016591512';  // numeric, used for message posting
+const CLICKUP_WORKSPACE_SHORT_ID = '8cpwh4r';     // alphanumeric, used for DM creation
+const CLICKUP_API_BASE           = 'https://api.clickup.com/api/v3';
 
 // Students to coach (email → display name)
 const EMAIL_TO_NAME = {
@@ -334,54 +335,61 @@ async function main() {
   const themeLabel = themeLabels[theme] || 'Daily Coaching';
 
   // Helper: find or create a DM channel with a ClickUp user.
-  // Tries the v3 channels endpoint first; falls back to v2 direct-message endpoint.
+  // Tries several known API formats until one works.
   async function getDmChannelId(clickupUserId, studentName) {
-    // Attempt 1: v3 channels endpoint
-    const res = await fetch(
-      `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_ID}/chat/channels`,
+    const headers = {
+      'Authorization': process.env.CLICKUP_API_KEY,
+      'Content-Type':  'application/json',
+    };
+    const uid = Number(clickupUserId); // ClickUp user IDs are integers
+
+    const attempts = [
+      // 1. Short workspace ID, no name (DMs don't need names)
       {
-        method: 'POST',
-        headers: {
-          'Authorization': process.env.CLICKUP_API_KEY,
-          'Content-Type':  'application/json',
-        },
-        body: JSON.stringify({
-          type:       'DM',
-          name:       studentName,
-          member_ids: [String(clickupUserId)],
-        }),
+        url:  `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_SHORT_ID}/chat/channels`,
+        body: { type: 'DM', member_ids: [uid] },
+      },
+      // 2. Short workspace ID, with name
+      {
+        url:  `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_SHORT_ID}/chat/channels`,
+        body: { type: 'DM', name: studentName, member_ids: [uid] },
+      },
+      // 3. Numeric workspace ID, integer member ID
+      {
+        url:  `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_ID}/chat/channels`,
+        body: { type: 'DM', name: studentName, member_ids: [uid] },
+      },
+      // 4. Dedicated DMs endpoint (short workspace ID)
+      {
+        url:  `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_SHORT_ID}/chat/dms`,
+        body: { user_id: uid },
+      },
+      // 5. Dedicated DMs endpoint (numeric workspace ID)
+      {
+        url:  `${CLICKUP_API_BASE}/workspaces/${CLICKUP_WORKSPACE_ID}/chat/dms`,
+        body: { user_id: uid },
+      },
+    ];
+
+    const errors = [];
+    for (const attempt of attempts) {
+      const res = await fetch(attempt.url, {
+        method:  'POST',
+        headers,
+        body:    JSON.stringify(attempt.body),
+      });
+      const text = await res.text();
+      if (res.ok) {
+        const data = JSON.parse(text);
+        const channelId = data.id || data.channel?.id || data.data?.id;
+        console.log(`DM created for ${studentName} via ${attempt.url}: ${channelId}`);
+        console.log('Response:', text.slice(0, 300));
+        return channelId;
       }
-    );
-    if (res.ok) {
-      const data = await res.json();
-      console.log(`DM channel response for ${studentName}:`, JSON.stringify(data));
-      return data.id || data.channel?.id || data.data?.id;
+      errors.push(`${attempt.url} → ${res.status}: ${text.slice(0, 120)}`);
     }
 
-    const errText = await res.text();
-
-    // Attempt 2: v2 direct message endpoint (older API path)
-    const res2 = await fetch(
-      `https://api.clickup.com/api/v2/team/${CLICKUP_WORKSPACE_ID}/channel`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': process.env.CLICKUP_API_KEY,
-          'Content-Type':  'application/json',
-        },
-        body: JSON.stringify({
-          type:       'dm',
-          member_ids: [String(clickupUserId)],
-        }),
-      }
-    );
-    if (res2.ok) {
-      const data2 = await res2.json();
-      return data2.id || data2.channel?.id;
-    }
-
-    const errText2 = await res2.text();
-    throw new Error(`Failed to get DM channel for user ${clickupUserId}. v3: ${res.status} ${errText} | v2: ${res2.status} ${errText2}`);
+    throw new Error(`All DM channel attempts failed for ${studentName}:\n${errors.join('\n')}`);
   }
 
   // Helper: post a message to a channel
