@@ -40,6 +40,21 @@ const EMAIL_TO_NAME = {
   'rishirko1924@gmail.com':         'Rishi Kumar',
 };
 
+// First name only — used when addressing students in coaching messages
+const EMAIL_TO_FIRST_NAME = {
+  'philipephraim2004@gmail.com':    'Philip',
+  'rokininavaneeth@gmail.com':      'Rokini',
+  'aravindc20712@gmail.com':        'Aravind',
+  'anushuyakumar2006@gmail.com':    'Anushuya',
+  'niranjanaa3105007@gmail.com':    'Niranjanaa',
+  'riajoyin@gmail.com':             'Joy',
+  'sandhyasrinivasan1908@gmail.com':'Sandhya',
+  'keerthypriya16102002@gmail.com': 'Keerthypriya',
+  'jenanii286@gmail.com':           'Jenani',
+  'divyaamu2004@gmail.com':         'Dhivya',
+  'rishirko1924@gmail.com':         'Rishi',
+};
+
 // ClickUp DM channel IDs (one per student, hardcoded after manual creation)
 const EMAIL_TO_DM_CHANNEL = {
   'philipephraim2004@gmail.com':    '8cpwh4r-27656',
@@ -225,9 +240,9 @@ Light a fire under the underperformers. Acknowledge top performers and raise the
 }
 
 function buildUserPrompt(theme, students) {
-  const lines = students.map(({ name, stats, rank, total }) => {
+  const lines = students.map(({ firstName, stats, rank, total }) => {
     const s = stats;
-    return `Student: ${name}
+    return `Student: ${firstName}
   - Active days (last 14): ${s.activeDays}/14
   - Total study: ${s.totalHours}h (avg ${s.avgMinsPerDay} min/day)
   - Questions attempted: ${s.totalQ} (VARC: ${s.varcQ}, DILR: ${s.dilrQ}, QA: ${s.qaQ})
@@ -236,7 +251,7 @@ function buildUserPrompt(theme, students) {
   - Squad rank by effort: #${rank} of ${total}`;
   }).join('\n\n');
 
-  return `Here is the 14-day performance data for all students. Write individual coaching feedback for EACH student. Separate each student's feedback with a line containing only "---". Address each student by first name. Be brutal about weaknesses, inspiring about potential.\n\n${lines}`;
+  return `Here is the 14-day performance data for all students. Write individual coaching feedback for EACH student. Separate each student's feedback with a line containing only "---". Address each student by their first name only. Be brutal about weaknesses, inspiring about potential.\n\n${lines}`;
 }
 
 // ─── Firestore Reader ─────────────────────────────────────────────────────────
@@ -284,9 +299,10 @@ async function main() {
 
   // Build student list with aggregated stats
   const students = Object.entries(EMAIL_TO_NAME).map(([email, name]) => {
-    const entries = byEmail[email.toLowerCase()] || [];
-    const stats   = aggregateEntries(entries);
-    return { email, name, stats };
+    const entries   = byEmail[email.toLowerCase()] || [];
+    const stats     = aggregateEntries(entries);
+    const firstName = EMAIL_TO_FIRST_NAME[email.toLowerCase()] || name.split(' ')[0];
+    return { email, name, firstName, stats };
   });
 
   // Sort by effort score (hours * active days) for ranking
@@ -374,7 +390,7 @@ async function main() {
     }
 
     try {
-      const dmContent = `*🎯 TIME Madurai Coaching | ${themeLabel} | ${dateStr}*\n\n${feedback}\n\n_Keep going. 99%ile is earned one session at a time._`;
+      const dmContent = `Good Morning ${student.firstName},\n\n${feedback}\n\n_Keep going. 99%ile is earned one session at a time._`;
       await postToChannel(channelId, dmContent);
       console.log(`Sent to ${student.name}`);
       sent++;
