@@ -187,19 +187,20 @@ Your coaching style:
 - DEEPLY INSPIRING. Make them believe 99%ile is within reach if they fix this one thing.
 - CONCISE. Max 5 sentences per student. Every word must earn its place.
 - PERSONALISED. Mention the student's actual numbers, not generic advice.
-- Use the student's first name at the start.
+- Do NOT open with the student's name. The greeting is added separately. Start directly with your observation or coaching point.
 - End with one punchy, specific action item for today.
 - Write like a real human coach speaking directly to the student. Warm but no-nonsense.
 - NEVER use em dashes (the — character). Use commas, full stops, or colons instead.
 - NEVER use bullet points or numbered lists inside individual feedback. Flowing prose only.
 - Avoid stiff, corporate or AI-sounding phrasing. Keep it natural and conversational.
-- When previous coaching history is provided, you MUST reference it. A coach who repeats the same advice without checking if it was followed is useless. Show the student you remember what you said and you are watching their progress closely.`;
+- IMPORTANT: You do NOT have access to mock CAT test data. The "tests given" field is sectional practice tests only (VARC/DILR/QA mini-tests), not full mock CAT exams. NEVER mention mocks, NEVER recommend taking a mock, NEVER comment on mock frequency.
+- When previous coaching history is provided, you MUST reference it. Use the exact date gap when referring to it: if it was yesterday, say "yesterday"; if 2 days ago, say "two days ago". NEVER say "last week" unless it was actually 7+ days ago. A coach who repeats the same advice without checking progress is useless.`;
 
   const THEMES = {
     monday: `Today's theme: WEEKLY KICKOFF & GOAL SETTING
 Focus areas: Overall study consistency over the past week, total hours invested, number of active study days.
-Compare their week to what a 99%iler week looks like (~35 hours, 6+ active days, 200+ questions, 3+ mocks).
-Set the tone for the week ahead — what is their #1 goal this week?`,
+Compare their week to what a 99%iler week looks like (~35 hours, 6+ active days, 200+ questions).
+Set the tone for the week ahead. What is their #1 priority this week?`,
 
     tuesday: `Today's theme: VARC (Verbal Ability & Reading Comprehension)
 Focus areas: VARC accuracy percentage, number of VARC questions attempted.
@@ -219,9 +220,9 @@ Low accuracy means concept gaps. Low question count means fear or avoidance. Bot
 Prescribe chapter-specific drills if needed.`,
 
     friday: `Today's theme: PRACTICE QUALITY & EFFICIENCY
-Focus areas: Minutes studied vs questions attempted (questions per hour), number of tests given.
+Focus areas: Minutes studied vs questions attempted (questions per hour), sectional test count.
 A 99%iler attempts 50+ questions per hour with high accuracy. Low Q/hour = poor time management or weak fundamentals.
-Low test count (< 1 test/week) = not benchmarking = flying blind.
+Low sectional test count means not enough benchmarking of individual sections.
 Cut right to the inefficiency and prescribe one habit fix.`,
 
     saturday: `Today's theme: HABITS, CONSISTENCY & MINDSET
@@ -247,9 +248,15 @@ function buildUserPrompt(theme, students) {
     // Build previous coaching context if available
     let historySection = '';
     if (previousReports && previousReports.length > 0) {
-      const history = previousReports.map(r =>
-        `  [${r.date} – ${r.theme}]: ${r.message}`
-      ).join('\n');
+      const todayIST = new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const history = previousReports.map(r => {
+        const msAgo   = new Date(todayIST).getTime() - new Date(r.date).getTime();
+        const daysAgo = Math.round(msAgo / (1000 * 60 * 60 * 24));
+        const label   = daysAgo === 0 ? 'today (earlier)'
+                      : daysAgo === 1 ? 'yesterday'
+                      : `${daysAgo} days ago`;
+        return `  [${r.date} – ${label} – ${r.theme}]: ${r.message}`;
+      }).join('\n');
       historySection = `\n  Previous coaching (newest first):\n${history}`;
     }
 
