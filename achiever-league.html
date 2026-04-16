@@ -2871,7 +2871,6 @@ function exitViewAsStudent() {
   if (globalSel) globalSel.value = '';
   const banner = document.getElementById('viewAsBanner');
   if (banner) banner.style.display = 'none';
-  document.getElementById('adminSettingsBtn').style.display = 'inline-flex';
   const viewAsWrap = document.getElementById('viewAsWrap');
   if (viewAsWrap) viewAsWrap.style.display = 'flex';
   renderOverview();
@@ -3490,6 +3489,7 @@ function promptAdminUnlock() {
     adminUnlocked = false;
     wrap.style.display = 'none';
     document.getElementById('adminLockBtn').textContent = '🔒 Admin';
+    renderOverview();
     return;
   }
   const pwd = prompt('Enter admin password:');
@@ -3497,8 +3497,7 @@ function promptAdminUnlock() {
     adminUnlocked = true;
     wrap.style.display = 'inline-flex';
     document.getElementById('adminLockBtn').textContent = '🔓 Admin';
-    // Open admin settings modal automatically
-    openSheetConfig();
+    renderOverview();
   } else if (pwd !== null) {
     alert('Incorrect password.');
   }
@@ -3704,10 +3703,11 @@ function hideAuthOverlay(user) {
     document.getElementById('globalStudentWrap').style.display = 'none';
     document.getElementById('bookSlotBtn').style.display       = 'none';
     document.getElementById('changePwdBtn').style.display      = 'none';
-    document.getElementById('adminSettingsBtn').style.display  = 'inline-flex';
+    document.getElementById('adminSettingsBtn').style.display  = 'none';
     document.getElementById('viewAsWrap').style.display        = 'flex';
     document.getElementById('dailylogTab').style.display       = 'none';
     isAdminMode = true;
+    adminUnlocked = true;
     console.log('%c✅ Admin mode', 'color:gold;font-weight:bold');
   } else {
     // Student mode — show student-facing controls, find their profile
