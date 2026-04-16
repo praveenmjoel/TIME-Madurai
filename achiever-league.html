@@ -1414,6 +1414,7 @@
     <div class="detail-header">
       <button class="back-btn" onclick="closeDetail()">← Back</button>
       <div class="detail-name" id="detailName"></div>
+      <button id="adminChatBtn" onclick="openAdminChatForStudent()" style="display:none;margin-left:auto;padding:7px 16px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;letter-spacing:0.02em">✦ Ask Claude</button>
     </div>
     <div id="detailContent"></div>
   </div>
@@ -2089,6 +2090,11 @@ function showDetail(key) {
   `;
 
   window._detailKey = key;
+
+  // Show "Ask Claude" button only for admin
+  const adminChatBtn = document.getElementById('adminChatBtn');
+  if (adminChatBtn) adminChatBtn.style.display = adminUnlocked ? 'block' : 'none';
+
   window.switchWeek = function(wk, el) {
     document.querySelectorAll('.week-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
@@ -2101,6 +2107,27 @@ function closeDetail() {
   document.getElementById('sec-overview').classList.add('active');
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelector('.tab').classList.add('active');
+}
+
+// ── Admin: open AI chat directly for a student (no passcode needed) ──────────
+function openAdminChatForStudent() {
+  const key = window._detailKey;
+  if (!key) return;
+  if (!adminUnlocked) { showToast('⚠ Admin access required.', 3000); return; }
+
+  const studentName = RAW_DATA[key]?.name || key;
+
+  // Sync the global student selector so the existing AI module has the right student
+  const globalSel = document.getElementById('globalStudentSelect');
+  if (globalSel) globalSel.value = key;
+
+  // Open the panel
+  document.getElementById('aiOverlay').style.display = 'block';
+  document.getElementById('aiPanel').style.display = 'flex';
+  document.getElementById('aiPanelStudentName').textContent = studentName;
+
+  // Bypass passcode gate entirely for admin
+  authenticateStudent(key);
 }
 
 // ── TAB NAVIGATION ──
