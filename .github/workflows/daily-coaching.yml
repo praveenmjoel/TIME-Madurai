@@ -2,8 +2,12 @@ name: Daily AI Coaching
 
 on:
   schedule:
-    # 1:30 AM UTC = 7:00 AM IST every day (UTC+5:30)
+    # Primary:  1:30 AM UTC = 7:00 AM IST
     - cron: '30 1 * * *'
+    # Backup 1: 2:30 AM UTC = 8:00 AM IST  (fires if GitHub missed the 7 AM slot)
+    - cron: '30 2 * * *'
+    # Backup 2: 3:30 AM UTC = 9:00 AM IST  (final safety net)
+    - cron: '30 3 * * *'
   workflow_dispatch:
     # Allow manual trigger from GitHub Actions UI
 

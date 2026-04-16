@@ -346,6 +346,18 @@ async function main() {
   const dateStr = nowIST.toISOString().slice(0, 10);
   console.log(`Running coaching for theme: ${theme} (${dateStr} IST)`);
 
+  // ── Idempotency check ──────────────────────────────────────────────────────
+  // If any coaching report already exists for today, skip entirely.
+  // This prevents backup cron schedules from sending duplicate messages.
+  const alreadySent = await db.collection('coachingReports')
+    .where('date', '==', dateStr)
+    .limit(1)
+    .get();
+  if (!alreadySent.empty) {
+    console.log(`Coaching already sent for ${dateStr}. Skipping.`);
+    return;
+  }
+
   // Fetch data
   const byEmail = await fetchAllStudentData(db);
 
