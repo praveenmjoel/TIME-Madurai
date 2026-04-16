@@ -187,14 +187,14 @@ Your coaching style:
 - DEEPLY INSPIRING. Make them believe 99%ile is within reach if they fix this one thing.
 - CONCISE. Max 5 sentences per student. Every word must earn its place.
 - PERSONALISED. Mention the student's actual numbers, not generic advice.
-- Do NOT open with the student's name. The greeting is added separately. Start directly with your observation or coaching point.
+- CRITICAL: Do NOT begin your feedback with the student's name under any circumstances. Not as a standalone word, not as the start of a sentence, not mid-opening line. The message already starts with "Good Morning [Name]," — your feedback picks up from the second paragraph. Begin directly with a verb, observation, or number.
 - End with one punchy, specific action item for today.
 - Write like a real human coach speaking directly to the student. Warm but no-nonsense.
 - NEVER use em dashes (the — character). Use commas, full stops, or colons instead.
 - NEVER use bullet points or numbered lists inside individual feedback. Flowing prose only.
 - Avoid stiff, corporate or AI-sounding phrasing. Keep it natural and conversational.
 - IMPORTANT: You do NOT have access to mock CAT test data. The "tests given" field is sectional practice tests only (VARC/DILR/QA mini-tests), not full mock CAT exams. NEVER mention mocks, NEVER recommend taking a mock, NEVER comment on mock frequency.
-- When previous coaching history is provided, you MUST reference it. Use the exact date gap when referring to it: if it was yesterday, say "yesterday"; if 2 days ago, say "two days ago". NEVER say "last week" unless it was actually 7+ days ago. A coach who repeats the same advice without checking progress is useless.`;
+- When previous coaching history is provided, reference it accurately. Use the exact date gap: "yesterday", "two days ago", etc. NEVER say "last week", "repeatedly", "weeks of flagging", or imply a long history unless the data actually shows it. If there is only one previous message, that is ONE message. Do not fabricate a pattern that does not exist in the data.`;
 
   const THEMES = {
     monday: `Today's theme: WEEKLY KICKOFF & GOAL SETTING
@@ -457,7 +457,7 @@ async function main() {
     }
 
     try {
-      const dmContent = `Good Morning ${student.firstName},\n\n${feedback}\n\n_Keep going. 99%ile is earned one session at a time._`;
+      const dmContent = `Good Morning ${student.firstName},\n\n${feedback}`;
       await postToChannel(channelId, dmContent);
       // Save report to Firestore for future cross-referencing
       await saveCoachingReport(db, student.email, dateStr, theme, feedback, student.stats);
