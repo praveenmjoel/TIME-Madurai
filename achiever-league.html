@@ -1177,7 +1177,7 @@
   <div class="tab" onclick="showTab('trends')">Weekly Trends</div>
   <div class="tab" onclick="showTab('compare')">Subject Compare</div>
   <div class="tab" onclick="showTab('habits')">Habits & Reading</div>
-  <div class="tab" onclick="showTab('aimcat')" style="color:var(--accent2);border-bottom-color:transparent" id="aimcatTab">⬡ Mock Analysis</div>
+  <div class="tab" onclick="showTab('aimcat')" style="color:var(--accent2);border-bottom-color:transparent;display:none" id="aimcatTab">⬡ Mock Analysis</div>
   <div class="tab" onclick="showTab('dailylog')" id="dailylogTab"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:5px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Daily Log</div>
 </nav>
 
@@ -1697,6 +1697,7 @@ function renderOverview() {
         <div class="acc-badge dilr">DILR ${pct(da)}</div>
         <div class="acc-badge qa">QA ${pct(qa)}</div>
       </div>
+      ${adminUnlocked ? `<button onclick="event.stopPropagation();openAdminChatForStudent('${key}')" style="margin-top:10px;width:100%;padding:7px 0;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;letter-spacing:0.02em">✦ Ask Claude</button>` : ''}
     </div>`;
   }).join('');
 }
@@ -2110,8 +2111,8 @@ function closeDetail() {
 }
 
 // ── Admin: open AI chat directly for a student (no passcode needed) ──────────
-function openAdminChatForStudent() {
-  const key = window._detailKey;
+function openAdminChatForStudent(key) {
+  key = key || window._detailKey;
   if (!key) return;
   if (!adminUnlocked) { showToast('⚠ Admin access required.', 3000); return; }
 
