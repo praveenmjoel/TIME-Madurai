@@ -371,12 +371,79 @@
   @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
 
   #aiInputBar {
-    padding: 16px 24px;
+    padding: 12px 24px 16px;
     border-top: 1px solid var(--border);
     display: flex;
+    flex-direction: column;
     gap: 8px;
     flex-shrink: 0;
     background: #0d0f15;
+  }
+  #aiInputRow {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  #aiImagePreviews {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ai-img-preview {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .ai-img-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ai-img-preview .remove-img {
+    position: absolute;
+    top: 2px; right: 2px;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 16px; height: 16px;
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #aiAttachBtn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.05rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.2s, color 0.2s;
+    align-self: flex-end;
+  }
+  #aiAttachBtn:hover { border-color: #a78bfa; color: #a78bfa; }
+  .ai-msg.user .ai-bubble .ai-img-thumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .ai-msg.user .ai-bubble .ai-img-thumb img {
+    max-width: 180px;
+    max-height: 180px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid rgba(255,255,255,0.1);
   }
   #aiInput {
     flex: 1;
@@ -1585,10 +1652,15 @@
 
   <!-- Input Bar -->
   <div id="aiInputBar">
-    <textarea id="aiInput" placeholder="Ask about this student..." rows="1"
-      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage()}"
-      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-    <button id="aiSendBtn" onclick="sendAIMessage()">➤</button>
+    <input type="file" id="aiImageInput" accept="image/*" multiple style="display:none" onchange="handleImageAttach(this)">
+    <div id="aiImagePreviews"></div>
+    <div id="aiInputRow">
+      <button id="aiAttachBtn" onclick="document.getElementById('aiImageInput').click()" title="Attach screenshot">📎</button>
+      <textarea id="aiInput" placeholder="Ask about this student..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+      <button id="aiSendBtn" onclick="sendAIMessage()">➤</button>
+    </div>
   </div>
 </div>
 
@@ -3201,10 +3273,50 @@ Key CAT coaching philosophy:
 Format responses clearly. Use bullet points where helpful. Keep WhatsApp messages under 200 words. Parent notes should be professional and positive.`;
 }
 
+// Pending image attachments: [{base64, mediaType, dataUrl}]
+let pendingImages = [];
+
+function handleImageAttach(fileInput) {
+  const files = Array.from(fileInput.files);
+  if (!files.length) return;
+  files.forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;
+      // Extract base64 data (after "data:image/xxx;base64,")
+      const base64 = dataUrl.split(',')[1];
+      const mediaType = file.type;
+      const idx = pendingImages.length;
+      pendingImages.push({ base64, mediaType, dataUrl });
+      renderImagePreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+  // Reset so same file can be re-attached if needed
+  fileInput.value = '';
+}
+
+function renderImagePreviews() {
+  const wrap = document.getElementById('aiImagePreviews');
+  if (!wrap) return;
+  wrap.innerHTML = pendingImages.map((img, i) => `
+    <div class="ai-img-preview">
+      <img src="${img.dataUrl}" alt="attachment">
+      <button class="remove-img" onclick="removePendingImage(${i})">✕</button>
+    </div>`).join('');
+  wrap.style.display = pendingImages.length ? 'flex' : 'none';
+}
+
+function removePendingImage(idx) {
+  pendingImages.splice(idx, 1);
+  renderImagePreviews();
+}
+
 async function sendAIMessage(customMessage) {
   const input = document.getElementById('aiInput');
   const message = customMessage || input.value.trim();
-  if (!message) return;
+  if (!message && pendingImages.length === 0) return;
 
   if (!aiApiKey) {
     alert('API key not configured. Ask your teacher to set it up in Admin settings.');
@@ -3219,18 +3331,38 @@ async function sendAIMessage(customMessage) {
   input.style.height = 'auto';
   document.getElementById('aiSendBtn').disabled = true;
 
-  appendMessage('user', message);
+  // Snapshot and clear pending images
+  const attachedImages = [...pendingImages];
+  pendingImages = [];
+  renderImagePreviews();
+
+  appendMessage('user', message, attachedImages);
   const thinkingId = 'thinking-' + Date.now();
   appendThinking(thinkingId);
 
+  // Build content: array if images present, plain string otherwise
+  function buildUserContent(text, images) {
+    if (!images.length) return text;
+    const parts = images.map(img => ({
+      type: 'image',
+      source: { type: 'base64', media_type: img.mediaType, data: img.base64 }
+    }));
+    if (text) parts.push({ type: 'text', text });
+    return parts;
+  }
+
   if (aiConversationHistory.length === 0) {
     const context = buildStudentContext(aiCurrentStudent);
+    const firstText = `Here is the student data for your reference:\n\n${context}\n\n---\nNow my first question: ${message}`;
     aiConversationHistory.push({
       role: 'user',
-      content: `Here is the student data for your reference:\n\n${context}\n\n---\nNow my first question: ${message}`
+      content: buildUserContent(firstText, attachedImages)
     });
   } else {
-    aiConversationHistory.push({ role: 'user', content: message });
+    aiConversationHistory.push({
+      role: 'user',
+      content: buildUserContent(message, attachedImages)
+    });
   }
 
   try {
@@ -3271,7 +3403,7 @@ function quickPrompt(text) {
   sendAIMessage(text);
 }
 
-function appendMessage(role, text) {
+function appendMessage(role, text, images) {
   const msgs = document.getElementById('aiMessages');
   const welcome = msgs.querySelector('.ai-welcome');
   if (welcome) welcome.remove();
@@ -3288,9 +3420,15 @@ function appendMessage(role, text) {
       .replace(/^[-•]\s(.+)$/gm, '• $1');
   }
 
+  // Image thumbnails for user messages
+  let imgHtml = '';
+  if (role === 'user' && images && images.length) {
+    imgHtml = `<div class="ai-img-thumb">${images.map(img => `<img src="${img.dataUrl}" alt="screenshot">`).join('')}</div>`;
+  }
+
   div.innerHTML = `
     <div class="ai-sender">${senderLabel}</div>
-    <div class="ai-bubble">${copyBtn}${role === 'assistant' ? formattedText : escapeHtml(text)}</div>`;
+    <div class="ai-bubble">${copyBtn}${imgHtml}${role === 'assistant' ? formattedText : escapeHtml(text)}</div>`;
 
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
