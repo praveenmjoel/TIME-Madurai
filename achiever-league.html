@@ -3910,6 +3910,19 @@ function hideAuthOverlay(user) {
     isAdminMode = true;
     adminUnlocked = true;
     console.log('%c✅ Admin mode', 'color:gold;font-weight:bold');
+    // Auto-load API key from Firestore (synced there by daily-coaching.js)
+    firebase.firestore().collection('config').doc('secrets').get().then(snap => {
+      if (snap.exists) {
+        const key = snap.data().anthropicApiKey;
+        if (key) {
+          aiApiKey = key;
+          sessionStorage.setItem('al_apiKey', key);
+          const btn = document.getElementById('aiKeyBtn');
+          if (btn) { btn.style.borderColor='rgba(100,220,100,0.3)'; btn.style.color='rgba(100,220,100,0.8)'; btn.textContent='🔑 Key ✓'; }
+          console.log('%c🔑 Anthropic API key loaded from Firestore', 'color:lime');
+        }
+      }
+    }).catch(() => {});
   } else {
     // Student mode — show student-facing controls, find their profile
     document.getElementById('bookSlotBtn').style.display  = 'inline-block';

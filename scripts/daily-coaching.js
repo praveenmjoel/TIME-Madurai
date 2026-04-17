@@ -342,6 +342,12 @@ async function main() {
   // Init Anthropic
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+  // Sync API key to Firestore so the browser admin panel can use it without manual entry
+  await db.collection('config').doc('secrets').set(
+    { anthropicApiKey: process.env.ANTHROPIC_API_KEY },
+    { merge: true }
+  );
+
   const theme = getTodayTheme();
   const nowIST = new Date(Date.now() + 5.5 * 60 * 60 * 1000);
   const dateStr = nowIST.toISOString().slice(0, 10);
