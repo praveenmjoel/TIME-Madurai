@@ -1602,7 +1602,21 @@
       <h2>✦ AI Insights</h2>
       <div id="aiPanelStudentName" style="font-size:0.82rem;color:#a78bfa;margin-top:2px;font-weight:500"></div>
     </div>
-    <button class="ai-close-btn" onclick="closeAIInsights()">✕</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="aiKeyBtn" onclick="toggleApiKeyForm()" title="Configure API key"
+        style="background:none;border:1px solid rgba(255,200,50,0.3);color:rgba(255,200,50,0.7);padding:4px 10px;border-radius:6px;font-size:0.72rem;cursor:pointer;white-space:nowrap">🔑 API Key</button>
+      <button class="ai-close-btn" onclick="closeAIInsights()">✕</button>
+    </div>
+  </div>
+  <!-- Inline API key form (shown when key not set or on demand) -->
+  <div id="aiKeyForm" style="display:none;padding:10px 24px;border-bottom:1px solid var(--border);background:rgba(240,192,64,0.05)">
+    <div style="font-size:0.72rem;color:rgba(240,192,64,0.8);margin-bottom:6px">Enter your Anthropic API key — saved for this browser session only</div>
+    <div style="display:flex;gap:8px">
+      <input type="password" id="aiKeyInput" class="ai-key-input" placeholder="sk-ant-..." style="flex:1"
+        onkeydown="if(event.key==='Enter')saveInlinApiKey()">
+      <button class="ai-key-save-btn" onclick="saveInlineApiKey()">Save →</button>
+    </div>
+    <div id="aiKeyStatus" style="font-size:0.72rem;color:var(--good);margin-top:4px;display:none">✓ API key saved</div>
   </div>
 
   <!-- Student selector + context badges -->
@@ -2198,6 +2212,23 @@ function openAdminChatForStudent(key) {
   document.getElementById('aiOverlay').style.display = 'block';
   document.getElementById('aiPanel').style.display = 'flex';
   document.getElementById('aiPanelStudentName').textContent = studentName;
+
+  // Update API key button state
+  const btn = document.getElementById('aiKeyBtn');
+  if (btn) {
+    if (aiApiKey) {
+      btn.style.borderColor = 'rgba(100,220,100,0.3)';
+      btn.style.color = 'rgba(100,220,100,0.8)';
+      btn.textContent = '🔑 Key ✓';
+    } else {
+      btn.style.borderColor = 'rgba(255,200,50,0.4)';
+      btn.style.color = 'rgba(255,200,50,0.9)';
+      btn.textContent = '🔑 Set API Key';
+      // Auto-open key form so admin knows what to do
+      const form = document.getElementById('aiKeyForm');
+      if (form) form.style.display = 'block';
+    }
+  }
 
   // Bypass passcode gate entirely for admin
   authenticateStudent(key);
@@ -3043,7 +3074,7 @@ function showAIChat(sk) {
       <div class="ai-welcome">
         <div class="aw-icon">🔑</div>
         <div class="aw-title">API Key Required</div>
-        <div class="aw-sub">Ask your teacher to configure the Anthropic API key in Admin settings to enable AI Insights.</div>
+        <div class="aw-sub">Click the <strong style="color:rgba(255,200,50,0.9)">🔑 Set API Key</strong> button at the top of this panel to enter your Anthropic API key.</div>
       </div>`;
     updateAIContext(sk);
     return;
@@ -3065,7 +3096,8 @@ function closeAIInsights() {
 
 // ── Admin: save API key ──
 function saveAdminApiKey() {
-  const key = document.getElementById('cfgApiKey').value.trim();
+  const input = document.getElementById('cfgApiKey');
+  const key = input ? input.value.trim() : '';
   if (!key.startsWith('sk-ant-')) {
     alert("That doesn't look like a valid Anthropic API key (should start with sk-ant-).");
     return;
@@ -3073,13 +3105,43 @@ function saveAdminApiKey() {
   aiApiKey = key;
   sessionStorage.setItem('al_apiKey', key);
   const status = document.getElementById('cfgApiKeyStatus');
-  status.textContent = '✓ API key saved for this session';
-  status.style.display = 'block';
-  setTimeout(() => status.style.display = 'none', 3000);
+  if (status) { status.textContent = '✓ API key saved for this session'; status.style.display = 'block'; setTimeout(() => status.style.display = 'none', 3000); }
 }
 
 // Legacy saveApiKey (no-op, kept for safety)
 function saveApiKey() { saveAdminApiKey(); }
+
+// ── Inline API key form in AI panel ──
+function toggleApiKeyForm() {
+  const form = document.getElementById('aiKeyForm');
+  if (!form) return;
+  const isVisible = form.style.display !== 'none';
+  form.style.display = isVisible ? 'none' : 'block';
+  if (!isVisible) {
+    const inp = document.getElementById('aiKeyInput');
+    if (inp) { inp.value = aiApiKey || ''; inp.focus(); }
+  }
+}
+
+function saveInlineApiKey() {
+  const inp = document.getElementById('aiKeyInput');
+  const key = inp ? inp.value.trim() : '';
+  if (!key.startsWith('sk-ant-')) {
+    alert("That doesn't look like a valid Anthropic API key (should start with sk-ant-).");
+    return;
+  }
+  aiApiKey = key;
+  sessionStorage.setItem('al_apiKey', key);
+  const status = document.getElementById('aiKeyStatus');
+  if (status) { status.style.display = 'block'; setTimeout(() => status.style.display = 'none', 2000); }
+  // Update button to show key is set
+  const btn = document.getElementById('aiKeyBtn');
+  if (btn) { btn.style.borderColor = 'rgba(100,220,100,0.3)'; btn.style.color = 'rgba(100,220,100,0.8)'; btn.textContent = '🔑 Key ✓'; }
+  // Hide the form after a short delay
+  setTimeout(() => { const f = document.getElementById('aiKeyForm'); if (f) f.style.display = 'none'; }, 1500);
+  // If a student is already open, refresh their view now that we have a key
+  if (aiCurrentStudent) authenticateStudent(aiCurrentStudent);
+}
 
 // ── Admin: student passcodes ──
 function renderPasscodeFields() {
@@ -3319,7 +3381,8 @@ async function sendAIMessage(customMessage) {
   if (!message && pendingImages.length === 0) return;
 
   if (!aiApiKey) {
-    alert('API key not configured. Ask your teacher to set it up in Admin settings.');
+    const form = document.getElementById('aiKeyForm');
+    if (form) form.style.display = 'block';
     return;
   }
   if (!aiCurrentStudent) {
