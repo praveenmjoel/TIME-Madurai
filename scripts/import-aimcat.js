@@ -23,7 +23,7 @@ import { getFirestore }            from 'firebase-admin/firestore';
 // ── Student ID → email map (add new students as you extract their data) ──────
 const STUDENT_ID_TO_EMAIL = {
   'MDCAB6A019': 'keerthypriya16102002@gmail.com',
-  'MDCAB6A010': 'philipephraim2004@gmail.com',
+  'MDCAB6A014': 'philipephraim2004@gmail.com',
   // Add others here as you run the bookmarklet for each student
 };
 
@@ -155,8 +155,8 @@ async function main() {
   }
 
   // ── 1. Read JSON ────────────────────────────────────────────────────────────
-  const raw  = JSON.parse(readFileSync(filePath, 'utf8'));
-  const { aimcatId, studentId, studentName, scorecard, _rawTimeAnalysis } = raw;
+  const raw = JSON.parse(readFileSync(filePath, 'utf8'));
+  const { aimcatId, studentId, studentName, scorecard, subarea } = raw;
 
   // ── 2. Map student ID → email ───────────────────────────────────────────────
   const email = STUDENT_ID_TO_EMAIL[studentId];
@@ -166,8 +166,24 @@ async function main() {
     process.exit(1);
   }
 
-  // ── 3. Process time analysis ────────────────────────────────────────────────
-  const { sections: timeAnalysis, questions } = processTimeAnalysis(_rawTimeAnalysis || []);
+  // ── 3. Time analysis — v4 bookmarklet pre-processes it; v2 needs processing ─
+  let timeAnalysis, questions;
+  if (raw.timeAnalysis && raw.questions) {
+    // v4 format: already processed by the bookmarklet
+    timeAnalysis = raw.timeAnalysis;
+    questions    = raw.questions;
+    console.log('📦 Using pre-processed time analysis from bookmarklet v4');
+  } else if (raw._rawTimeAnalysis) {
+    // v2 format: raw table dump, needs processing
+    const result = processTimeAnalysis(raw._rawTimeAnalysis);
+    timeAnalysis = result.sections;
+    questions    = result.questions;
+    console.log('📦 Processed raw time analysis from bookmarklet v2');
+  } else {
+    timeAnalysis = null;
+    questions    = [];
+    console.warn('⚠ No time analysis data found in JSON');
+  }
 
   // ── 4. Build Firestore document ─────────────────────────────────────────────
   const doc = {
@@ -175,10 +191,11 @@ async function main() {
     studentId,
     studentName,
     aimcatId,
-    importedAt: new Date().toISOString(),
+    importedAt:   new Date().toISOString(),
     scorecard:    scorecard    || null,
-    timeAnalysis: timeAnalysis || null,
-    questions,                            // per-question detail (66 rows)
+    subarea:      subarea      || null,   // per-subarea breakdown with question decisions
+    timeAnalysis: timeAnalysis || null,   // aggregated per section
+    questions,                            // per-question detail (all sections)
   };
 
   // ── 5. Init Firestore ───────────────────────────────────────────────────────
@@ -211,6 +228,12 @@ async function main() {
     console.log(`  DI/LR  acc ${sc.dilr.accuracy}%   net ${sc.dilr.netScore}   ${sc.dilr.percentile}%ile`);
     console.log(`  QA     acc ${sc.qa.accuracy}%   net ${sc.qa.netScore}   ${sc.qa.percentile}%ile`);
     console.log(`  Total  net ${sc.total.netScore}   AIR ${sc.total.allIndiaRank}   ${sc.total.percentile}%ile`);
+  }
+  if (subarea) {
+    console.log(`\nSubarea:`);
+    for (const [sec, rows] of Object.entries(subarea)) {
+      console.log(`  ${sec.toUpperCase().padEnd(5)}  ${rows.length} subareas: ${rows.map(r => r.subarea).join(', ')}`);
+    }
   }
   if (timeAnalysis) {
     console.log(`\nTime Analysis:`);
