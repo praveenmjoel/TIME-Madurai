@@ -1,267 +1,222 @@
 /**
- * TIME Madurai – AIMCAT Data Extractor Bookmarklet
+ * TIME Madurai – AIMCAT Data Extractor Bookmarklet (v2)
  *
  * How to install:
  *   1. Copy the one-liner at the very bottom of this file
  *   2. Create a new bookmark in Chrome → paste it as the URL → name it "Extract AIMCAT"
  *
  * How to use:
- *   1. Log into time4education.com and open any AIMCAT detailed results page
- *   2. Click the "Extract AIMCAT" bookmark
- *   3. The bookmarklet will:
- *        a. Cycle through Scorecard → Subarea-wise Analysis → Time spent analysis tabs
- *        b. Extract all structured data
- *        c. Download a JSON file  (e.g. MDCAB6A010_AIMCAT2724.json)
- *        d. Show a summary overlay with a "Copy JSON" button
+ *   1. Log into time4education.com and open an AIMCAT results page
+ *      (URL should contain: /aimcats/results)
+ *   2. Make sure you are on the Scorecard tab
+ *   3. Click the "Extract AIMCAT" bookmark
+ *   4. The bookmarklet will auto-click through tabs, extract data, and download JSON
  *
- * Output JSON shape:
- * {
- *   aimcatId, studentId, studentName, extractedAt,
- *   scorecard: { varc, dilr, qa, total } each with { right, wrong, accuracy, netScore, cutoff, highestScore, allIndiaRank, cityRank, percentile, percentageScore },
- *   subarea:   { varc: [...], dilr: [...], qa: [...] } each row = { subarea, numQ, attempted, attemptedCorrect, attemptedWrong, leftOut, judiciousSelection, judiciousLeavingOut, accuracy },
- *   timeAnalysis: { 'VA/RC': {...}, 'DI/LR': {...}, 'QA': {...} } each = { totalSecs, overInvested, wrongEM, skippedEM, fastGuesses }
- * }
+ * Page structure (confirmed):
+ *   - No iframes — all data is in the main document
+ *   - Tab navigation: React SPA, tabs are div/span elements
+ *   - URL param: ?tab=scorecard, ?tab=subarea etc.
+ *   - Student header: "ID Card No: MDCAB6A019 | Name: KeerthyPriya S | Test: AIMCAT2724"
  */
 
 (async function () {
   'use strict';
 
   const wait = ms => new Promise(r => setTimeout(r, ms));
-  const $$ = (sel, ctx) => [...(ctx || document).querySelectorAll(sel)];
 
-  // ── 1. Locate the document (content is inside an iframe) ──────────────────
-  let D = document;
-  for (const f of $$('iframe')) {
-    try {
-      const fd = f.contentDocument || f.contentWindow.document;
-      if (fd && $$('table', fd).length > 0) { D = fd; break; }
-    } catch (e) { /* cross-origin, skip */ }
-  }
-
-  // Safety check — are we on the right page?
-  if (!D.body.innerText.includes('AIMCAT')) {
-    alert('❌ Please open an AIMCAT detailed results page first.');
+  // ── 1. Verify we're on the right page ────────────────────────────────────
+  if (!location.href.includes('aimcat') && !document.body.innerText.toLowerCase().includes('aimcat')) {
+    alert('❌ Please open an AIMCAT results page first.\n\nURL should contain: /aimcats/results');
     return;
   }
 
-  // ── 2. Click a tab by its label text ──────────────────────────────────────
-  function clickTab(fragment) {
-    const btn = $$('input[type=button], button', D)
-      .find(b => (b.value || b.textContent || '').toLowerCase().includes(fragment.toLowerCase()));
-    if (btn) { btn.click(); return true; }
-    return false;
+  // ── 2. Click a tab by searching ALL elements for matching text ────────────
+  function clickTab(textFragment) {
+    // Search any clickable-looking element, prefer short text matches (actual tab labels)
+    const candidates = [...document.querySelectorAll('li, a, button, span, div')].filter(el => {
+      const t = (el.textContent || '').trim();
+      return t.toLowerCase().includes(textFragment.toLowerCase())
+        && t.length < 80          // avoid matching large containers
+        && el.children.length < 5; // avoid matching wrappers
+    });
+    if (candidates.length === 0) return false;
+    // Prefer the shallowest element (closest to actual tab)
+    candidates.sort((a, b) => a.querySelectorAll('*').length - b.querySelectorAll('*').length);
+    candidates[0].click();
+    return true;
   }
 
-  // ── 3. Extract student / AIMCAT header ────────────────────────────────────
+  // ── 3. Extract student / AIMCAT header info ───────────────────────────────
   function getHeader() {
-    const allTds = $$('td', D);
-    const titleTd = allTds.find(td => /AIMCAT\s*\d{4}/i.test(td.innerText));
-    const aimcatNum = ((titleTd ? titleTd.innerText : '') + D.title).match(/AIMCAT\s*(\d{4})/i);
+    const text = document.body.innerText;
 
-    const studentTd = allTds.find(td =>
-      /Id\s*:/i.test(td.innerText) && /Name\s*:/i.test(td.innerText));
-    let studentId = '', studentName = '';
-    if (studentTd) {
-      const t = studentTd.innerText;
-      studentId   = (t.match(/Id\s*:\s*(\S+)/i) || [])[1] || '';
-      studentName = ((t.match(/Name\s*:\s*(.+)/i) || [])[1] || '')
-                      .replace(/AIMCAT\d+/gi, '').trim();
-    }
+    // Match "ID Card No: MDCAB6A019" or "ID Card No | MDCAB6A019"
+    const idMatch   = text.match(/ID\s*Card\s*No\s*[:\|]\s*([A-Z0-9]+)/i);
+    // Match "Name: KeerthyPriya S" — stop at | or newline
+    const nameMatch = text.match(/Name\s*[:\|]\s*([^|\n\r]+)/i);
+    // Match "Test: AIMCAT2724"
+    const testMatch = text.match(/Test\s*[:\|]\s*(AIMCAT\s*\d+)/i);
+    // Fallback: AIMCAT number anywhere in the text
+    const anyAimcat = text.match(/AIMCAT\s*(\d{4})/i);
+
     return {
-      aimcatId:    aimcatNum ? 'AIMCAT' + aimcatNum[1] : 'UNKNOWN',
-      studentId,
-      studentName,
+      aimcatId:    testMatch  ? testMatch[1].replace(/\s+/, '')  : (anyAimcat ? 'AIMCAT' + anyAimcat[1] : 'UNKNOWN'),
+      studentId:   idMatch    ? idMatch[1].trim()                : 'UNKNOWN',
+      studentName: nameMatch  ? nameMatch[1].trim().replace(/\|.*/, '').replace(/Test.*/i, '').trim() : 'UNKNOWN',
     };
   }
 
-  // ── 4. Scorecard extraction ───────────────────────────────────────────────
+  // ── 4. Extract the Summary/Scorecard table ────────────────────────────────
   function extractScorecard() {
-    const tbl = $$('table', D).find(t =>
-      t.innerText.includes('Right & Wrong') && t.innerText.includes('NetScore'));
+    const tables = [...document.querySelectorAll('table')];
+    // The scorecard table always has these row labels
+    const tbl = tables.find(t =>
+      (t.innerText.includes('Right') || t.innerText.includes('NetScore'))
+      && t.innerText.includes('Accuracy')
+    );
     if (!tbl) { console.warn('[AIMCAT] Scorecard table not found'); return null; }
 
     const keys = ['varc', 'dilr', 'qa', 'total'];
     const out  = Object.fromEntries(keys.map(k => [k, {}]));
 
-    for (const row of $$('tr', tbl)) {
-      const cells = $$('td', row);
+    for (const row of tbl.querySelectorAll('tr')) {
+      const cells = [...row.querySelectorAll('td, th')];
       if (cells.length < 2) continue;
       const lbl  = cells[0].innerText.trim().toLowerCase();
+      // Take up to 4 value columns (VARC, DILR, QA, Total)
       const vals = cells.slice(1, 5).map(c => c.innerText.trim());
 
-      const set = (field, fn) => keys.forEach((k, i) => { out[k][field] = fn(vals[i]); });
+      const setField = (field, fn) => keys.forEach((k, i) => { out[k][field] = fn(vals[i] ?? ''); });
+      const num  = v => parseFloat(v) || 0;
+      const int  = v => parseInt(v)   || null;
+      const dash = v => (!v || v === '-' || v === '--') ? null : parseFloat(v);
 
       if (lbl.includes('right') && lbl.includes('wrong')) {
         keys.forEach((k, i) => {
-          const m = (vals[i] || '').match(/(\d+)\s*&\s*(\d+)/);
+          const m = (vals[i] || '').match(/(\d+)\s*[&\s]\s*(\d+)/);
           if (m) { out[k].right = +m[1]; out[k].wrong = +m[2]; }
         });
-      } else if (lbl.includes('accuracy')) {
-        set('accuracy', v => parseFloat(v) || 0);
-      } else if (lbl.includes('netscore')) {
-        set('netScore', v => parseFloat(v) || 0);
-      } else if (lbl.includes('cutoff')) {
-        set('cutoff', v => (v === '-' || v === '') ? null : parseFloat(v));
-      } else if (lbl.includes('highest')) {
-        set('highestScore', v => parseFloat(v) || 0);
-      } else if (lbl.includes('all india rank')) {
-        set('allIndiaRank', v => parseInt(v) || null);
-      } else if (lbl.includes('city rank')) {
-        set('cityRank', v => parseInt(v) || null);
-      } else if (lbl.includes('percentile')) {
-        set('percentile', v => parseFloat(v) || 0);
-      } else if (lbl.includes('percentage score')) {
-        set('percentageScore', v => parseFloat(v) || 0);
-      }
+      } else if (lbl.includes('accuracy'))        { setField('accuracy',        num);  }
+        else if (lbl.includes('netscore') || lbl.includes('net score')) { setField('netScore', num); }
+        else if (lbl.includes('cutoff'))           { setField('cutoff',           dash); }
+        else if (lbl.includes('highest'))          { setField('highestScore',     num);  }
+        else if (lbl.includes('all india rank'))   { setField('allIndiaRank',     int);  }
+        else if (lbl.includes('city rank'))        { setField('cityRank',         int);  }
+        else if (lbl.includes('percentile score') || (lbl.includes('percentile') && !lbl.includes('percentage'))) {
+          setField('percentile', num);
+        }
+        else if (lbl.includes('percentage score') || (lbl.includes('percentage') && !lbl.includes('percentile'))) {
+          setField('percentageScore', num);
+        }
     }
     return out;
   }
 
-  // ── 5. Subarea extraction ─────────────────────────────────────────────────
-  function extractSubarea() {
-    // There are 3 tables: one each for VA/RC, DI/LR, QA
-    // Identify by having a "Subarea" cell in the header, but NOT "NetScore"
-    const subareaTbls = $$('table', D).filter(t => {
-      const text = t.innerText;
-      return text.includes('Subarea') && !text.includes('NetScore') && !text.includes('Right & Wrong');
+  // ── 5. Generic: dump all tables on the current page as raw rows ───────────
+  function dumpAllTables() {
+    return [...document.querySelectorAll('table')].map((tbl, idx) => {
+      const rows = [...tbl.querySelectorAll('tr')].map(row =>
+        [...row.querySelectorAll('td, th')].map(c => c.innerText.trim())
+      ).filter(r => r.length > 0 && r.some(c => c !== ''));
+      return { tableIndex: idx, rows };
     });
+  }
 
-    const sectionOrder = ['varc', 'dilr', 'qa'];
+  // ── 6. Extract subarea tables (3 sections — structured) ──────────────────
+  function extractSubarea() {
+    const tables = [...document.querySelectorAll('table')];
+    const subareaTables = tables.filter(t => {
+      const txt = t.innerText;
+      return txt.toLowerCase().includes('subarea') || txt.includes('Judicious');
+    });
+    if (subareaTables.length === 0) return null;
+
+    const sectionKeys = ['varc', 'dilr', 'qa'];
     const out = {};
 
-    subareaTbls.slice(0, 3).forEach((tbl, idx) => {
-      const section = sectionOrder[idx];
-      out[section] = [];
-
-      for (const row of $$('tr', tbl)) {
-        const cells = $$('td', row);
-        if (cells.length < 7) continue;
-        const subareaText = cells[0].innerText.trim();
-        // Skip header rows
-        if (!subareaText || /^(subarea|no\.of|questions|judicious)/i.test(subareaText)) continue;
-
-        const numQ = parseInt(cells[1].innerText.trim()) || 0;
-
-        // Question buttons: <input type="button" value="4/D"> — count all of them
-        // Fallback: count tokens matching "##/X" pattern in cell text
-        const countButtons = cell => {
-          const btns = $$('input[type=button], button', cell);
-          return btns.length > 0
-            ? btns.length
-            : (cell.innerText.match(/\d+\/[A-Z]+/g) || []).length;
+    subareaTables.slice(0, 3).forEach((tbl, idx) => {
+      const key = sectionKeys[idx] || `section${idx}`;
+      out[key] = [];
+      for (const row of tbl.querySelectorAll('tr')) {
+        const cells = [...row.querySelectorAll('td, th')];
+        if (cells.length < 3) continue;
+        const label = cells[0].innerText.trim();
+        if (!label || /^(subarea|no\.|question|judicious|section)/i.test(label)) continue;
+        // Each cell may contain multiple question buttons — just count them
+        const countQ = cell => {
+          const btns = [...cell.querySelectorAll('input[type=button], button, [class*="btn"], [class*="q-"]')];
+          return btns.length || (cell.innerText.match(/\d/g) || []).length && parseInt(cell.innerText.trim()) || 0;
         };
-
-        // Detect green (correct) vs red (wrong) by computed RGB
-        const isGreenRGB = el => {
-          const rgb = (el.style.backgroundColor || getComputedStyle(el).backgroundColor || '');
-          const m = rgb.match(/\d+/g);
-          if (!m) return false;
-          return (+m[1] > 120 && +m[0] < 120); // green dominant
-        };
-        const isRedRGB = el => {
-          const rgb = (el.style.backgroundColor || getComputedStyle(el).backgroundColor || '');
-          const m = rgb.match(/\d+/g);
-          if (!m) return false;
-          return (+m[0] > 150 && +m[1] < 100); // red dominant
-        };
-
-        const analyseButtons = cell => {
-          const btns = $$('input[type=button], button', cell);
-          let correct = 0, wrong = 0;
-          for (const b of btns) {
-            if (isGreenRGB(b)) correct++;
-            else if (isRedRGB(b)) wrong++;
-          }
-          return { count: btns.length, correct, wrong };
-        };
-
-        const attempted = analyseButtons(cells[2]);
-        const leftOut   = countButtons(cells[3]);
-
-        const parse = s => (!s || s === '-' || s === '...' || s === '---') ? null : parseFloat(s);
-        const accuracyCell = cells[7] || cells[6];
-
-        out[section].push({
-          subarea:             subareaText,
-          numQ,
-          attempted:           attempted.count,
-          attemptedCorrect:    attempted.correct,
-          attemptedWrong:      attempted.wrong,
-          leftOut,
-          judiciousSelection:  parse(cells[4].innerText.trim()),
-          judiciousLeavingOut: parse(cells[5].innerText.trim()),
-          accuracy:            parse(accuracyCell ? accuracyCell.innerText.trim() : ''),
+        const parse = s => (!s || s === '-' || s === '---') ? null : parseFloat(s);
+        out[key].push({
+          subarea:  label,
+          numQ:     parseInt(cells[1]?.innerText.trim()) || 0,
+          raw:      cells.map(c => c.innerText.trim()), // keep raw for debugging
         });
       }
     });
-
     return out;
   }
 
-  // ── 6. Time analysis extraction (aggregated per section) ──────────────────
+  // ── 7. Extract time analysis table ────────────────────────────────────────
   function extractTimeAnalysis() {
-    const tbl = $$('table', D).find(t =>
-      t.innerText.includes('Time Spent') &&
-      t.innerText.includes('Difficulty Level') &&
-      t.innerText.includes('Question'));
-    if (!tbl) { console.warn('[AIMCAT] Time analysis table not found'); return null; }
+    const tables = [...document.querySelectorAll('table')];
+    const tbl = tables.find(t =>
+      t.innerText.includes('Time') &&
+      (t.innerText.includes('Difficulty') || t.innerText.includes('Question No'))
+    );
+    if (!tbl) return null;
 
     const agg = {};
-
-    for (const row of $$('tr', tbl)) {
-      const cells = $$('td', row);
-      if (cells.length < 11) continue;
-      if (isNaN(parseInt(cells[0].innerText.trim()))) continue; // skip header rows
-
-      const section  = cells[2].innerText.trim(); // 'VA/RC', 'DI/LR', 'QA'
-      const myCell   = cells[3];
-      const myAns    = myCell.innerText.trim();
-      const diff     = cells[7].innerText.trim();  // 'E', 'M', 'D', 'VD'
-      const timeStr  = cells[10].innerText.trim(); // '#' = not attempted
-      const avgAll   = parseInt(cells[11] ? cells[11].innerText.trim() : '0') || 0;
-
-      const skipped  = myAns === 'NA' || myAns === '' || timeStr === '#';
-      const timeSecs = skipped ? 0 : (parseInt(timeStr) || 0);
-
-      // Detect correct answer from background colour of My Answer cell
-      const rgb = myCell.style.backgroundColor || getComputedStyle(myCell).backgroundColor || '';
-      const ch  = (rgb.match(/\d+/g) || []).map(Number);
-      const correct = !skipped && ch.length >= 2 && ch[1] > 120 && ch[0] < 120; // green
-
-      if (!agg[section]) {
-        agg[section] = { totalSecs: 0, overInvested: 0, wrongEM: 0, skippedEM: 0, fastGuesses: 0 };
+    for (const row of tbl.querySelectorAll('tr')) {
+      const cells = [...row.querySelectorAll('td')];
+      if (cells.length < 5) continue;
+      // Find the section column (VA/RC, DI/LR, QA) — usually col 2 or 3
+      const sectionCell = cells.find(c => /VA\/RC|DI\/LR|QA/i.test(c.innerText.trim()));
+      if (!sectionCell) continue;
+      const section = sectionCell.innerText.trim();
+      if (!agg[section]) agg[section] = { totalSecs: 0, questionCount: 0 };
+      // Time is typically the last or second-to-last numeric column
+      for (let i = cells.length - 1; i >= 0; i--) {
+        const v = parseInt(cells[i].innerText.trim());
+        if (!isNaN(v) && v > 0 && v < 600) { // plausible seconds
+          agg[section].totalSecs += v;
+          agg[section].questionCount++;
+          break;
+        }
       }
-      const s = agg[section];
-      s.totalSecs += timeSecs;
-
-      const em = diff === 'E' || diff === 'M';
-      if (skipped && em)                              s.skippedEM++;
-      if (!skipped && !correct && em)                 s.wrongEM++;
-      if (!skipped && avgAll > 0 && timeSecs > avgAll * 2.5) s.overInvested++;
-      if (!skipped && timeSecs > 0 && timeSecs < 15) s.fastGuesses++;
     }
-
-    return agg;
+    return Object.keys(agg).length > 0 ? agg : null;
   }
 
   // ── Main ──────────────────────────────────────────────────────────────────
-  const hdr  = getHeader();
-  const data = { ...hdr, extractedAt: new Date().toISOString() };
+  const hdr = getHeader();
+  const result = {
+    aimcatId:    hdr.aimcatId,
+    studentId:   hdr.studentId,
+    studentName: hdr.studentName,
+    extractedAt: new Date().toISOString(),
+  };
 
-  // Cycle through tabs and extract
-  clickTab('Scorecard');   await wait(800);
-  data.scorecard    = extractScorecard();
+  // Step 1: Scorecard (should already be active)
+  result.scorecard    = extractScorecard();
+  result._rawScorecard = dumpAllTables();
 
-  clickTab('Subarea');     await wait(1500);
-  data.subarea      = extractSubarea();
+  // Step 2: Subarea tab
+  const clickedSubarea = clickTab('Subarea') || clickTab('subarea') || clickTab('Sub Area');
+  await wait(2000);
+  result.subarea      = extractSubarea();
+  result._rawSubarea  = dumpAllTables();
 
-  clickTab('Time spent');  await wait(1500);
-  data.timeAnalysis = extractTimeAnalysis();
+  // Step 3: Time Spent tab
+  const clickedTime = clickTab('Time Spent') || clickTab('Time spent') || clickTab('Time');
+  await wait(2000);
+  result.timeAnalysis     = extractTimeAnalysis();
+  result._rawTimeAnalysis = dumpAllTables();
 
-  const json = JSON.stringify(data, null, 2);
-
-  // ── Download JSON file ────────────────────────────────────────────────────
-  const filename = `${hdr.studentId || 'student'}_${hdr.aimcatId || 'AIMCAT'}.json`;
+  // ── Download JSON ─────────────────────────────────────────────────────────
+  const json     = JSON.stringify(result, null, 2);
+  const filename = `aimcat_${hdr.studentId}_${hdr.aimcatId}.json`;
   const a = Object.assign(document.createElement('a'), {
     href:     URL.createObjectURL(new Blob([json], { type: 'application/json' })),
     download: filename,
@@ -269,35 +224,43 @@
   document.body.appendChild(a); a.click(); a.remove();
 
   // ── Summary overlay ───────────────────────────────────────────────────────
-  const sc = data.scorecard;
-  const scoreSummary = sc
-    ? `VA/RC ${sc.varc.accuracy || 0}% (${sc.varc.netScore || 0} pts, ${sc.varc.percentile || 0} %ile) &nbsp;|&nbsp; DI/LR ${sc.dilr.accuracy || 0}% (${sc.dilr.netScore || 0} pts, ${sc.dilr.percentile || 0} %ile) &nbsp;|&nbsp; QA ${sc.qa.accuracy || 0}% (${sc.qa.netScore || 0} pts, ${sc.qa.percentile || 0} %ile)<br>Total: ${sc.total.netScore || 0} pts &nbsp;|&nbsp; Overall ${sc.total.percentile || 0}%ile &nbsp;|&nbsp; AIR ${sc.total.allIndiaRank || '-'}`
-    : 'Scorecard not found';
+  const sc = result.scorecard;
+  const scoreSummary = sc ? [
+    `VA/RC:  acc ${sc.varc?.accuracy ?? '?'}%,  net ${sc.varc?.netScore ?? '?'} pts,  ${sc.varc?.percentile ?? '?'} %ile`,
+    `DI/LR:  acc ${sc.dilr?.accuracy ?? '?'}%,  net ${sc.dilr?.netScore ?? '?'} pts,  ${sc.dilr?.percentile ?? '?'} %ile`,
+    `QA:     acc ${sc.qa?.accuracy   ?? '?'}%,  net ${sc.qa?.netScore   ?? '?'} pts,  ${sc.qa?.percentile   ?? '?'} %ile`,
+    `Total:  net ${sc.total?.netScore ?? '?'} pts,  ${sc.total?.percentile ?? '?'} %ile,  AIR ${sc.total?.allIndiaRank ?? '?'}`,
+  ].join('\n') : 'Scorecard not extracted';
 
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-size:14px';
-  overlay.innerHTML = `
-    <div style="background:#fff;padding:24px;border-radius:10px;max-width:640px;width:92%;max-height:85vh;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.4)">
-      <h3 style="margin:0 0 14px;color:#1a3a6e">✅ AIMCAT Data Extracted</h3>
-      <p style="margin:0 0 6px"><b>Student:</b> ${data.studentName} &nbsp;(<code>${data.studentId}</code>)</p>
-      <p style="margin:0 0 12px"><b>Test:</b> ${data.aimcatId}</p>
-      <p style="margin:0 0 16px;line-height:1.7">${scoreSummary}</p>
-      <p style="margin:0 0 12px">
-        <b>File downloaded:</b> <code>${filename}</code><br>
-        <small style="color:#666">Use the import script to push this to Firestore.</small>
-      </p>
-      <button id="_aimcat_copy" style="padding:6px 16px;margin-right:8px;cursor:pointer;background:#1a3a6e;color:#fff;border:none;border-radius:4px">Copy JSON</button>
-      <button onclick="this.closest('[style*=fixed]').remove()" style="padding:6px 16px;cursor:pointer;border:1px solid #ccc;border-radius:4px">Close</button>
-      <pre style="margin-top:14px;font-size:10px;background:#f5f5f5;padding:10px;border-radius:4px;overflow:auto;max-height:220px">${json.slice(0, 3000)}${json.length > 3000 ? '\n…(truncated)' : ''}</pre>
-    </div>`;
-  document.body.appendChild(overlay);
-  document.getElementById('_aimcat_copy').onclick = () =>
-    navigator.clipboard.writeText(json).then(() => alert('JSON copied to clipboard!'));
+  const diag = [
+    `Scorecard table found: ${result.scorecard ? 'YES' : 'NO'}`,
+    `Subarea tab clicked:   ${clickedSubarea ? 'YES' : 'NO'}`,
+    `Time tab clicked:      ${clickedTime ? 'YES' : 'NO'}`,
+    `Raw tables on page:    ${result._rawScorecard?.length ?? 0}`,
+  ].join('\n');
+
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif';
+  ov.innerHTML = `<div style="background:#fff;padding:24px;border-radius:10px;max-width:660px;width:94%;max-height:88vh;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+    <h3 style="margin:0 0 12px;color:#1a3a6e">✅ AIMCAT Extracted</h3>
+    <p><b>Student:</b> ${result.studentName} &nbsp;<code>${result.studentId}</code></p>
+    <p><b>Test:</b> ${result.aimcatId}</p>
+    <pre style="background:#f0f4ff;padding:10px;border-radius:6px;font-size:12px;white-space:pre">${scoreSummary}</pre>
+    <pre style="background:#f9f9f9;padding:8px;border-radius:6px;font-size:11px;color:#666">${diag}</pre>
+    <p style="font-size:12px;color:#555">File downloaded: <code>${filename}</code></p>
+    <button id="_ac_copy" style="padding:6px 18px;margin-right:8px;background:#1a3a6e;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:13px">Copy JSON</button>
+    <button onclick="this.closest('div').parentNode.remove()" style="padding:6px 18px;border:1px solid #ccc;border-radius:5px;cursor:pointer;font-size:13px">Close</button>
+    <pre style="margin-top:12px;font-size:10px;background:#f5f5f5;padding:10px;border-radius:4px;overflow:auto;max-height:200px">${json.slice(0, 2000)}${json.length > 2000 ? '\n…(truncated)' : ''}</pre>
+  </div>`;
+  document.body.appendChild(ov);
+  document.getElementById('_ac_copy').onclick = () =>
+    navigator.clipboard.writeText(json).then(() => alert('✅ JSON copied to clipboard!'));
 
 })();
 
+
 // ═══════════════════════════════════════════════════════════════════════════
-// BOOKMARKLET ONE-LINER (paste this as the bookmark URL):
+// BOOKMARKLET ONE-LINER — copy everything below and paste as the bookmark URL
 // ═══════════════════════════════════════════════════════════════════════════
 //
-// javascript:(async function(){'use strict';const wait=ms=>new Promise(r=>setTimeout(r,ms));const $$=(s,c)=>[...(c||document).querySelectorAll(s)];let D=document;for(const f of $$('iframe')){try{const fd=f.contentDocument||f.contentWindow.document;if(fd&&$$('table',fd).length>0){D=fd;break;}}catch(e){}}if(!D.body.innerText.includes('AIMCAT')){alert('❌ Please open an AIMCAT detailed results page first.');return;}function clickTab(frag){const btn=$$('input[type=button],button',D).find(b=>(b.value||b.textContent||'').toLowerCase().includes(frag.toLowerCase()));if(btn){btn.click();return true;}return false;}function getHeader(){const allTds=$$('td',D);const titleTd=allTds.find(td=>/AIMCAT\s*\d{4}/i.test(td.innerText));const aimcatNum=((titleTd?titleTd.innerText:'')+D.title).match(/AIMCAT\s*(\d{4})/i);const studentTd=allTds.find(td=>/Id\s*:/i.test(td.innerText)&&/Name\s*:/i.test(td.innerText));let studentId='',studentName='';if(studentTd){const t=studentTd.innerText;studentId=(t.match(/Id\s*:\s*(\S+)/i)||[])[1]||'';studentName=((t.match(/Name\s*:\s*(.+)/i)||[])[1]||'').replace(/AIMCAT\d+/gi,'').trim();}return{aimcatId:aimcatNum?'AIMCAT'+aimcatNum[1]:'UNKNOWN',studentId,studentName};}function extractScorecard(){const tbl=$$('table',D).find(t=>t.innerText.includes('Right & Wrong')&&t.innerText.includes('NetScore'));if(!tbl)return null;const keys=['varc','dilr','qa','total'];const out=Object.fromEntries(keys.map(k=>[k,{}]));for(const row of $$('tr',tbl)){const cells=$$('td',row);if(cells.length<2)continue;const lbl=cells[0].innerText.trim().toLowerCase();const vals=cells.slice(1,5).map(c=>c.innerText.trim());const set=(field,fn)=>keys.forEach((k,i)=>{out[k][field]=fn(vals[i]);});if(lbl.includes('right')&&lbl.includes('wrong'))keys.forEach((k,i)=>{const m=(vals[i]||'').match(/(\d+)\s*&\s*(\d+)/);if(m){out[k].right=+m[1];out[k].wrong=+m[2];}});else if(lbl.includes('accuracy'))set('accuracy',v=>parseFloat(v)||0);else if(lbl.includes('netscore'))set('netScore',v=>parseFloat(v)||0);else if(lbl.includes('cutoff'))set('cutoff',v=>(v==='-'||v==='')?null:parseFloat(v));else if(lbl.includes('highest'))set('highestScore',v=>parseFloat(v)||0);else if(lbl.includes('all india rank'))set('allIndiaRank',v=>parseInt(v)||null);else if(lbl.includes('city rank'))set('cityRank',v=>parseInt(v)||null);else if(lbl.includes('percentile'))set('percentile',v=>parseFloat(v)||0);else if(lbl.includes('percentage score'))set('percentageScore',v=>parseFloat(v)||0);}return out;}function extractSubarea(){const subareaTbls=$$('table',D).filter(t=>{const text=t.innerText;return text.includes('Subarea')&&!text.includes('NetScore')&&!text.includes('Right & Wrong');});const sectionOrder=['varc','dilr','qa'];const out={};subareaTbls.slice(0,3).forEach((tbl,idx)=>{const section=sectionOrder[idx];out[section]=[];for(const row of $$('tr',tbl)){const cells=$$('td',row);if(cells.length<7)continue;const subareaText=cells[0].innerText.trim();if(!subareaText||/^(subarea|no\.of|questions|judicious)/i.test(subareaText))continue;const numQ=parseInt(cells[1].innerText.trim())||0;const isGreenRGB=el=>{const rgb=(el.style.backgroundColor||getComputedStyle(el).backgroundColor||'');const m=rgb.match(/\d+/g);if(!m)return false;return(+m[1]>120&&+m[0]<120);};const isRedRGB=el=>{const rgb=(el.style.backgroundColor||getComputedStyle(el).backgroundColor||'');const m=rgb.match(/\d+/g);if(!m)return false;return(+m[0]>150&&+m[1]<100);};const analyseButtons=cell=>{const btns=$$('input[type=button],button',cell);let correct=0,wrong=0;for(const b of btns){if(isGreenRGB(b))correct++;else if(isRedRGB(b))wrong++;}return{count:btns.length,correct,wrong};};const countFallback=cell=>(cell.innerText.match(/\d+\/[A-Z]+/g)||[]).length;const attempted=analyseButtons(cells[2]);const leftOut=analyseButtons(cells[3]).count||countFallback(cells[3]);const parse=s=>(!s||s==='-'||s==='...'||s==='---')?null:parseFloat(s);const accuracyCell=cells[7]||cells[6];out[section].push({subarea:subareaText,numQ,attempted:attempted.count,attemptedCorrect:attempted.correct,attemptedWrong:attempted.wrong,leftOut,judiciousSelection:parse(cells[4].innerText.trim()),judiciousLeavingOut:parse(cells[5].innerText.trim()),accuracy:parse(accuracyCell?accuracyCell.innerText.trim():'')});}});return out;}function extractTimeAnalysis(){const tbl=$$('table',D).find(t=>t.innerText.includes('Time Spent')&&t.innerText.includes('Difficulty Level')&&t.innerText.includes('Question'));if(!tbl)return null;const agg={};for(const row of $$('tr',tbl)){const cells=$$('td',row);if(cells.length<11)continue;if(isNaN(parseInt(cells[0].innerText.trim())))continue;const section=cells[2].innerText.trim();const myCell=cells[3];const myAns=myCell.innerText.trim();const diff=cells[7].innerText.trim();const timeStr=cells[10].innerText.trim();const avgAll=parseInt(cells[11]?cells[11].innerText.trim():'0')||0;const skipped=myAns==='NA'||myAns===''||timeStr==='#';const timeSecs=skipped?0:(parseInt(timeStr)||0);const rgb=myCell.style.backgroundColor||getComputedStyle(myCell).backgroundColor||'';const ch=(rgb.match(/\d+/g)||[]).map(Number);const correct=!skipped&&ch.length>=2&&ch[1]>120&&ch[0]<120;if(!agg[section])agg[section]={totalSecs:0,overInvested:0,wrongEM:0,skippedEM:0,fastGuesses:0};const s=agg[section];s.totalSecs+=timeSecs;const em=diff==='E'||diff==='M';if(skipped&&em)s.skippedEM++;if(!skipped&&!correct&&em)s.wrongEM++;if(!skipped&&avgAll>0&&timeSecs>avgAll*2.5)s.overInvested++;if(!skipped&&timeSecs>0&&timeSecs<15)s.fastGuesses++;}return agg;}const hdr=getHeader();const data={...hdr,extractedAt:new Date().toISOString()};clickTab('Scorecard');await wait(800);data.scorecard=extractScorecard();clickTab('Subarea');await wait(1500);data.subarea=extractSubarea();clickTab('Time spent');await wait(1500);data.timeAnalysis=extractTimeAnalysis();const json=JSON.stringify(data,null,2);const filename=`${hdr.studentId||'student'}_${hdr.aimcatId||'AIMCAT'}.json`;const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([json],{type:'application/json'})),download:filename});document.body.appendChild(a);a.click();a.remove();const sc=data.scorecard;const scoreSummary=sc?`VA/RC ${sc.varc.accuracy||0}% (${sc.varc.netScore||0} pts, ${sc.varc.percentile||0} %ile) | DI/LR ${sc.dilr.accuracy||0}% (${sc.dilr.netScore||0} pts, ${sc.dilr.percentile||0} %ile) | QA ${sc.qa.accuracy||0}% (${sc.qa.netScore||0} pts, ${sc.qa.percentile||0} %ile) — Total ${sc.total.netScore||0} pts, ${sc.total.percentile||0}%ile, AIR ${sc.total.allIndiaRank||'-'}`:'Scorecard not found';const overlay=document.createElement('div');overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-size:14px';overlay.innerHTML=`<div style="background:#fff;padding:24px;border-radius:10px;max-width:640px;width:92%;max-height:85vh;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.4)"><h3 style="margin:0 0 14px;color:#1a3a6e">✅ AIMCAT Data Extracted</h3><p><b>Student:</b> ${data.studentName} (<code>${data.studentId}</code>)</p><p><b>Test:</b> ${data.aimcatId}</p><p>${scoreSummary}</p><p><b>File:</b> <code>${filename}</code></p><button id="_ac" style="padding:6px 16px;margin-right:8px;cursor:pointer;background:#1a3a6e;color:#fff;border:none;border-radius:4px">Copy JSON</button><button onclick="this.closest('[style*=fixed]').remove()" style="padding:6px 16px;cursor:pointer;border:1px solid #ccc;border-radius:4px">Close</button><pre style="margin-top:14px;font-size:10px;background:#f5f5f5;padding:10px;border-radius:4px;overflow:auto;max-height:220px">${json.slice(0,3000)}</pre></div>`;document.body.appendChild(overlay);document.getElementById('_ac').onclick=()=>navigator.clipboard.writeText(json).then(()=>alert('Copied!'));})();
+// javascript:(async function(){'use strict';const wait=ms=>new Promise(r=>setTimeout(r,ms));if(!location.href.includes('aimcat')&&!document.body.innerText.toLowerCase().includes('aimcat')){alert('❌ Please open an AIMCAT results page first.');return;}function clickTab(txt){const els=[...document.querySelectorAll('li,a,button,span,div')].filter(e=>{const t=(e.textContent||'').trim();return t.toLowerCase().includes(txt.toLowerCase())&&t.length<80&&e.children.length<5;});if(!els.length)return false;els.sort((a,b)=>a.querySelectorAll('*').length-b.querySelectorAll('*').length);els[0].click();return true;}function getHeader(){const text=document.body.innerText;const idM=text.match(/ID\s*Card\s*No\s*[:\|]\s*([A-Z0-9]+)/i);const nameM=text.match(/Name\s*[:\|]\s*([^|\n\r]+)/i);const testM=text.match(/Test\s*[:\|]\s*(AIMCAT\s*\d+)/i);const anyA=text.match(/AIMCAT\s*(\d{4})/i);return{aimcatId:testM?testM[1].replace(/\s+/,''):(anyA?'AIMCAT'+anyA[1]:'UNKNOWN'),studentId:idM?idM[1].trim():'UNKNOWN',studentName:nameM?nameM[1].trim().replace(/\|.*/,'').replace(/Test.*/i,'').trim():'UNKNOWN'};}function extractScorecard(){const tbl=[...document.querySelectorAll('table')].find(t=>(t.innerText.includes('Right')||t.innerText.includes('NetScore'))&&t.innerText.includes('Accuracy'));if(!tbl)return null;const keys=['varc','dilr','qa','total'];const out=Object.fromEntries(keys.map(k=>[k,{}]));for(const row of tbl.querySelectorAll('tr')){const cells=[...row.querySelectorAll('td,th')];if(cells.length<2)continue;const lbl=cells[0].innerText.trim().toLowerCase();const vals=cells.slice(1,5).map(c=>c.innerText.trim());const sf=(f,fn)=>keys.forEach((k,i)=>{out[k][f]=fn(vals[i]??'');});const num=v=>parseFloat(v)||0;const int=v=>parseInt(v)||null;const dash=v=>(!v||v==='-'||v==='--')?null:parseFloat(v);if(lbl.includes('right')&&lbl.includes('wrong'))keys.forEach((k,i)=>{const m=(vals[i]||'').match(/(\d+)\s*[&\s]\s*(\d+)/);if(m){out[k].right=+m[1];out[k].wrong=+m[2];}});else if(lbl.includes('accuracy'))sf('accuracy',num);else if(lbl.includes('netscore')||lbl.includes('net score'))sf('netScore',num);else if(lbl.includes('cutoff'))sf('cutoff',dash);else if(lbl.includes('highest'))sf('highestScore',num);else if(lbl.includes('all india rank'))sf('allIndiaRank',int);else if(lbl.includes('city rank'))sf('cityRank',int);else if(lbl.includes('percentile score')||(lbl.includes('percentile')&&!lbl.includes('percentage')))sf('percentile',num);else if(lbl.includes('percentage'))sf('percentageScore',num);}return out;}function dumpTables(){return[...document.querySelectorAll('table')].map((t,i)=>({i,rows:[...t.querySelectorAll('tr')].map(r=>[...r.querySelectorAll('td,th')].map(c=>c.innerText.trim())).filter(r=>r.some(c=>c))}));}const hdr=getHeader();const res={...hdr,extractedAt:new Date().toISOString()};res.scorecard=extractScorecard();res._rawScorecard=dumpTables();const cs=clickTab('Subarea')||clickTab('Sub Area');await wait(2000);res._rawSubarea=dumpTables();const ct=clickTab('Time Spent')||clickTab('Time spent');await wait(2000);res._rawTimeAnalysis=dumpTables();const json=JSON.stringify(res,null,2);const fn=`aimcat_${hdr.studentId}_${hdr.aimcatId}.json`;const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([json],{type:'application/json'})),download:fn});document.body.appendChild(a);a.click();a.remove();const sc=res.scorecard;const ss=sc?`VARC ${sc.varc?.accuracy??'?'}% | ${sc.varc?.netScore??'?'}pts | ${sc.varc?.percentile??'?'}%ile\nDILR ${sc.dilr?.accuracy??'?'}% | ${sc.dilr?.netScore??'?'}pts | ${sc.dilr?.percentile??'?'}%ile\nQA   ${sc.qa?.accuracy??'?'}%  | ${sc.qa?.netScore??'?'}pts | ${sc.qa?.percentile??'?'}%ile\nTotal ${sc.total?.netScore??'?'}pts | ${sc.total?.percentile??'?'}%ile | AIR ${sc.total?.allIndiaRank??'?'}`:'Scorecard not found';const ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif';ov.innerHTML=`<div style="background:#fff;padding:24px;border-radius:10px;max-width:640px;width:94%;max-height:88vh;overflow:auto"><h3 style="color:#1a3a6e">✅ AIMCAT Extracted</h3><p><b>${res.studentName}</b> &nbsp;<code>${res.studentId}</code> &nbsp;|&nbsp; ${res.aimcatId}</p><pre style="background:#f0f4ff;padding:10px;border-radius:6px;font-size:12px">${ss}</pre><p style="font-size:12px">File: <code>${fn}</code><br>Subarea tab: ${cs?'✅':'❌'} &nbsp;Time tab: ${ct?'✅':'❌'}</p><button id="_ac_c" style="padding:6px 18px;background:#1a3a6e;color:#fff;border:none;border-radius:5px;cursor:pointer;margin-right:8px">Copy JSON</button><button onclick="this.closest('div').parentNode.remove()" style="padding:6px 18px;border:1px solid #ccc;border-radius:5px;cursor:pointer">Close</button><pre style="margin-top:12px;font-size:10px;background:#f5f5f5;padding:10px;border-radius:4px;overflow:auto;max-height:180px">${json.slice(0,2000)}</pre></div>`;document.body.appendChild(ov);document.getElementById('_ac_c').onclick=()=>navigator.clipboard.writeText(json).then(()=>alert('✅ Copied!'));})();
