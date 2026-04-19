@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Claude session data
+.claude/
+
+# Firebase credentials — NEVER commit
+scripts/service-account.json
+
+# Node dependencies
+scripts/node_modules/
+
+# Extracted student data (imported to Firestore, not for git)
+Extracted AIMCAT/

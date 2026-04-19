@@ -199,12 +199,17 @@ CAT SCORING FACTS: correct MCQ = +3, wrong = -1. Break-even accuracy is 25%. Nev
 
 N/A DATA RULE: If a section shows N/A accuracy, say "accuracy isn't being recorded yet for that section" — never write "N/A" in the message.
 
-TESTS FIELD: "Tests given" = sectional practice tests only, not full CAT mocks. Never mention mocks or recommend taking one.`;
+TESTS FIELD: "Tests given" = sectional practice tests only, not full CAT mocks. Never mention mocks or recommend taking one.
+
+AIMCAT RULE: When AIMCAT data is provided, let it anchor your message in test reality. The mock is the mirror — practice data shows effort, AIMCAT shows whether it's translating. Pick ONE specific lever: attempt strategy (are they skipping easy questions?), a specific weak topic, or time management. Never recap scores. Reference a trend only if stark. If results are pending (0%ile), acknowledge the test happened but focus on attempt patterns, not rank.
+
+AIMCAT BENCHMARKS (to inform your read, never quote these): net ≥80 = 80%ile range, net 50-70 = 60-75%ile, net 30-50 = 40-55%ile, net <30 = below 35%ile. Easy questions skipped or wrong = the highest-value fix. avg >200s/q in any section = time management problem.`;
 
   const THEMES = {
     monday: `Theme: WEEKLY RESET
 Look at the past week as a whole. Did they show up consistently? Is their study time actually growing, shrinking, or flat?
-Coach the trajectory, not the numbers. Is this person building momentum or drifting? Set one clear priority for the week ahead.`,
+Coach the trajectory, not the numbers. Is this person building momentum or drifting? Set one clear priority for the week ahead.
+If AIMCAT data is available: use the most recent mock as the weekly benchmark. Set ONE concrete target for the next mock (not "score higher" — something like "attempt 2 fewer DI/LR sets but solve the ones you pick completely"). Frame the week's practice around closing that one gap.`,
 
     tuesday: `Theme: VARC
 What's the story with their reading comprehension practice? Strong accuracy but low volume means they're playing it safe. Low accuracy means they're guessing. Zero practice means they're avoiding it entirely.
@@ -240,7 +245,7 @@ One line that reminds them this is a race, not a personal project.`,
 }
 
 function buildUserPrompt(theme, students) {
-  const lines = students.map(({ firstName, stats, rank, total, previousReports }) => {
+  const lines = students.map(({ firstName, stats, rank, total, previousReports, aimcatResults }) => {
     const s = stats;
 
     // Build previous coaching context if available
@@ -264,7 +269,7 @@ function buildUserPrompt(theme, students) {
   - Questions attempted: ${s.totalQ} (VARC: ${s.varcQ}, DILR: ${s.dilrQ}, QA: ${s.qaQ})
   - Accuracy: VARC ${s.varcAcc !== null ? s.varcAcc + '%' : 'N/A'}, DILR ${s.dilrAcc !== null ? s.dilrAcc + '%' : 'N/A'}, QA ${s.qaAcc !== null ? s.qaAcc + '%' : 'N/A'}
   - Tests given: ${s.totalTests}
-  - Squad rank by effort: #${rank} of ${total}${historySection}`;
+  - Squad rank by effort: #${rank} of ${total}${historySection}${formatAimcatForPrompt(aimcatResults)}`;
   }).join('\n\n');
 
   return `Here is the 14-day data for each student. Write one coaching message per student. Separate messages with a line containing only "---".
@@ -309,6 +314,64 @@ async function fetchPreviousReports(db, email, limit = 3) {
     .get();
 
   return snap.docs.map(d => d.data());
+}
+
+/** Fetch all AIMCAT results for a student, sorted oldest→newest (2725 first, 2723 last) */
+async function fetchAimcatResults(db, email) {
+  const snap = await db.collection('aimcatResults')
+    .where('email', '==', email.toLowerCase())
+    .get();
+  if (snap.empty) return [];
+  const results = snap.docs.map(d => d.data());
+  // Higher aimcatId number = older test, so sort descending = oldest first
+  results.sort((a, b) => b.aimcatId.localeCompare(a.aimcatId));
+  return results;
+}
+
+/** Format AIMCAT results as concise context for the coaching prompt */
+function formatAimcatForPrompt(aimcatResults) {
+  if (!aimcatResults || aimcatResults.length === 0) return '';
+
+  const lines = ['\nAIMCAT Results (oldest → newest, higher ID = older):'];
+
+  for (const r of aimcatResults) {
+    const sc = r.scorecard;
+    if (!sc) continue;
+    const pct  = sc.total.percentile  ? ` (${sc.total.percentile}%ile)`  : ' (results pending)';
+    const vpct = sc.varc.percentile   ? ` ${sc.varc.percentile}%ile`     : '';
+    const dpct = sc.dilr.percentile   ? ` ${sc.dilr.percentile}%ile`     : '';
+    const qpct = sc.qa.percentile     ? ` ${sc.qa.percentile}%ile`       : '';
+    lines.push(`  ${r.aimcatId}: net ${sc.total.netScore}${pct} | VARC ${sc.varc.netScore}${vpct}, DILR ${sc.dilr.netScore}${dpct}, QA ${sc.qa.netScore}${qpct}`);
+  }
+
+  // Drill into the latest mock (lowest aimcatId = newest = last in sorted array)
+  const latest = aimcatResults[aimcatResults.length - 1];
+  if (latest) {
+    const ta = latest.timeAnalysis;
+    if (ta) {
+      lines.push(`\n  Latest mock (${latest.aimcatId}) — attempt strategy:`);
+      for (const [sec, s] of Object.entries(ta)) {
+        const flags = [];
+        if (s.easySkipped   > 0) flags.push(`${s.easySkipped} easy Qs skipped`);
+        if (s.easyWrong     > 0) flags.push(`${s.easyWrong} easy Qs wrong`);
+        if (s.overTimeCount > 0) flags.push(`${s.overTimeCount} questions over-invested (>2.5× avg time)`);
+        lines.push(`  ${sec.toUpperCase()}: ${s.attempted} attempted / ${s.skipped} skipped, avg ${s.avgTimePerAttempted}s/q${flags.length ? ' ⚠ ' + flags.join(', ') : ''}`);
+      }
+    }
+    if (latest.subarea) {
+      const weakLines = [];
+      for (const [sec, rows] of Object.entries(latest.subarea)) {
+        const weak = rows.filter(r => r.accuracy !== null && r.accuracy < 50);
+        if (weak.length) weakLines.push(`  ${sec.toUpperCase()}: ${weak.map(r => `${r.subarea}(${r.accuracy}%)`).join(', ')}`);
+      }
+      if (weakLines.length) {
+        lines.push(`\n  Weak topics (latest mock, accuracy <50%):`);
+        lines.push(...weakLines);
+      }
+    }
+  }
+
+  return lines.join('\n');
 }
 
 /** Save a coaching report to Firestore after it is sent */
@@ -368,7 +431,8 @@ async function main() {
       const stats           = aggregateEntries(entries);
       const firstName       = EMAIL_TO_FIRST_NAME[email.toLowerCase()] || name.split(' ')[0];
       const previousReports = await fetchPreviousReports(db, email, 3);
-      return { email, name, firstName, stats, previousReports };
+      const aimcatResults   = await fetchAimcatResults(db, email);
+      return { email, name, firstName, stats, previousReports, aimcatResults };
     })
   );
 

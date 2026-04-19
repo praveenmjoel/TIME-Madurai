@@ -22,9 +22,17 @@ import { getFirestore }            from 'firebase-admin/firestore';
 
 // ── Student ID → email map (add new students as you extract their data) ──────
 const STUDENT_ID_TO_EMAIL = {
-  'MDCAB6A019': 'keerthypriya16102002@gmail.com',
-  'MDCAB6A014': 'philipephraim2004@gmail.com',
-  // Add others here as you run the bookmarklet for each student
+  'MDCAB6A001': 'anushuyakumar2006@gmail.com',   // Anushuya V K
+  'MDCAB6A006': 'rokininavaneeth@gmail.com',      // Rokini A N
+  'MDCAB6A008': 'niranjanaa3105007@gmail.com',    // Niranjanaa
+  'MDCAB6A010': 'aravindc20712@gmail.com',        // Aravind C
+  'MDCAB6A014': 'philipephraim2004@gmail.com',    // Philip Ephraim M
+  'MDCAB6A016': 'sandhyasrinivasan1908@gmail.com',// Sandhya S
+  'MDCAB6A019': 'keerthypriya16102002@gmail.com', // KeerthyPriya S
+  'MDCAB6A023': 'riajoyin@gmail.com',             // Joy Maria Varsha D
+  'MDCAB6A028': 'jenanii286@gmail.com',           // Jenani I
+  'MDCAB6A040': 'divyaamu2004@gmail.com',         // Dhivya Dharshinii A
+  'MDCAB6A041': 'rishirko1924@gmail.com',         // Rishi Kumar R
 };
 
 // ── Column indices for _rawTimeAnalysis table (confirmed from extraction) ────
