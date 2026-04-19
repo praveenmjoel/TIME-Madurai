@@ -191,7 +191,7 @@ Write the way a real coach talks to a student they genuinely care about, not the
 - Warm but brutally honest. Name the exact flaw or the exact win. Never vague.
 - End with one specific, concrete action for today. Not "study more" — a precise task with a time and a topic.
 
-CRITICAL — NAME RULE: Your response is appended after "Good Morning [Name],\n\n". The very first word of your response MUST NOT be the student's name. Wrong: "Rokini\n\n..." or "Rokini, you...". Correct: "Fourteen active days..." or "That 89% accuracy...". Start with a number, a verb, or an observation — never the name.
+CRITICAL — GREETING RULE: Your response is appended directly after "Good Morning [Name]," which is already in the message. Never open with a greeting of any kind. No "Good morning", no "Hi", no "Hello", no repeating the student's name. Wrong: "Good morning Dhivya..." or "Dhivya, you...". Correct: "Fourteen active days..." or "That 89% accuracy...". Start with a number, a verb, or an observation — jump straight into the coaching.
 
 HISTORY RULE: When previous coaching is provided, use the exact date label (yesterday, two days ago). Never fabricate a pattern. One previous message = one data point, not a trend.
 
@@ -328,48 +328,83 @@ async function fetchAimcatResults(db, email) {
   return results;
 }
 
-/** Format AIMCAT results as concise context for the coaching prompt */
+// Expands abbreviated subarea codes from the TIME4Education platform into
+// human-readable topic names so Claude doesn't parrot opaque codes at students.
+const SUBAREA_LABELS = {
+  'AMA':            'Averages, Mixtures & Alligations',
+  'RPV':            'Ratio, Proportion & Variation',
+  'PPL':            'Pipes, Partnership & Logarithms',
+  'Geo&Men':        'Geometry & Mensuration',
+  'P&C':            'Permutation & Combination',
+  'SI/CI':          'Simple & Compound Interest',
+  'CR Advanced':    'Critical Reasoning (Advanced)',
+  'Funtions':       'Functions',       // typo in platform, keep mapping
+  'Special Equations': 'Special Equations',
+  'Simple Equations':  'Linear Equations',
+};
+function expandSubarea(name) {
+  return SUBAREA_LABELS[name] || name;
+}
+
+/** Format AIMCAT results as concise context for the coaching prompt.
+ *  Keeps it brief: one-line summary per mock, then ONE sharp insight
+ *  from the latest mock only. Claude is told to use one lever — don't
+ *  give it twenty to choose from. */
 function formatAimcatForPrompt(aimcatResults) {
   if (!aimcatResults || aimcatResults.length === 0) return '';
 
-  const lines = ['\nAIMCAT Results (oldest → newest, higher ID = older):'];
+  const lines = ['\nAIMCAT mock history (higher ID = older test):'];
 
+  // One-line summary per mock — net score + overall %ile only
   for (const r of aimcatResults) {
     const sc = r.scorecard;
     if (!sc) continue;
-    const pct  = sc.total.percentile  ? ` (${sc.total.percentile}%ile)`  : ' (results pending)';
-    const vpct = sc.varc.percentile   ? ` ${sc.varc.percentile}%ile`     : '';
-    const dpct = sc.dilr.percentile   ? ` ${sc.dilr.percentile}%ile`     : '';
-    const qpct = sc.qa.percentile     ? ` ${sc.qa.percentile}%ile`       : '';
-    lines.push(`  ${r.aimcatId}: net ${sc.total.netScore}${pct} | VARC ${sc.varc.netScore}${vpct}, DILR ${sc.dilr.netScore}${dpct}, QA ${sc.qa.netScore}${qpct}`);
+    const pct = sc.total.percentile ? `${sc.total.percentile}%ile` : 'results pending';
+    lines.push(`  ${r.aimcatId}: net ${sc.total.netScore ?? '?'} (${pct})`);
   }
 
-  // Drill into the latest mock (lowest aimcatId = newest = last in sorted array)
+  // Latest mock: one sharp lever only — biggest red flag, in plain English
   const latest = aimcatResults[aimcatResults.length - 1];
-  if (latest) {
-    const ta = latest.timeAnalysis;
-    if (ta) {
-      lines.push(`\n  Latest mock (${latest.aimcatId}) — attempt strategy:`);
-      for (const [sec, s] of Object.entries(ta)) {
-        const flags = [];
-        if (s.easySkipped   > 0) flags.push(`${s.easySkipped} easy Qs skipped`);
-        if (s.easyWrong     > 0) flags.push(`${s.easyWrong} easy Qs wrong`);
-        if (s.overTimeCount > 0) flags.push(`${s.overTimeCount} questions over-invested (>2.5× avg time)`);
-        lines.push(`  ${sec.toUpperCase()}: ${s.attempted} attempted / ${s.skipped} skipped, avg ${s.avgTimePerAttempted}s/q${flags.length ? ' ⚠ ' + flags.join(', ') : ''}`);
-      }
-    }
-    if (latest.subarea) {
-      const weakLines = [];
-      for (const [sec, rows] of Object.entries(latest.subarea)) {
-        const weak = rows.filter(r => r.accuracy !== null && r.accuracy < 50);
-        if (weak.length) weakLines.push(`  ${sec.toUpperCase()}: ${weak.map(r => `${r.subarea}(${r.accuracy}%)`).join(', ')}`);
-      }
-      if (weakLines.length) {
-        lines.push(`\n  Weak topics (latest mock, accuracy <50%):`);
-        lines.push(...weakLines);
+  if (!latest) return lines.join('\n');
+
+  const sc = latest.scorecard || {};
+  const ta = latest.timeAnalysis || {};
+  const sub = latest.subarea || {};
+
+  const latestLines = [`\n  Latest mock (${latest.aimcatId}) — coaching lever:`];
+
+  // Priority 1: easy questions skipped or wrong (highest-value fix)
+  const easyIssues = [];
+  for (const [sec, s] of Object.entries(ta)) {
+    if ((s.easySkipped || 0) > 0) easyIssues.push(`${s.easySkipped} easy ${sec.toUpperCase()} questions left unattempted`);
+    if ((s.easyWrong   || 0) > 0) easyIssues.push(`${s.easyWrong} easy ${sec.toUpperCase()} questions answered wrong`);
+  }
+  if (easyIssues.length > 0) {
+    latestLines.push(`  Easy question loss: ${easyIssues.join('; ')}`);
+  }
+
+  // Priority 2: weakest subarea (lowest non-null accuracy, ≤50%)
+  let weakest = null;
+  for (const [sec, rows] of Object.entries(sub)) {
+    for (const row of rows) {
+      if (row.accuracy !== null && row.accuracy <= 50) {
+        if (!weakest || row.accuracy < weakest.accuracy) {
+          weakest = { sec: sec.toUpperCase(), topic: expandSubarea(row.subarea), accuracy: row.accuracy };
+        }
       }
     }
   }
+  if (weakest) {
+    latestLines.push(`  Weakest topic: ${weakest.sec} — ${weakest.topic} (${weakest.accuracy}% accuracy)`);
+  }
+
+  // Priority 3: time management (only if clearly a problem)
+  const slowSec = Object.entries(ta).find(([, s]) => (s.avgTimePerAttempted || 0) > 200);
+  if (slowSec && !easyIssues.length) {
+    latestLines.push(`  Time: avg ${slowSec[1].avgTimePerAttempted}s/question in ${slowSec[0].toUpperCase()} — too slow`);
+  }
+
+  if (latestLines.length > 1) lines.push(...latestLines);
 
   return lines.join('\n');
 }
@@ -521,7 +556,13 @@ async function main() {
     }
 
     try {
-      const dmContent = `Good Morning ${student.firstName},\n\n${feedback}`;
+      // Strip any greeting Claude accidentally generated at the top
+      // (double "Good Morning" or name repeat)
+      const cleanFeedback = feedback
+        .replace(/^(good\s+morning[\w\s,!.]*?\n+)+/i, '')
+        .replace(/^(hi|hello|hey)[\w\s,!.]*?\n+/i, '')
+        .trim();
+      const dmContent = `Good Morning ${student.firstName},\n\n${cleanFeedback}`;
       await postToChannel(channelId, dmContent);
       // Save report to Firestore for future cross-referencing
       await saveCoachingReport(db, student.email, dateStr, theme, feedback, student.stats);
