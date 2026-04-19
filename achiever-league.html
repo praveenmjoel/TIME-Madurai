@@ -2457,6 +2457,7 @@ function loadAimcatForCurrentStudent() {
   dashboard.style.display = 'none';
 
   if (!email) {
+    console.warn('[AIMCAT] No email for key:', key, '— KEY_TO_EMAIL:', JSON.stringify(KEY_TO_EMAIL));
     loading.style.display = 'none';
     noData.style.display  = 'block';
     return;
@@ -2468,18 +2469,26 @@ function loadAimcatForCurrentStudent() {
     return;
   }
 
+  console.log('[AIMCAT] Querying aimcatResults for email:', email);
   firebase.firestore().collection('aimcatResults')
     .where('email', '==', email)
     .get()
     .then(snap => {
+      console.log('[AIMCAT] Query returned', snap.size, 'docs for', email);
       const results = snap.docs.map(d => d.data());
       FIRESTORE_AIMCAT[email] = results;
       renderAimcatDashboard(results);
     })
     .catch(err => {
-      console.error('AIMCAT Firestore load failed:', err);
+      console.error('[AIMCAT] Firestore query failed for', email, ':', err.code, err.message);
       loading.style.display = 'none';
       noData.style.display  = 'block';
+      // Show hint in UI
+      noData.querySelector('.nd-title').textContent = 'AIMCAT data unavailable';
+      const hint = noData.querySelector('.nd-hint') || (() => { const p = document.createElement('p'); p.className='nd-hint'; noData.appendChild(p); return p; })();
+      hint.textContent = err.code === 'permission-denied'
+        ? '🔒 Firestore rules block this read. Update rules to include aimcatResults.'
+        : `Error: ${err.message}`;
     });
 }
 
