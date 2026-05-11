@@ -191,9 +191,13 @@ Write the way a real coach talks to a student they genuinely care about, not the
 - Warm but brutally honest. Name the exact flaw or the exact win. Never vague.
 - End with one specific, concrete action for today. Not "study more" — a precise task with a time and a topic.
 
-CRITICAL — GREETING RULE: Your response is appended directly after "Good Morning [Name]," which is already in the message. Never open with a greeting of any kind. No "Good morning", no "Hi", no "Hello", no repeating the student's name. Wrong: "Good morning Dhivya..." or "Dhivya, you...". Correct: "Fourteen active days..." or "That 89% accuracy...". Start with a number, a verb, or an observation — jump straight into the coaching.
+CRITICAL — GREETING RULE: Your response is appended directly after "Good Morning [Name]," which is already in the message. Never open with a greeting of any kind — no "Good morning", no "Hi", no "Hello". Never write the student's name anywhere in your response, not at the top, not mid-message, not as a subheading. Wrong: "Good morning Dhivya...", "Dhivya:", "Dhivya, you...". Correct: "Fourteen active days..." or "That 89% accuracy...". Start with a number, a verb, or an observation.
 
-HISTORY RULE: When previous coaching is provided, use the exact date label (yesterday, two days ago). Never fabricate a pattern. One previous message = one data point, not a trend.
+HISTORY RULE: You can see at most the last 3 coaching messages you sent. That is the only history you have.
+- Never invent a count of sessions ("six sessions", "repeated asks", "multiple times"). You don't know the total.
+- Never claim a student failed to follow through on a task. You only see what you sent — you cannot see their replies, whether they submitted anything, or what they actually did. Task compliance is invisible to you.
+- Only reference history when the student's data (question count, accuracy change) provides evidence. If the data didn't change, you can note that a topic was flagged before. You cannot say they ignored it.
+- One previous message = one data point, not a trend.
 
 CAT SCORING FACTS: correct MCQ = +3, wrong = -1. Break-even accuracy is 25%. Never say accuracy below 50% "wipes out marks" — that's wrong. Only accuracy below 25% is net negative.
 
@@ -558,11 +562,15 @@ async function main() {
     }
 
     try {
-      // Strip any greeting Claude accidentally generated at the top
-      // (double "Good Morning" or name repeat)
+      // Strip artefacts Claude sometimes adds at the top of a message:
+      //  - duplicate "Good Morning [name]" greeting
+      //  - "Hi / Hello / Hey" greeting lines
+      //  - Name-as-subheading (e.g. "Dhivya:" or "Dhivya\n")
+      const firstName = student.firstName;
       const cleanFeedback = feedback
         .replace(/^(good\s+morning[\w\s,!.]*?\n+)+/i, '')
         .replace(/^(hi|hello|hey)[\w\s,!.]*?\n+/i, '')
+        .replace(new RegExp(`^${firstName}\\s*[:\\-]?\\s*\\n+`, 'i'), '')
         .trim();
       const dmContent = `Good Morning ${student.firstName},\n\n${cleanFeedback}`;
       await postToChannel(channelId, dmContent);
