@@ -53,14 +53,6 @@
             0%   { clip-path: inset(-20% 100% -20% 0); }
             100% { clip-path: inset(-20% 0%   -20% 0); }
         }
-        @keyframes glowPulse {
-            0%,100% { text-shadow: 0 0 24px rgba(249,199,79,.35), 0 0 60px rgba(249,199,79,.15); }
-            50%      { text-shadow: 0 0 40px rgba(249,199,79,.55), 0 0 90px rgba(249,199,79,.25); }
-        }
-        @keyframes cursorFade {
-            0%,49% { opacity: 1; }
-            50%,100%{ opacity: 0; }
-        }
         @keyframes fadeUp {
             from { opacity:0; transform:translateY(24px); }
             to   { opacity:1; transform:translateY(0); }
@@ -74,18 +66,7 @@
             letter-spacing: -0.01em;
             padding: 0.15em 0;
             clip-path: inset(-20% 100% -20% 0);
-            animation: writeReveal 2.8s cubic-bezier(.25,.1,.25,1) .3s forwards,
-                       glowPulse 4s ease-in-out 3.2s infinite;
-        }
-        .hero-cursor {
-            display: inline-block;
-            width: 3px;
-            height: .75em;
-            background: #f9c74f;
-            vertical-align: middle;
-            margin-left: 6px;
-            opacity: 0;
-            animation: cursorFade .8s step-end 3.1s infinite;
+            animation: writeReveal 2.8s cubic-bezier(.25,.1,.25,1) .3s forwards;
         }
         .hero-sub {
             opacity: 0;
@@ -111,9 +92,11 @@
         .fu.d6 { transition-delay:.6s; }
 
         /* ── LOGO WHITE FILTER ── */
-        /* Converts blue-on-white JPG logo to white-on-transparent over dark backgrounds */
+        /* Converts dark-on-white JPG to white-on-transparent over dark nav.
+           contrast(100) pushes all pixels cleanly to black or white before
+           screen blend removes the black background. */
         .time-logo-img {
-            filter: grayscale(1) invert(1) contrast(4) brightness(8);
+            filter: grayscale(1) invert(1) contrast(100);
             mix-blend-mode: screen;
         }
 
@@ -323,7 +306,6 @@
         <h1 class="hero-text" style="font-size:clamp(60px,13vw,128px);">
             hello future!
         </h1>
-        <span class="hero-cursor"></span>
 
         <!-- Tagline -->
         <p class="hero-sub text-white/45 text-sm md:text-base tracking-widest uppercase mt-8 mb-14">
