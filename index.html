@@ -91,13 +91,9 @@
         .fu.d5 { transition-delay:.5s; }
         .fu.d6 { transition-delay:.6s; }
 
-        /* ── LOGO WHITE FILTER ── */
-        /* Converts dark-on-white JPG to white-on-transparent over dark nav.
-           contrast(100) pushes all pixels cleanly to black or white before
-           screen blend removes the black background. */
+        /* ── LOGO ── */
         .time-logo-img {
-            filter: grayscale(1) invert(1) contrast(100);
-            mix-blend-mode: screen;
+            display: block;
         }
 
         /* ── NAVBAR ── */
@@ -244,7 +240,7 @@
 <nav id="nav" class="fixed top-0 left-0 right-0 z-50 py-6 px-6 md:px-12">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
         <a href="#hero" class="flex items-center">
-            <img src="time-logo.jpg" alt="T.I.M.E. Madurai" class="time-logo-img" style="height:36px;width:auto;">
+            <img src="TIME Logo White.png" alt="T.I.M.E. Madurai" class="time-logo-img" style="height:36px;width:auto;">
         </a>
 
         <!-- Desktop links -->
