@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TCE CAT Advantage — IIM starts here | T.I.M.E. Madurai</title>
+  <meta name="description" content="Exclusive CAT 2026 programme for Thiagarajar College of Engineering students. IIM-A alumnus trainer. ₹25,000 only. Max 20 seats. June 2026 start.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:  '#0d2d6e',
+            'navy-light': '#1a3d8f',
+            gold:  '#f9c74f',
+            'gold-light': '#fdd87a',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Helvetica', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    /* ── NAV ── */
+    #nav { transition: background .5s, box-shadow .5s, padding .3s; }
+    #nav.scrolled {
+      background: rgba(13,45,110,.96);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 40px rgba(0,0,0,.25);
+      padding-top: 14px; padding-bottom: 14px;
+    }
+    .nav-link { position:relative; transition:color .3s; }
+    .nav-link::after {
+      content:''; position:absolute; bottom:-2px; left:0;
+      width:0; height:1px; background:#f9c74f; transition:width .3s;
+    }
+    .nav-link:hover::after { width:100%; }
+
+    /* ── LOGO ── */
+    .time-logo-img { display:block; }
+
+    /* ── HERO ── */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .fade-up-1 { animation: fadeUp .8s ease .1s both; }
+    .fade-up-2 { animation: fadeUp .8s ease .3s both; }
+    .fade-up-3 { animation: fadeUp .8s ease .5s both; }
+    .fade-up-4 { animation: fadeUp .8s ease .7s both; }
+
+    /* ── SCROLL REVEAL ── */
+    .fu { opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+    .fu.show { opacity:1; transform:translateY(0); }
+    .fu.d1 { transition-delay:.1s; } .fu.d2 { transition-delay:.2s; }
+    .fu.d3 { transition-delay:.3s; } .fu.d4 { transition-delay:.4s; }
+    .fu.d5 { transition-delay:.5s; } .fu.d6 { transition-delay:.6s; }
+
+    /* ── DOTS BG ── */
+    .dot-bg {
+      background-image: radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* ── LABELS ── */
+    .pill { font-size:11px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; }
+
+    /* ── GOLD LINE ── */
+    .gold-line { display:inline-block; width:32px; height:2px; background:#f9c74f; }
+
+    /* ── FEATURE CARDS ── */
+    .feat-card {
+      border:1px solid rgba(13,45,110,.09);
+      border-radius:16px; padding:24px;
+      transition:border-color .3s, transform .3s, box-shadow .3s;
+    }
+    .feat-card:hover {
+      border-color:#f9c74f;
+      transform:translateY(-4px);
+      box-shadow:0 16px 48px rgba(13,45,110,.07);
+    }
+
+    /* ── PHASE TIMELINE ── */
+    .phase-card {
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:16px; padding:32px;
+      transition:border-color .3s;
+    }
+    .phase-card:hover { border-color:rgba(249,199,79,.35); }
+
+    /* ── COMPARE TABLE ── */
+    .cmp-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    .cmp-table th { text-align:left; padding:12px 16px; font-size:0.7rem; text-transform:uppercase; letter-spacing:.06em; font-weight:600; border-bottom:1px solid rgba(13,45,110,.1); }
+    .cmp-table td { padding:12px 16px; border-bottom:1px solid rgba(13,45,110,.05); vertical-align:middle; }
+    .cmp-table tr:last-child td { border-bottom:none; }
+    .cmp-table .good { color:#2ecd6f; font-weight:600; }
+    .cmp-table .muted { color:#9ca3af; }
+
+    /* ── BUTTONS ── */
+    .btn-gold {
+      background:#f9c74f; color:#0d2d6e; font-weight:700;
+      transition:background .3s, transform .3s, box-shadow .3s;
+    }
+    .btn-gold:hover { background:#fdd87a; transform:translateY(-2px); box-shadow:0 12px 32px rgba(249,199,79,.4); }
+    .btn-outline { border:1px solid rgba(255,255,255,.2); color:white; transition:border-color .3s, color .3s; }
+    .btn-outline:hover { border-color:#f9c74f; color:#f9c74f; }
+
+    /* ── FORM ── */
+    .form-field {
+      width:100%; background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.15); border-radius:10px;
+      padding:14px 18px; color:white; font-family:inherit; font-size:0.92rem;
+      transition:border-color .3s, background .3s;
+      outline:none;
+    }
+    .form-field::placeholder { color:rgba(255,255,255,.35); }
+    .form-field:focus { border-color:#f9c74f; background:rgba(255,255,255,.1); }
+    .form-field.error { border-color:#e50000; }
+
+    /* ── FAQ ── */
+    .faq-item { border-bottom:1px solid rgba(13,45,110,.08); }
+    .faq-q {
+      width:100%; text-align:left; padding:20px 0;
+      font-weight:600; color:#0d2d6e; font-size:0.9rem;
+      display:flex; justify-content:space-between; align-items:center;
+      background:none; border:none; cursor:pointer; font-family:inherit;
+    }
+    .faq-a { font-size:0.85rem; color:#374151; line-height:1.7; padding-bottom:16px; display:none; }
+    .faq-a.open { display:block; }
+    .faq-chevron { transition:transform .3s; flex-shrink:0; margin-left:16px; color:#9ca3af; }
+    .faq-chevron.open { transform:rotate(180deg); }
+
+    /* ── TOAST ── */
+    #toast {
+      position:fixed; bottom:28px; right:28px; z-index:9999;
+      background:#0d2d6e; color:white; border-radius:12px;
+      padding:16px 24px; font-size:0.88rem; font-weight:500;
+      box-shadow:0 16px 48px rgba(0,0,0,.2);
+      transform:translateY(80px); opacity:0;
+      transition:transform .4s ease, opacity .4s ease;
+      max-width:320px;
+    }
+    #toast.show { transform:translateY(0); opacity:1; }
+    #toast.success { border-left:4px solid #2ecd6f; }
+    #toast.error-toast { border-left:4px solid #e50000; }
+
+    /* ── STICKY CTA BAR ── */
+    #sticky-bar {
+      position:fixed; bottom:0; left:0; right:0; z-index:100;
+      background:rgba(13,45,110,.97); backdrop-filter:blur(10px);
+      padding:12px 24px; display:flex; align-items:center; justify-content:space-between;
+      border-top:1px solid rgba(249,199,79,.25);
+      transform:translateY(100%); transition:transform .5s ease;
+    }
+    #sticky-bar.visible { transform:translateY(0); }
+
+    .sec { padding:100px 0; }
+    @media(max-width:768px){ .sec { padding:64px 0; } }
+  </style>
+</head>
+
+<body class="bg-white font-sans antialiased text-navy" style="padding-bottom:72px;">
+
+<!-- ══════════════════════════════════
+     NAVBAR
+══════════════════════════════════ -->
+<nav id="nav" class="fixed top-0 left-0 right-0 z-50 py-6 px-6 md:px-12">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <a href="/" class="flex items-center">
+      <img src="TIME Logo White.png" alt="T.I.M.E. Madurai" class="time-logo-img" style="height:34px;width:auto;">
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="/#journey"  class="nav-link text-white/60 hover:text-white text-sm tracking-wide">The Journey</a>
+      <a href="/#courses"  class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Programs</a>
+      <a href="/#why-time" class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Why T.I.M.E.</a>
+      <a href="/achiever-league.html" class="nav-link text-white/60 hover:text-white text-sm tracking-wide flex items-center gap-1.5">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+        Student Login
+      </a>
+      <a href="#enroll" class="btn-gold text-sm px-5 py-2.5 rounded-full">Reserve Your Seat</a>
+    </div>
+    <button id="hamburger" class="md:hidden text-white p-1">
+      <svg id="ham-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
+      <svg id="close-icon" class="hidden" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div id="mobile-menu" class="hidden md:hidden mt-4 pt-4 border-t border-white/10 flex flex-col gap-5 px-2 pb-4">
+    <a href="/#journey"  class="text-white/70 text-sm">The Journey</a>
+    <a href="/#courses"  class="text-white/70 text-sm">Programs</a>
+    <a href="/#why-time" class="text-white/70 text-sm">Why T.I.M.E.</a>
+    <a href="/achiever-league.html" class="text-white/70 text-sm">Student Login</a>
+    <a href="#enroll" class="btn-gold text-sm font-medium px-5 py-2.5 rounded-full w-fit">Reserve Your Seat</a>
+  </div>
+</nav>
+
+
+<!-- ══════════════════════════════════
+     HERO
+══════════════════════════════════ -->
+<section class="min-h-screen bg-navy flex flex-col items-center justify-center relative" style="padding:0;">
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="dot-bg absolute inset-0"></div>
+    <div class="absolute top-1/4 left-1/3 w-96 h-96 rounded-full" style="background:radial-gradient(circle,rgba(249,199,79,.1),transparent);filter:blur(90px);"></div>
+    <div class="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full" style="background:radial-gradient(circle,rgba(74,140,217,.08),transparent);filter:blur(100px);"></div>
+  </div>
+
+  <div class="relative z-10 text-center px-6 max-w-4xl mx-auto" style="padding-top:100px;padding-bottom:80px;">
+
+    <!-- Exclusivity pill -->
+    <div class="fade-up-1 inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full" style="background:rgba(249,199,79,.12);border:1px solid rgba(249,199,79,.25);">
+      <span class="w-1.5 h-1.5 rounded-full bg-gold inline-block"></span>
+      <span class="pill text-gold text-xs">Exclusively for TCE Students &mdash; CAT 2026</span>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="fade-up-2 font-bold text-white leading-tight mb-6" style="font-size:clamp(34px,6vw,68px);line-height:1.1;">
+      You cracked JEE<br>to get into TCE.<br>
+      <span style="color:#f9c74f;">Now crack CAT<br>to get into IIM.</span>
+    </h1>
+
+    <!-- Sub -->
+    <p class="fade-up-3 text-white/50 text-sm md:text-base leading-relaxed max-w-xl mx-auto mb-10">
+      A CAT 2026 programme designed specifically for Thiagarajar College of Engineering &mdash; live online classes, IIM-A alumnus trainer, full TIME mock series. 20 seats only.
+    </p>
+
+    <!-- Price badges -->
+    <div class="fade-up-4 flex flex-wrap items-center justify-center gap-4 mb-10">
+      <div class="rounded-2xl px-6 py-4 text-center" style="background:rgba(249,199,79,.12);border:1px solid rgba(249,199,79,.25);">
+        <div class="text-gold font-bold" style="font-size:2rem;line-height:1;">₹25,000</div>
+        <div class="text-white/40 text-xs mt-1">TCE exclusive price</div>
+        <div class="text-white/25 text-xs line-through">₹50,000 regular</div>
+      </div>
+      <div class="rounded-2xl px-6 py-4 text-center" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+        <div class="text-white font-bold text-2xl">20</div>
+        <div class="text-white/40 text-xs mt-1">Seats only</div>
+      </div>
+      <div class="rounded-2xl px-6 py-4 text-center" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+        <div class="text-white font-bold text-2xl">June</div>
+        <div class="text-white/40 text-xs mt-1">2026 start</div>
+      </div>
+      <div class="rounded-2xl px-6 py-4 text-center" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+        <div class="text-white font-bold text-2xl">IIM-A</div>
+        <div class="text-white/40 text-xs mt-1">Alumnus trainer</div>
+      </div>
+    </div>
+
+    <a href="#enroll" class="btn-gold inline-flex items-center gap-3 px-8 py-4 rounded-full text-sm font-semibold tracking-wide">
+      Reserve Your Seat
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+    </a>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     WHAT'S INCLUDED
+══════════════════════════════════ -->
+<section class="sec bg-white">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+    <div class="mb-16 fu">
+      <span class="pill text-navy/35">the programme</span>
+      <h2 class="font-bold text-navy mt-3" style="font-size:clamp(28px,5vw,48px);line-height:1.2;">
+        Everything you need.<br>Nothing you don't.
+      </h2>
+      <p class="text-navy/45 mt-4 max-w-md text-sm leading-relaxed">One programme. One batch. One trainer who cracked CAT and got into IIM-A. Six months to change your trajectory.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="feat-card fu d1">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">Live Online Classes</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">3 sessions per week, 2 hours each. Via Zoom. Real-time interaction — not passive video consumption.</p>
+      </div>
+
+      <div class="feat-card fu d2">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">Session Recordings</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">Every session recorded and available for 30 days. Miss a class without losing a concept.</p>
+      </div>
+
+      <div class="feat-card fu d3">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">TIME Printed Study Materials</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">India's best CAT study materials, printed and courier-shipped to your doorstep. Not PDFs.</p>
+      </div>
+
+      <div class="feat-card fu d4">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">20+ Full-Length CAT Mocks</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">Complete TIME CAT mock series with All-India ranking. Sectional mocks and adaptive practice sets included.</p>
+      </div>
+
+      <div class="feat-card fu d5">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">Monthly 1-on-1 with IIM-A Alumnus</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">A personal check-in every month with your trainer. Your strategy, your weak areas, your name — not a generic Q&amp;A.</p>
+      </div>
+
+      <div class="feat-card fu d6">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">IIM Application + Interview Prep</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">B-school shortlisting, SOP guidance, and post-CAT interview prep for shortlisted students. The full journey.</p>
+      </div>
+    </div>
+
+    <!-- Quick stats bar -->
+    <div class="mt-16 rounded-2xl bg-navy p-8 fu">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div>
+          <div class="text-gold font-bold text-3xl mb-1">6</div>
+          <div class="text-white/40 text-xs uppercase tracking-widest">Months</div>
+        </div>
+        <div>
+          <div class="text-gold font-bold text-3xl mb-1">20</div>
+          <div class="text-white/40 text-xs uppercase tracking-widest">Max Students</div>
+        </div>
+        <div>
+          <div class="text-gold font-bold text-3xl mb-1">20+</div>
+          <div class="text-white/40 text-xs uppercase tracking-widest">CAT Mock Tests</div>
+        </div>
+        <div>
+          <div class="text-gold font-bold text-3xl mb-1">100%</div>
+          <div class="text-white/40 text-xs uppercase tracking-widest">Live Online</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     IIM-A ADVANTAGE
+══════════════════════════════════ -->
+<section class="sec" style="background:#f9f9fb;">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+      <div class="fu">
+        <span class="pill text-navy/35">the difference</span>
+        <h2 class="font-bold text-navy mt-3 mb-6" style="font-size:clamp(28px,4.5vw,46px);line-height:1.2;">
+          Not someone who<br>teaches CAT.<br>
+          <span style="color:#0d2d6e;opacity:.6;">Someone who cracked it.</span>
+        </h2>
+        <p class="text-navy/45 text-sm leading-relaxed mb-8 max-w-md">
+          Most online portals give you a "faculty" with a recorded lecture. Your trainer here is an IIM Ahmedabad alumnus — someone who sat the same CAT you're preparing for, got the call, and knows exactly what the IIM panel is looking for.
+        </p>
+
+        <!-- Quote -->
+        <div class="rounded-2xl p-6" style="background:rgba(13,45,110,.05);border-left:3px solid #f9c74f;">
+          <p class="text-navy text-sm leading-relaxed italic mb-3">
+            "Your trainer knows exactly what the IIM panel is looking for. That's not available on any app."
+          </p>
+          <div class="text-navy/40 text-xs font-medium uppercase tracking-wide">IIM-A alumnus, your CAT 2026 trainer</div>
+        </div>
+      </div>
+
+      <div class="fu d2 space-y-4">
+        <div class="flex items-start gap-4 p-5 rounded-xl bg-white border border-navy/8">
+          <div class="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div>
+            <div class="text-navy font-semibold text-sm mb-1">Personal CAT preparation strategy</div>
+            <div class="text-navy/45 text-xs leading-relaxed">What worked, what didn't — shared from direct experience, not from a trainer manual.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-5 rounded-xl bg-white border border-navy/8">
+          <div class="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div>
+            <div class="text-navy font-semibold text-sm mb-1">IIM selection process decoded</div>
+            <div class="text-navy/45 text-xs leading-relaxed">WAT, Personal Interview, profile scoring — from someone who went through it all.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-5 rounded-xl bg-white border border-navy/8">
+          <div class="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div>
+            <div class="text-navy font-semibold text-sm mb-1">Strategy built for engineering profiles</div>
+            <div class="text-navy/45 text-xs leading-relaxed">TCE students come in strong at QA. Your trainer knows exactly how to close the VARC and DILR gap fast.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-5 rounded-xl bg-white border border-navy/8">
+          <div class="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div>
+            <div class="text-navy font-semibold text-sm mb-1">Access to IIM alumni network</div>
+            <div class="text-navy/45 text-xs leading-relaxed">Connections that extend well beyond the classroom and the test itself.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     PHASE TIMELINE
+══════════════════════════════════ -->
+<section class="sec bg-navy relative overflow-hidden">
+  <div class="dot-bg absolute inset-0 pointer-events-none opacity-40"></div>
+  <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+
+    <div class="mb-16 fu">
+      <span class="pill text-white/30">the journey — 6 months</span>
+      <h2 class="font-bold text-white mt-3" style="font-size:clamp(28px,5vw,48px);line-height:1.2;">
+        Built for how<br>engineering students learn.
+      </h2>
+      <p class="text-white/35 mt-4 text-sm leading-relaxed max-w-md">TCE students enter with strong Quantitative Aptitude. The programme front-loads VARC and DILR to close the gap early, then assembles a score-maximising test strategy.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Phase 1 -->
+      <div class="phase-card fu d1">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center flex-shrink-0">
+            <span class="text-gold text-xs font-semibold">01</span>
+          </div>
+          <div class="flex-1 h-px bg-white/10"></div>
+          <span class="text-white/30 text-xs">June – July</span>
+        </div>
+        <div class="pill text-gold/55 mb-3">Foundation</div>
+        <h3 class="text-white font-semibold text-base mb-3">Close the gap. Build the base.</h3>
+        <p class="text-white/40 text-sm leading-relaxed mb-5">Concept building across all three sections — heavy focus on VARC and DILR to close the engineering-student gap early.</p>
+        <div class="text-gold/60 text-xs font-medium">6 hrs / week</div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="phase-card fu d2">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center flex-shrink-0">
+            <span class="text-gold text-xs font-semibold">02</span>
+          </div>
+          <div class="flex-1 h-px bg-white/10"></div>
+          <span class="text-white/30 text-xs">Aug – Sept</span>
+        </div>
+        <div class="pill text-gold/55 mb-3">Advanced Practice</div>
+        <h3 class="text-white font-semibold text-base mb-3">Speed. Accuracy. Sectional mocks.</h3>
+        <p class="text-white/40 text-sm leading-relaxed mb-5">Rigorous problem-solving practice. QA speed optimisation. Sectional mocks and adaptive practice sets for every section.</p>
+        <div class="text-gold/60 text-xs font-medium">8 hrs / week</div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="fu d3" style="border:1px solid rgba(249,199,79,.3);background:rgba(249,199,79,.04);border-radius:16px;padding:32px;">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="border:1px solid rgba(249,199,79,.4);">
+            <span class="text-gold text-xs font-semibold">03</span>
+          </div>
+          <div class="flex-1 h-px" style="background:rgba(249,199,79,.2);"></div>
+          <span class="text-white/30 text-xs">Oct – Nov</span>
+        </div>
+        <div class="pill text-gold/55 mb-3">Full-Test Sprint</div>
+        <h3 class="text-white font-semibold text-base mb-3">Mocks. IIM strategy. Interview prep.</h3>
+        <p class="text-white/40 text-sm leading-relaxed mb-5">Full-length mocks every week, deep analysis, IIM shortlisting strategy, and post-CAT interview preparation for those who get calls.</p>
+        <div class="text-gold/60 text-xs font-medium">10 hrs / week</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     COMPARISON
+══════════════════════════════════ -->
+<section class="sec bg-white">
+  <div class="max-w-5xl mx-auto px-6 md:px-12">
+
+    <div class="mb-12 text-center fu">
+      <span class="pill text-navy/35">why not online?</span>
+      <h2 class="font-bold text-navy mt-3" style="font-size:clamp(26px,4.5vw,44px);line-height:1.2;">
+        The comparison they don't want you to see.
+      </h2>
+      <p class="text-navy/45 mt-4 text-sm leading-relaxed max-w-lg mx-auto">Completion rates on self-paced online platforms are under 10%. A live class where your trainer knows your name has 10x the accountability.</p>
+    </div>
+
+    <div class="fu rounded-2xl overflow-hidden border border-navy/8">
+      <table class="cmp-table">
+        <thead>
+          <tr style="background:#f9f9fb;">
+            <th class="text-navy/50">What matters</th>
+            <th class="text-navy/35">Generic online portal</th>
+            <th style="color:#0d2d6e;">TCE CAT Advantage</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white">
+          <tr>
+            <td class="font-medium text-navy text-sm">Trainer</td>
+            <td class="muted">Unknown faculty, recorded videos</td>
+            <td class="good">IIM Ahmedabad alumnus, live</td>
+          </tr>
+          <tr style="background:#f9f9fb;">
+            <td class="font-medium text-navy text-sm">Batch Size</td>
+            <td class="muted">Thousands</td>
+            <td class="good">Max 20 — your name is known</td>
+          </tr>
+          <tr>
+            <td class="font-medium text-navy text-sm">Personal Attention</td>
+            <td class="muted">None</td>
+            <td class="good">Monthly 1-on-1 + doubt clearing</td>
+          </tr>
+          <tr style="background:#f9f9fb;">
+            <td class="font-medium text-navy text-sm">Price</td>
+            <td class="muted">₹18,000 – ₹40,000</td>
+            <td class="good">₹25,000 (50% off regular)</td>
+          </tr>
+          <tr>
+            <td class="font-medium text-navy text-sm">Study Materials</td>
+            <td class="muted">PDF dumps</td>
+            <td class="good">TIME printed books, courier-shipped</td>
+          </tr>
+          <tr style="background:#f9f9fb;">
+            <td class="font-medium text-navy text-sm">Mock Tests</td>
+            <td class="muted">Portal-specific</td>
+            <td class="good">TIME CAT series — 20+ full-length</td>
+          </tr>
+          <tr>
+            <td class="font-medium text-navy text-sm">IIM Strategy</td>
+            <td class="muted">Generic videos</td>
+            <td class="good">1-on-1 with someone who cracked it</td>
+          </tr>
+          <tr style="background:#f9f9fb;">
+            <td class="font-medium text-navy text-sm">Accountability</td>
+            <td class="muted">Zero</td>
+            <td class="good">Weekly reviews, personal follow-up</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Exclusive callout -->
+    <div class="mt-8 rounded-2xl p-6 text-center fu" style="background:rgba(13,45,110,.04);border:1px dashed rgba(13,45,110,.15);">
+      <p class="text-navy/60 text-sm leading-relaxed">
+        <span class="font-semibold text-navy">This price is for TCE students only.</span> The rest of the world pays ₹50,000 for the same programme. This offer closes when the batch fills — max 20 seats.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     FAQ / OBJECTION HANDLERS
+══════════════════════════════════ -->
+<section class="sec" style="background:#f9f9fb;">
+  <div class="max-w-3xl mx-auto px-6 md:px-12">
+    <div class="mb-12 fu">
+      <span class="pill text-navy/35">common questions</span>
+      <h2 class="font-bold text-navy mt-3" style="font-size:clamp(24px,4vw,40px);line-height:1.2;">Things people ask before joining.</h2>
+    </div>
+
+    <div class="fu space-y-0" id="faqContainer">
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>I already have an online subscription. Why this?</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          How many hours have you actually watched? Most students buy and never finish — completion rates on self-paced platforms are under 10%. This programme has live classes three times a week with a trainer who notices when you're not paying attention. And that trainer is an IIM-A alumnus who cracked the same exam you're preparing for.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>Can I manage on my own?</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          A lot of brilliant TCE students say that. Most of them also score under 90 percentile — because CAT isn't about intelligence, it's about strategy and stamina. Our trainer cracked it. He'll tell you exactly what to do and what not to do, week by week, for six months.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>₹25,000 is still a significant amount.</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          The standard price for this exact programme — same trainer, same materials, same mocks — is ₹50,000. We're offering it at half price because we want to build a strong TCE cohort for CAT 2026. After the batch fills, this offer closes. Payment can also be split into two installments if needed.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>Why T.I.M.E. and not a bigger online brand?</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          T.I.M.E. has been training CAT aspirants for over 30 years with a track record of IIM results across India. The difference here is that you won't be one among a lakh students on an app — you'll be in a batch of 20, with an IIM-A alumnus who knows your name and will call you if you miss a class.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>I'm in my 2nd year. Is it too early?</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          This programme is open to 2nd, 3rd and 4th year students as well as recent alumni. Starting early is a significant advantage — you have time to build the reading habit that VARC demands and develop strong DILR instincts before the exam pressure sets in. Most students who start late wish they hadn't.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     ENROLLMENT FORM
+══════════════════════════════════ -->
+<section id="enroll" class="sec bg-navy relative overflow-hidden">
+  <div class="absolute top-0 left-0 right-0 h-px" style="background:linear-gradient(90deg,transparent,rgba(249,199,79,.3),transparent);"></div>
+  <div class="dot-bg absolute inset-0 pointer-events-none opacity-30"></div>
+  <div class="absolute -top-32 -right-32 w-80 h-80 rounded-full pointer-events-none" style="background:radial-gradient(circle,rgba(249,199,79,.08),transparent);filter:blur(70px);"></div>
+
+  <div class="max-w-xl mx-auto px-6 md:px-12 relative z-10">
+
+    <div class="text-center mb-10 fu">
+      <span class="pill text-white/30">20 seats. June 2026.</span>
+      <h2 class="font-bold text-white mt-3 mb-4" style="font-size:clamp(28px,5vw,48px);line-height:1.2;">
+        Reserve Your Seat.
+      </h2>
+      <p class="text-white/45 text-sm leading-relaxed">Leave your name and number. We'll reach out within 24 hours with programme details and a free 15-minute call with the trainer.</p>
+    </div>
+
+    <!-- Form -->
+    <div class="fu d2 rounded-2xl p-8 md:p-10" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+      <form id="enrollForm" onsubmit="submitEnrollment(event)">
+
+        <div class="mb-5">
+          <label class="block text-white/60 text-xs font-medium uppercase tracking-widest mb-2">Full Name *</label>
+          <input id="f-name" type="text" placeholder="Your full name" class="form-field" required autocomplete="name">
+        </div>
+
+        <div class="mb-5">
+          <label class="block text-white/60 text-xs font-medium uppercase tracking-widest mb-2">Phone Number *</label>
+          <input id="f-phone" type="tel" placeholder="+91 98765 43210" class="form-field" required autocomplete="tel">
+        </div>
+
+        <div class="mb-5">
+          <label class="block text-white/60 text-xs font-medium uppercase tracking-widest mb-2">Year of Study</label>
+          <select id="f-year" class="form-field" style="appearance:none;">
+            <option value="" style="background:#0d2d6e;">Select year (optional)</option>
+            <option value="2nd Year" style="background:#0d2d6e;">2nd Year</option>
+            <option value="3rd Year" style="background:#0d2d6e;">3rd Year</option>
+            <option value="4th Year" style="background:#0d2d6e;">4th Year</option>
+            <option value="Alumni" style="background:#0d2d6e;">TCE Alumni</option>
+          </select>
+        </div>
+
+        <div class="mb-8">
+          <label class="block text-white/60 text-xs font-medium uppercase tracking-widest mb-2">Email <span class="text-white/25 normal-case tracking-normal font-normal">(optional)</span></label>
+          <input id="f-email" type="email" placeholder="your@email.com" class="form-field" autocomplete="email">
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn-gold w-full py-4 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-3">
+          <span id="btnText">Reserve My Seat</span>
+          <svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          <svg id="btnSpinner" class="w-4 h-4 hidden animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+        </button>
+
+        <p class="text-white/25 text-xs text-center mt-4 leading-relaxed">No spam. No pressure. Just a conversation about your CAT 2026 plan.</p>
+      </form>
+
+      <!-- Success state -->
+      <div id="formSuccess" class="hidden text-center py-4">
+        <div class="text-4xl mb-4">🎯</div>
+        <h3 class="text-white font-semibold text-lg mb-2">You're on the list.</h3>
+        <p class="text-white/50 text-sm leading-relaxed">We'll call you within 24 hours. Save our number: <span class="text-gold font-medium">78680 06060</span>.</p>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="mt-8 text-center fu d3">
+      <p class="text-white/30 text-xs">Prefer to call directly?</p>
+      <a href="tel:+917868006060" class="text-gold text-sm font-medium hover:text-gold-light transition-colors">78680 06060</a>
+      <span class="text-white/20 mx-2">·</span>
+      <a href="mailto:reachpraveenm@gmail.com" class="text-gold text-sm font-medium hover:text-gold-light transition-colors">reachpraveenm@gmail.com</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     FOOTER
+══════════════════════════════════ -->
+<footer class="bg-navy border-t border-white/5 py-10 px-6 md:px-12">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <img src="TIME Logo White.png" alt="T.I.M.E. Madurai" style="height:28px;width:auto;">
+      <span class="text-white/20 text-xs">T.I.M.E. Madurai &mdash; PG Division</span>
+    </div>
+    <div class="flex items-center gap-6">
+      <a href="/" class="text-white/30 text-xs hover:text-white/60 transition-colors">Home</a>
+      <a href="/#courses" class="text-white/30 text-xs hover:text-white/60 transition-colors">Programs</a>
+      <a href="/#cta" class="text-white/30 text-xs hover:text-white/60 transition-colors">Contact</a>
+    </div>
+    <div class="text-white/20 text-xs">&copy; 2026 T.I.M.E. Madurai. All rights reserved.</div>
+  </div>
+</footer>
+
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Sticky bar (mobile) -->
+<div id="sticky-bar" class="md:hidden">
+  <div>
+    <div class="text-white text-sm font-semibold">TCE CAT Advantage</div>
+    <div class="text-white/45 text-xs">₹25,000 · 20 seats · June 2026</div>
+  </div>
+  <a href="#enroll" class="btn-gold px-5 py-2.5 rounded-full text-sm font-semibold">Reserve Seat</a>
+</div>
+
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script>
+// ── ClickUp Config ─────────────────────────────────────────────────────────
+// Replace with your ClickUp personal API key (Settings → Apps → API Token)
+const CLICKUP_API_KEY   = 'pk_152521978_7EHF7ITXDVC0YYXJYKYYGY85RBZF66CC';
+const CLICKUP_LIST_ID   = '901611772550';   // TIME PG Database
+const CLICKUP_WS_ID     = '9016591512';
+const MARKETING_CHANNEL = '4-90162159784-8'; // Marketing channel
+
+// ── Field IDs (TIME PG Database) ───────────────────────────────────────────
+const FIELD = {
+  mobile:       '11e5ef8a-5870-4da1-9bc7-7fc5c72d8dfe',
+  leadSource:   '49cdb879-1668-4e1a-a085-e27faacbd0c7',
+  leadStatus:   'dbc59886-963c-4a0f-8016-e96a7b6033e1',
+  howKnow:      '1c1eb4b5-fdbd-41f1-a71f-00a6b0d97bf6',
+  collegeText:  '7bef52b1-ccd1-4aa2-8a59-0eeb082d135c',
+  sourceNotes:  'eb042253-39ef-44da-bb36-e59b188d2abd',
+  courses:      '86ffabee-e295-4d77-b136-851260a88ec2',
+  email:        '046eee55-2753-4209-9e07-a57a472a0e92',
+  department:   'f0c98e22-139f-480d-bf7f-397edc1e58da',
+};
+// Option IDs
+const OPT = {
+  leadSourceDigital: 'f8748059-ce6e-4a59-bbb1-667b8f5fa2ab', // HO Digital Enquiry
+  leadStatusHot:     '20f4598b-17da-4bf2-b320-760f8661f1f9', // Hot Follow-up
+  howKnowWebsite:    '998c3fda-d40b-48ea-8f63-046c3fb7462a', // Website
+  courseCAT2026:     '49201c14-bf26-4627-8262-32cdc0d8a28f', // CAT 2026
+};
+
+// ── Form submission ─────────────────────────────────────────────────────────
+async function submitEnrollment(e) {
+  e.preventDefault();
+
+  const name  = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const year  = document.getElementById('f-year').value;
+  const email = document.getElementById('f-email').value.trim();
+
+  if (!name || !phone) { showToast('Please enter your name and phone number.', 'error'); return; }
+
+  // UI: loading state
+  const btn      = document.getElementById('submitBtn');
+  const btnText  = document.getElementById('btnText');
+  const btnIcon  = document.getElementById('btnIcon');
+  const spinner  = document.getElementById('btnSpinner');
+  btn.disabled = true;
+  btnText.textContent = 'Submitting…';
+  btnIcon.classList.add('hidden');
+  spinner.classList.remove('hidden');
+
+  try {
+    // 1. Create ClickUp task in TIME PG Database
+    const taskPayload = {
+      name: name,
+      description: `TCE CAT Advantage enquiry — submitted via website.\n\nPhone: ${phone}${year ? '\nYear: ' + year : ''}${email ? '\nEmail: ' + email : ''}`,
+      custom_fields: [
+        { id: FIELD.mobile,      value: phone },
+        { id: FIELD.leadSource,  value: OPT.leadSourceDigital },
+        { id: FIELD.leadStatus,  value: OPT.leadStatusHot },
+        { id: FIELD.howKnow,     value: OPT.howKnowWebsite },
+        { id: FIELD.collegeText, value: 'Thiagarajar College of Engineering' },
+        { id: FIELD.sourceNotes, value: 'TCE CAT Advantage Landing Page' },
+        { id: FIELD.courses,     value: [OPT.courseCAT2026] },
+        ...(email ? [{ id: FIELD.email, value: email }] : []),
+        ...(year  ? [{ id: FIELD.department, value: year }] : []),
+      ],
+    };
+
+    const taskRes = await fetch(
+      `https://api.clickup.com/api/v2/list/${CLICKUP_LIST_ID}/task`,
+      {
+        method: 'POST',
+        headers: { 'Authorization': CLICKUP_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify(taskPayload),
+      }
+    );
+
+    if (!taskRes.ok) {
+      const err = await taskRes.text();
+      throw new Error(`ClickUp task creation failed: ${taskRes.status} — ${err}`);
+    }
+
+    const task = await taskRes.json();
+    const taskUrl = task.url || `https://app.clickup.com/t/${task.id}`;
+
+    // 2. Post to Marketing channel
+    const msgContent = [
+      '🎯 **New TCE CAT Advantage Enquiry**',
+      '',
+      `**Name:** ${name}`,
+      `**Phone:** ${phone}`,
+      ...(year  ? [`**Year:** ${year}`]  : []),
+      ...(email ? [`**Email:** ${email}`] : []),
+      '',
+      '**Lead Status:** Hot Follow-up 🔥',
+      '**Source:** TCE CAT Advantage Website Form',
+      '',
+      `[View in ClickUp](${taskUrl})`,
+    ].join('\n');
+
+    await fetch(
+      `https://api.clickup.com/api/v3/workspaces/${CLICKUP_WS_ID}/chat/channels/${MARKETING_CHANNEL}/messages`,
+      {
+        method: 'POST',
+        headers: { 'Authorization': CLICKUP_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: msgContent, content_format: 'text/md' }),
+      }
+    );
+    // (Marketing message failure is non-critical — don't block the user)
+
+    // 3. Success UI
+    document.getElementById('enrollForm').classList.add('hidden');
+    document.getElementById('formSuccess').classList.remove('hidden');
+    showToast('✓ You\'re on the list! We\'ll call you within 24 hours.', 'success');
+
+  } catch (err) {
+    console.error('Enrollment submission error:', err);
+    showToast('Something went wrong. Please call us directly: 78680 06060', 'error');
+    btn.disabled = false;
+    btnText.textContent = 'Reserve My Seat';
+    btnIcon.classList.remove('hidden');
+    spinner.classList.add('hidden');
+  }
+}
+
+// ── Toast ───────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type === 'success' ? 'show success' : 'show error-toast';
+  setTimeout(() => { t.className = ''; }, 4500);
+}
+
+// ── FAQ ─────────────────────────────────────────────────────────────────────
+function toggleFaq(btn) {
+  const ans      = btn.nextElementSibling;
+  const chevron  = btn.querySelector('.faq-chevron');
+  const isOpen   = ans.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.faq-chevron').forEach(c => c.classList.remove('open'));
+  // Toggle clicked
+  if (!isOpen) { ans.classList.add('open'); chevron.classList.add('open'); }
+}
+
+// ── Navbar scroll ───────────────────────────────────────────────────────────
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ── Mobile menu ─────────────────────────────────────────────────────────────
+document.getElementById('hamburger').addEventListener('click', () => {
+  const menu = document.getElementById('mobile-menu');
+  const open = menu.classList.toggle('hidden');
+  document.getElementById('ham-icon').classList.toggle('hidden', !open);
+  document.getElementById('close-icon').classList.toggle('hidden', open);
+});
+document.getElementById('mobile-menu').querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.add('hidden');
+    document.getElementById('ham-icon').classList.remove('hidden');
+    document.getElementById('close-icon').classList.add('hidden');
+  });
+});
+
+// ── Scroll reveal ───────────────────────────────────────────────────────────
+const fuObs = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); }),
+  { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+);
+document.querySelectorAll('.fu').forEach(el => fuObs.observe(el));
+
+// ── Smooth anchors ──────────────────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+});
+
+// ── Sticky bar (shows after hero scrolls out) ───────────────────────────────
+const stickyBar = document.getElementById('sticky-bar');
+const heroSection = document.querySelector('section');
+const heroObserver = new IntersectionObserver(
+  ([entry]) => stickyBar.classList.toggle('visible', !entry.isIntersecting),
+  { threshold: 0 }
+);
+heroObserver.observe(heroSection);
+</script>
+
+</body>
+</html>
