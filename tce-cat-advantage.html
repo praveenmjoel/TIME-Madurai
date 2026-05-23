@@ -128,6 +128,35 @@
     .form-field:focus { border-color:#f9c74f; background:rgba(255,255,255,.1); }
     .form-field.error { border-color:#e50000; }
 
+    /* ── PHONE FIELD ── */
+    .phone-wrapper {
+      display:flex; align-items:stretch;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.15); border-radius:10px;
+      transition:border-color .3s, background .3s;
+      overflow:hidden;
+    }
+    .phone-wrapper:focus-within {
+      border-color:#f9c74f; background:rgba(255,255,255,.1);
+    }
+    .phone-wrapper.error { border-color:#e50000; }
+    .phone-code-select {
+      background:transparent; border:none; border-right:1px solid rgba(255,255,255,.15);
+      color:white; font-family:inherit; font-size:0.92rem;
+      padding:14px 10px 14px 14px; cursor:pointer; outline:none;
+      flex-shrink:0; appearance:none; -webkit-appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='rgba(255,255,255,.4)' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 8px center;
+      padding-right:24px;
+    }
+    .phone-code-select option { background:#0d2d6e; color:white; }
+    .phone-number-input {
+      flex:1; background:transparent; border:none;
+      color:white; font-family:inherit; font-size:0.92rem;
+      padding:14px 18px; outline:none;
+    }
+    .phone-number-input::placeholder { color:rgba(255,255,255,.35); }
+
     /* ── FAQ ── */
     .faq-item { border-bottom:1px solid rgba(13,45,110,.08); }
     .faq-q {
@@ -660,7 +689,19 @@
 
         <div class="mb-5">
           <label class="block text-white/60 text-xs font-medium uppercase tracking-widest mb-2">Phone Number *</label>
-          <input id="f-phone" type="tel" placeholder="+91 98765 43210" class="form-field" required autocomplete="tel">
+          <div class="phone-wrapper" id="phone-wrapper">
+            <select id="f-country-code" class="phone-code-select" autocomplete="tel-country-code">
+              <option value="+91" selected>🇮🇳 +91</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+971">🇦🇪 +971</option>
+              <option value="+65">🇸🇬 +65</option>
+              <option value="+60">🇲🇾 +60</option>
+              <option value="+61">🇦🇺 +61</option>
+              <option value="+49">🇩🇪 +49</option>
+            </select>
+            <input id="f-phone" type="tel" placeholder="98765 43210" class="phone-number-input" required autocomplete="tel-national">
+          </div>
         </div>
 
         <div class="mb-5">
@@ -774,12 +815,15 @@ const OPT = {
 async function submitEnrollment(e) {
   e.preventDefault();
 
-  const name  = document.getElementById('f-name').value.trim();
-  const phone = document.getElementById('f-phone').value.trim();
-  const year  = document.getElementById('f-year').value;
-  const email = document.getElementById('f-email').value.trim();
+  const name        = document.getElementById('f-name').value.trim();
+  const countryCode = document.getElementById('f-country-code').value;
+  const rawPhone    = document.getElementById('f-phone').value.trim();
+  // Combine: strip any leading 0 from the national number, then prepend country code
+  const phone       = countryCode + rawPhone.replace(/^0+/, '').replace(/\s+/g, '');
+  const year        = document.getElementById('f-year').value;
+  const email       = document.getElementById('f-email').value.trim();
 
-  if (!name || !phone) { showToast('Please enter your name and phone number.', 'error'); return; }
+  if (!name || !rawPhone) { showToast('Please enter your name and phone number.', 'error'); return; }
 
   // UI: loading state
   const btn      = document.getElementById('submitBtn');
