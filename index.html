@@ -244,25 +244,29 @@
         </a>
 
         <!-- Desktop links -->
-        <div class="hidden md:flex items-center gap-8">
-            <a href="#journey"    class="nav-link text-white/60 hover:text-white text-sm tracking-wide">The Journey</a>
-            <a href="#careers"   class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Careers</a>
-            <a href="#courses"   class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Programs</a>
-            <a href="#why-time"  class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Why T.I.M.E.</a>
-            <a href="#cat-experience" class="nav-link text-white/60 hover:text-white text-sm tracking-wide">The Experience</a>
-            <a href="/tce-cat-advantage.html" class="nav-link text-white/60 hover:text-white text-sm tracking-wide flex items-center gap-1.5">
+        <div class="hidden lg:flex items-center gap-5">
+            <a href="#journey"         class="nav-link text-white/60 hover:text-white text-xs tracking-wide">The Journey</a>
+            <a href="#careers"         class="nav-link text-white/60 hover:text-white text-xs tracking-wide">Careers</a>
+            <a href="#courses"         class="nav-link text-white/60 hover:text-white text-xs tracking-wide">Programs</a>
+            <a href="#what-it-takes"   class="nav-link text-white/60 hover:text-white text-xs tracking-wide">What It Takes</a>
+            <a href="#why-time"        class="nav-link text-white/60 hover:text-white text-xs tracking-wide">Why T.I.M.E.</a>
+            <a href="#environment"     class="nav-link text-white/60 hover:text-white text-xs tracking-wide">Environment</a>
+            <a href="#testimonials"    class="nav-link text-white/60 hover:text-white text-xs tracking-wide">Transformations</a>
+            <a href="#cat-experience"  class="nav-link text-white/60 hover:text-white text-xs tracking-wide">The Experience</a>
+            <div class="w-px h-4 bg-white/15"></div>
+            <a href="/tce-cat-advantage.html" class="nav-link text-white/60 hover:text-white text-xs tracking-wide flex items-center gap-1.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-gold inline-block animate-pulse"></span>
-                TCE CAT Advantage
+                TCE Special
             </a>
-            <a href="/achiever-league.html" class="nav-link text-white/60 hover:text-white text-sm tracking-wide flex items-center gap-1.5">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
-                Student Login
+            <a href="/achiever-league.html" class="nav-link text-white/60 hover:text-white text-xs tracking-wide flex items-center gap-1.5">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                Login
             </a>
-            <a href="#cta" class="btn-gold text-sm font-medium px-5 py-2.5 rounded-full">Book a Session</a>
+            <a href="#cta" class="btn-gold text-xs font-medium px-4 py-2 rounded-full">Book a Session</a>
         </div>
+        <!-- Tablet: show hamburger earlier -->
+        <button id="hamburger" class="lg:hidden text-white p-1">
 
-        <!-- Mobile hamburger -->
-        <button id="hamburger" class="md:hidden text-white p-1">
             <svg id="ham-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
             </svg>
@@ -273,20 +277,29 @@
     </div>
 
     <!-- Mobile drawer -->
-    <div id="mobile-menu" class="hidden md:hidden mt-4 pt-4 border-t border-white/10 flex flex-col gap-5 px-2 pb-4">
-        <a href="#journey"   class="text-white/70 text-sm">The Journey</a>
-        <a href="#careers"   class="text-white/70 text-sm">Careers</a>
-        <a href="#courses"   class="text-white/70 text-sm">Programs</a>
-        <a href="#why-time"  class="text-white/70 text-sm">Why T.I.M.E.</a>
-        <a href="/tce-cat-advantage.html" class="text-gold text-sm flex items-center gap-1.5">
+    <div id="mobile-menu" class="hidden lg:hidden mt-4 pt-4 border-t border-white/10 flex flex-col px-2 pb-4">
+        <div class="text-white/25 text-[10px] uppercase tracking-widest mb-3 mt-1">On This Page</div>
+        <a href="#journey"        class="text-white/70 text-sm py-2.5 border-b border-white/5">The Journey</a>
+        <a href="#careers"        class="text-white/70 text-sm py-2.5 border-b border-white/5">Careers</a>
+        <a href="#courses"        class="text-white/70 text-sm py-2.5 border-b border-white/5">Programs</a>
+        <a href="#what-it-takes"  class="text-white/70 text-sm py-2.5 border-b border-white/5">What It Takes</a>
+        <a href="#why-time"       class="text-white/70 text-sm py-2.5 border-b border-white/5">Why T.I.M.E.</a>
+        <a href="#environment"    class="text-white/70 text-sm py-2.5 border-b border-white/5">The Environment</a>
+        <a href="#testimonials"   class="text-white/70 text-sm py-2.5 border-b border-white/5">Transformations</a>
+        <a href="#cat-experience" class="text-white/70 text-sm py-2.5 border-b border-white/5 flex items-center gap-2">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            The CAT Experience
+        </a>
+        <div class="text-white/25 text-[10px] uppercase tracking-widest mb-3 mt-5">Quick Links</div>
+        <a href="/tce-cat-advantage.html" class="text-gold text-sm py-2.5 border-b border-white/5 flex items-center gap-2">
             <span class="w-1.5 h-1.5 rounded-full bg-gold inline-block"></span>
             TCE CAT Advantage
         </a>
-        <a href="/achiever-league.html" class="text-white/70 text-sm flex items-center gap-1.5">
+        <a href="/achiever-league.html" class="text-white/70 text-sm py-2.5 border-b border-white/5 flex items-center gap-1.5">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
             Student Login
         </a>
-        <a href="#cta" class="btn-gold text-sm font-medium px-5 py-2.5 rounded-full w-fit">Book a Session</a>
+        <a href="#cta" class="btn-gold text-sm font-medium px-5 py-2.5 rounded-full w-fit mt-4">Book a Session</a>
     </div>
 </nav>
 
@@ -1043,27 +1056,52 @@
 ════════════════════════════════════════════ -->
 <footer class="bg-navy border-t border-white/5 py-16 px-6 md:px-12">
     <div class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-            <div class="md:col-span-2">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+            <!-- Brand -->
+            <div class="col-span-2 md:col-span-1">
                 <div class="font-sans font-bold text-white text-xl mb-1">T.I.M.E. Madurai</div>
                 <div class="pill-label text-white/25 mb-5">Triumphant Institute of Management Education</div>
                 <p class="text-white/28 text-sm leading-relaxed max-w-sm">Shaping trajectories across India since 1992. Madurai's home for premium competitive exam preparation.</p>
             </div>
+            <!-- Navigate -->
+            <div>
+                <div class="pill-label text-white/25 mb-5">Navigate</div>
+                <div class="space-y-2.5">
+                    <a href="#journey"        class="text-white/45 text-sm hover:text-gold transition-colors block">The Journey</a>
+                    <a href="#careers"        class="text-white/45 text-sm hover:text-gold transition-colors block">Careers</a>
+                    <a href="#courses"        class="text-white/45 text-sm hover:text-gold transition-colors block">Programs</a>
+                    <a href="#what-it-takes"  class="text-white/45 text-sm hover:text-gold transition-colors block">What It Takes</a>
+                    <a href="#why-time"       class="text-white/45 text-sm hover:text-gold transition-colors block">Why T.I.M.E.</a>
+                    <a href="#environment"    class="text-white/45 text-sm hover:text-gold transition-colors block">The Environment</a>
+                    <a href="#testimonials"   class="text-white/45 text-sm hover:text-gold transition-colors block">Transformations</a>
+                    <a href="#cat-experience" class="text-white/45 text-sm hover:text-gold transition-colors block flex items-center gap-1.5">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" class="flex-shrink-0"><path d="M8 5v14l11-7z"/></svg>
+                        The CAT Experience
+                    </a>
+                </div>
+            </div>
+            <!-- Programs -->
             <div>
                 <div class="pill-label text-white/25 mb-5">Programs</div>
                 <div class="space-y-2.5">
-                    <div class="text-white/45 text-sm hover:text-white/80 transition-colors cursor-pointer">CAT / MAT</div>
-                    <div class="text-white/45 text-sm hover:text-white/80 transition-colors cursor-pointer">JEE / NEET</div>
-                    <div class="text-white/45 text-sm hover:text-white/80 transition-colors cursor-pointer">CLAT / CUET</div>
-                    <div class="text-white/45 text-sm hover:text-white/80 transition-colors cursor-pointer">Bank Exams</div>
-                    <div class="text-white/45 text-sm hover:text-white/80 transition-colors cursor-pointer">Foundation</div>
+                    <a href="#courses" class="text-white/45 text-sm hover:text-gold transition-colors block">CAT / MAT</a>
+                    <a href="#courses" class="text-white/45 text-sm hover:text-gold transition-colors block">JEE / NEET</a>
+                    <a href="#courses" class="text-white/45 text-sm hover:text-gold transition-colors block">CLAT / CUET</a>
+                    <a href="#courses" class="text-white/45 text-sm hover:text-gold transition-colors block">Bank Exams</a>
+                    <a href="#courses" class="text-white/45 text-sm hover:text-gold transition-colors block">Foundation</a>
+                    <a href="/tce-cat-advantage.html" class="text-gold text-sm hover:text-gold-light transition-colors block flex items-center gap-1.5 mt-4">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gold inline-block flex-shrink-0"></span>
+                        TCE CAT Advantage
+                    </a>
                 </div>
             </div>
+            <!-- Visit -->
             <div>
                 <div class="pill-label text-white/25 mb-5">Visit Us</div>
                 <div class="space-y-2.5">
                     <div class="text-white/45 text-sm">Madurai, Tamil Nadu</div>
-                    <a href="#cta" class="text-white/45 text-sm hover:text-gold transition-colors cursor-pointer block">Book a session →</a>
+                    <a href="#cta" class="text-white/45 text-sm hover:text-gold transition-colors block">Book a session →</a>
+                    <a href="/achiever-league.html" class="text-white/45 text-sm hover:text-gold transition-colors block">Student Login →</a>
                 </div>
             </div>
         </div>
@@ -1134,6 +1172,15 @@ function closeSlideshow() {
 }
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && slideshowModal.style.display !== 'none') closeSlideshow();
+});
+
+// Auto-open modal when #cat-experience is in the URL (direct / shareable link)
+window.addEventListener('load', () => {
+    if (window.location.hash === '#cat-experience') {
+        const section = document.getElementById('cat-experience');
+        if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(openSlideshow, 600); // slight delay so scroll settles first
+    }
 });
 
 // Play card hover effect
