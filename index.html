@@ -262,7 +262,7 @@
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
                 Login
             </a>
-            <a href="#cta" class="btn-gold text-xs font-medium px-4 py-2 rounded-full">Book a Session</a>
+            <button onclick="openCounsellingForm()" class="btn-gold text-xs font-medium px-4 py-2 rounded-full">Book a Session</button>
         </div>
         <!-- Tablet: show hamburger earlier -->
         <button id="hamburger" class="lg:hidden text-white p-1">
@@ -299,7 +299,7 @@
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
             Student Login
         </a>
-        <a href="#cta" class="btn-gold text-sm font-medium px-5 py-2.5 rounded-full w-fit mt-4">Book a Session</a>
+        <button onclick="openCounsellingForm()" class="btn-gold text-sm font-medium px-5 py-2.5 rounded-full w-fit mt-4">Book a Session</button>
     </div>
 </nav>
 
@@ -1033,12 +1033,12 @@
         <p class="text-white/38 text-sm leading-relaxed max-w-md mx-auto mb-12">No pressure. No pitch. Just a conversation about where you want to go — and whether we're the right place to help you get there.</p>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="#" class="btn-gold inline-flex items-center gap-3 font-medium px-8 py-4 rounded-full text-sm tracking-wide">
+            <button onclick="openCounsellingForm()" class="btn-gold inline-flex items-center gap-3 font-medium px-8 py-4 rounded-full text-sm tracking-wide">
                 Book a counselling session
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
-            </a>
+            </button>
             <a href="#" class="btn-outline inline-flex items-center gap-3 px-8 py-4 rounded-full text-sm tracking-wide">
                 Visit the centre
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1050,6 +1050,143 @@
     </div>
 </section>
 
+
+<!-- ════════════════════════════════════════════
+     COUNSELLING FORM MODAL
+════════════════════════════════════════════ -->
+<div id="counselling-modal"
+    class="fixed inset-0 z-[300] flex items-center justify-center px-4"
+    style="background:rgba(5,14,40,.92);backdrop-filter:blur(12px);display:none!important;opacity:0;transition:opacity .35s;">
+
+    <div class="relative w-full max-w-lg rounded-3xl overflow-hidden"
+        style="background:#0d2d6e;border:1px solid rgba(249,199,79,.18);box-shadow:0 40px 80px rgba(0,0,0,.6);">
+
+        <!-- Gold top stripe -->
+        <div class="h-1 w-full" style="background:linear-gradient(90deg,transparent,#f9c74f 30%,#f9c74f 70%,transparent);"></div>
+
+        <!-- Close -->
+        <button onclick="closeCounsellingForm()"
+            class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            style="border:1px solid rgba(255,255,255,.1);">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+
+        <div class="px-8 py-8">
+            <!-- Header -->
+            <div class="mb-7">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4" style="background:rgba(249,199,79,.12);border:1px solid rgba(249,199,79,.2);">
+                    <span class="w-1.5 h-1.5 rounded-full bg-gold inline-block"></span>
+                    <span class="text-gold text-xs font-medium tracking-wide">Free Counselling</span>
+                </div>
+                <h3 class="text-white font-bold text-2xl leading-snug">Let's talk about<br>your next move.</h3>
+                <p class="text-white/40 text-sm mt-2">No pitch. Just a conversation. We'll call you back within 24 hours.</p>
+            </div>
+
+            <!-- Form -->
+            <form id="counselling-form" onsubmit="submitCounsellingForm(event)" novalidate>
+
+                <!-- Name -->
+                <div class="mb-4">
+                    <label class="block text-white/50 text-xs uppercase tracking-widest mb-2">Your Name *</label>
+                    <input id="c-name" type="text" placeholder="Full name" required autocomplete="name"
+                        class="w-full text-white text-sm outline-none placeholder-white/25 rounded-xl px-4 py-3"
+                        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);transition:border-color .3s;"
+                        onfocus="this.style.borderColor='rgba(249,199,79,.6)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'">
+                </div>
+
+                <!-- Phone -->
+                <div class="mb-4">
+                    <label class="block text-white/50 text-xs uppercase tracking-widest mb-2">Phone Number *</label>
+                    <div id="c-phone-wrap" class="flex rounded-xl overflow-hidden"
+                        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);transition:border-color .3s;">
+                        <select id="c-code" autocomplete="tel-country-code"
+                            class="text-white text-sm outline-none px-3 flex-shrink-0"
+                            style="background:transparent;border-right:1px solid rgba(255,255,255,.12);appearance:none;-webkit-appearance:none;
+                                   padding-right:22px;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' fill='none' stroke='rgba(255,255,255,.35)' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\");
+                                   background-repeat:no-repeat;background-position:right 6px center;">
+                            <option value="+91" selected style="background:#0d2d6e;">🇮🇳 +91</option>
+                            <option value="+1"  style="background:#0d2d6e;">🇺🇸 +1</option>
+                            <option value="+44" style="background:#0d2d6e;">🇬🇧 +44</option>
+                            <option value="+971" style="background:#0d2d6e;">🇦🇪 +971</option>
+                            <option value="+65" style="background:#0d2d6e;">🇸🇬 +65</option>
+                            <option value="+60" style="background:#0d2d6e;">🇲🇾 +60</option>
+                            <option value="+61" style="background:#0d2d6e;">🇦🇺 +61</option>
+                        </select>
+                        <input id="c-phone" type="tel" placeholder="98765 43210" required autocomplete="tel-national"
+                            class="flex-1 text-white text-sm outline-none placeholder-white/25 px-4 py-3"
+                            style="background:transparent;">
+                    </div>
+                </div>
+
+                <!-- Course interest -->
+                <div class="mb-4">
+                    <label class="block text-white/50 text-xs uppercase tracking-widest mb-2">I'm preparing for *</label>
+                    <select id="c-course" required
+                        class="w-full text-white text-sm outline-none rounded-xl px-4 py-3"
+                        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);appearance:none;-webkit-appearance:none;
+                               background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='rgba(255,255,255,.35)' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\");
+                               background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;transition:border-color .3s;"
+                        onfocus="this.style.borderColor='rgba(249,199,79,.6)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'">
+                        <option value="" style="background:#0d2d6e;">Select exam / programme</option>
+                        <optgroup label="── College / PG ──" style="background:#0d2d6e;color:rgba(255,255,255,.4);">
+                            <option value="CAT" data-type="pg" style="background:#0d2d6e;">CAT (IIMs &amp; top B-Schools)</option>
+                            <option value="MAT" data-type="pg" style="background:#0d2d6e;">MAT</option>
+                            <option value="Bank Exams" data-type="pg" style="background:#0d2d6e;">Bank Exams (IBPS / SBI / RBI)</option>
+                            <option value="GATE" data-type="pg" style="background:#0d2d6e;">GATE</option>
+                            <option value="Campus Recruitment Training" data-type="pg" style="background:#0d2d6e;">Campus Recruitment Training</option>
+                        </optgroup>
+                        <optgroup label="── School / UG ──" style="background:#0d2d6e;color:rgba(255,255,255,.4);">
+                            <option value="JEE" data-type="ug" style="background:#0d2d6e;">JEE (IITs &amp; NITs)</option>
+                            <option value="NEET" data-type="ug" style="background:#0d2d6e;">NEET</option>
+                            <option value="CLAT" data-type="ug" style="background:#0d2d6e;">CLAT</option>
+                            <option value="CUET" data-type="ug" style="background:#0d2d6e;">CUET</option>
+                            <option value="Foundation" data-type="ug" style="background:#0d2d6e;">Foundation (Class VI–X)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-6">
+                    <label class="block text-white/50 text-xs uppercase tracking-widest mb-2">Email <span class="normal-case opacity-60">(optional)</span></label>
+                    <input id="c-email" type="email" placeholder="your@email.com" autocomplete="email"
+                        class="w-full text-white text-sm outline-none placeholder-white/25 rounded-xl px-4 py-3"
+                        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);transition:border-color .3s;"
+                        onfocus="this.style.borderColor='rgba(249,199,79,.6)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'">
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" id="c-submit"
+                    class="w-full flex items-center justify-center gap-3 font-semibold text-sm rounded-full py-4 transition-all"
+                    style="background:#f9c74f;color:#0d2d6e;">
+                    <span id="c-btn-text">Request My Free Counselling Session</span>
+                    <svg id="c-btn-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                    <svg id="c-btn-spin" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                </button>
+
+            </form>
+
+            <!-- Success state -->
+            <div id="c-success" class="hidden text-center py-6">
+                <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5"
+                    style="background:rgba(249,199,79,.15);border:1px solid rgba(249,199,79,.3);">
+                    <svg width="26" height="26" fill="none" stroke="#f9c74f" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <div class="text-white font-bold text-xl mb-2">You're all set.</div>
+                <p class="text-white/45 text-sm leading-relaxed">We'll call you back within 24 hours for a free, no-pressure conversation about your preparation journey.</p>
+                <button onclick="closeCounsellingForm()" class="mt-6 text-gold text-sm hover:underline">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- ════════════════════════════════════════════
      FOOTER
@@ -1208,6 +1345,184 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
         }
     });
 });
+</script>
+
+<!-- ════════════════════════════════════════════
+     COUNSELLING FORM SCRIPT
+════════════════════════════════════════════ -->
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const CU_KEY        = 'pk_152521978_7EHF7ITXDVC0YYXJYKYYGY85RBZF66CC';
+const CU_WS_ID      = '9016591512';
+const CU_MKT_CH     = '4-90162159784-8';
+const CU_LIST_PG    = '901611772550';   // TIME PG Database  (CAT, MAT, Bank…)
+const CU_LIST_UG    = '901605404845';   // TIME Database     (JEE, NEET, CLAT…)
+
+// Field IDs shared by both databases
+const CF = {
+  mobile:     '11e5ef8a-5870-4da1-9bc7-7fc5c72d8dfe',
+  email:      '046eee55-2753-4209-9e07-a57a472a0e92',
+  leadSource: '49cdb879-1668-4e1a-a085-e27faacbd0c7',
+  leadStatus: 'dbc59886-963c-4a0f-8016-e96a7b6033e1',
+};
+// PG-only fields
+const CF_PG = {
+  howKnow:     '1c1eb4b5-fdbd-41f1-a71f-00a6b0d97bf6',
+  sourceNotes: 'eb042253-39ef-44da-bb36-e59b188d2abd',
+};
+// UG-only fields
+const CF_UG = {
+  source: '840d0487-9a03-463a-be49-ccf47e1fd7c2',
+};
+// Option IDs (same across both)
+const OPT_LEAD_SOURCE_DIGITAL = 'f8748059-ce6e-4a59-bbb1-667b8f5fa2ab';
+const OPT_LEAD_STATUS_HOT     = '20f4598b-17da-4bf2-b320-760f8661f1f9';
+const OPT_HOW_KNOW_WEBSITE    = '998c3fda-d40b-48ea-8f63-046c3fb7462a';
+
+// ── Modal open/close ─────────────────────────────────────────────────────────
+const counselModal = document.getElementById('counselling-modal');
+
+function openCounsellingForm() {
+  counselModal.style.removeProperty('display');
+  requestAnimationFrame(() => counselModal.style.opacity = '1');
+  document.body.style.overflow = 'hidden';
+  // Focus first field after transition
+  setTimeout(() => document.getElementById('c-name').focus(), 350);
+}
+function closeCounsellingForm() {
+  counselModal.style.opacity = '0';
+  setTimeout(() => {
+    counselModal.style.display = 'none';
+    document.body.style.overflow = '';
+    // Reset form for next open
+    document.getElementById('counselling-form').classList.remove('hidden');
+    document.getElementById('counselling-form').reset();
+    document.getElementById('c-success').classList.add('hidden');
+    const btn = document.getElementById('c-submit');
+    btn.disabled = false;
+    document.getElementById('c-btn-text').textContent = 'Request My Free Counselling Session';
+    document.getElementById('c-btn-icon').classList.remove('hidden');
+    document.getElementById('c-btn-spin').classList.add('hidden');
+  }, 350);
+}
+// Close on backdrop click
+counselModal.addEventListener('click', e => {
+  if (e.target === counselModal) closeCounsellingForm();
+});
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && counselModal.style.display !== 'none') closeCounsellingForm();
+});
+// Phone wrapper focus highlight
+document.getElementById('c-phone').addEventListener('focus', () => {
+  document.getElementById('c-phone-wrap').style.borderColor = 'rgba(249,199,79,.6)';
+});
+document.getElementById('c-phone').addEventListener('blur', () => {
+  document.getElementById('c-phone-wrap').style.borderColor = 'rgba(255,255,255,.12)';
+});
+
+// ── Submit ───────────────────────────────────────────────────────────────────
+async function submitCounsellingForm(e) {
+  e.preventDefault();
+
+  const name   = document.getElementById('c-name').value.trim();
+  const code   = document.getElementById('c-code').value;
+  const raw    = document.getElementById('c-phone').value.trim();
+  const phone  = code + raw.replace(/^0+/, '').replace(/\s+/g, '');
+  const email  = document.getElementById('c-email').value.trim();
+  const sel    = document.getElementById('c-course');
+  const course = sel.value;
+  const courseType = sel.options[sel.selectedIndex]?.dataset?.type || 'pg'; // 'pg' or 'ug'
+
+  if (!name || !raw || !course) {
+    alert('Please fill in your name, phone number, and the exam you\'re preparing for.');
+    return;
+  }
+
+  // Loading state
+  const btn = document.getElementById('c-submit');
+  btn.disabled = true;
+  document.getElementById('c-btn-text').textContent = 'Submitting…';
+  document.getElementById('c-btn-icon').classList.add('hidden');
+  document.getElementById('c-btn-spin').classList.remove('hidden');
+
+  const isPG   = courseType === 'pg';
+  const listId = isPG ? CU_LIST_PG : CU_LIST_UG;
+  const dbName = isPG ? 'TIME PG Database' : 'TIME Database';
+
+  try {
+    // Build custom fields
+    const customFields = [
+      { id: CF.mobile,     value: phone },
+      { id: CF.leadSource, value: OPT_LEAD_SOURCE_DIGITAL },
+      { id: CF.leadStatus, value: OPT_LEAD_STATUS_HOT },
+      ...(email ? [{ id: CF.email, value: email }] : []),
+    ];
+    if (isPG) {
+      customFields.push({ id: CF_PG.howKnow,     value: OPT_HOW_KNOW_WEBSITE });
+      customFields.push({ id: CF_PG.sourceNotes, value: 'Website Counselling Form' });
+    } else {
+      customFields.push({ id: CF_UG.source, value: 'Website Counselling Form' });
+    }
+
+    const desc = [
+      `Counselling enquiry from the TIME Madurai website.`,
+      ``,
+      `Phone: ${phone}`,
+      `Exam / Programme: ${course}`,
+      ...(email ? [`Email: ${email}`] : []),
+    ].join('\n');
+
+    // 1. Create task
+    const taskRes = await fetch(`https://api.clickup.com/api/v2/list/${listId}/task`, {
+      method: 'POST',
+      headers: { 'Authorization': CU_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, description: desc, custom_fields: customFields }),
+    });
+    if (!taskRes.ok) {
+      const errText = await taskRes.text();
+      throw new Error(`ClickUp ${taskRes.status}: ${errText}`);
+    }
+    const task    = await taskRes.json();
+    const taskUrl = task.url || `https://app.clickup.com/t/${task.id}`;
+
+    // 2. Post to Marketing channel
+    const msg = [
+      '📋 **New Counselling Request — timemadurai.com**',
+      '',
+      `**Name:** ${name}`,
+      `**Phone:** ${phone}`,
+      `**Interested in:** ${course}`,
+      ...(email ? [`**Email:** ${email}`] : []),
+      '',
+      `**Lead Status:** Hot Follow-up 🔥`,
+      `**Added to:** ${dbName}`,
+      '',
+      `[View in ClickUp](${taskUrl})`,
+    ].join('\n');
+
+    await fetch(
+      `https://api.clickup.com/api/v3/workspaces/${CU_WS_ID}/chat/channels/${CU_MKT_CH}/messages`,
+      {
+        method: 'POST',
+        headers: { 'Authorization': CU_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: msg, content_format: 'text/md' }),
+      }
+    );
+
+    // 3. Show success
+    document.getElementById('counselling-form').classList.add('hidden');
+    document.getElementById('c-success').classList.remove('hidden');
+
+  } catch (err) {
+    console.error('Counselling form error:', err);
+    btn.disabled = false;
+    document.getElementById('c-btn-text').textContent = 'Request My Free Counselling Session';
+    document.getElementById('c-btn-icon').classList.remove('hidden');
+    document.getElementById('c-btn-spin').classList.add('hidden');
+    alert('Error: ' + err.message);
+  }
+}
 </script>
 
 </body>
