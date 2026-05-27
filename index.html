@@ -249,6 +249,7 @@
             <a href="#careers"   class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Careers</a>
             <a href="#courses"   class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Programs</a>
             <a href="#why-time"  class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Why T.I.M.E.</a>
+            <a href="#cat-experience" class="nav-link text-white/60 hover:text-white text-sm tracking-wide">The Experience</a>
             <a href="/tce-cat-advantage.html" class="nav-link text-white/60 hover:text-white text-sm tracking-wide flex items-center gap-1.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-gold inline-block animate-pulse"></span>
                 TCE CAT Advantage
@@ -904,6 +905,106 @@
 
 
 <!-- ════════════════════════════════════════════
+     CAT EXPERIENCE SLIDESHOW
+════════════════════════════════════════════ -->
+<section id="cat-experience" class="sec bg-navy overflow-hidden" style="padding:100px 0;">
+    <div class="absolute top-0 left-0 right-0 h-px" style="background:linear-gradient(90deg,transparent,rgba(249,199,79,.25),transparent);"></div>
+
+    <div class="max-w-5xl mx-auto px-6 md:px-12 text-center">
+
+        <!-- Label -->
+        <div class="fu inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full" style="background:rgba(249,199,79,.1);border:1px solid rgba(249,199,79,.2);">
+            <span class="w-1.5 h-1.5 rounded-full bg-gold inline-block"></span>
+            <span class="text-gold text-xs font-semibold uppercase tracking-widest">For Every Student on This Journey</span>
+        </div>
+
+        <!-- Headline -->
+        <h2 class="fu d1 font-bold text-white mb-6" style="font-size:clamp(28px,5vw,52px);line-height:1.15;">
+            The CAT Experience
+        </h2>
+        <p class="fu d2 text-white/45 max-w-xl mx-auto mb-12 text-sm md:text-base leading-relaxed">
+            Four and a half minutes. Forty-two slides. One student's journey — from the first day of preparation to walking into IIM. Watch it when you need a reminder of why you started.
+        </p>
+
+        <!-- Stats row -->
+        <div class="fu d2 flex flex-wrap items-center justify-center gap-8 mb-14">
+            <div class="text-center">
+                <div class="text-white font-bold text-2xl">4:38</div>
+                <div class="text-white/30 text-xs mt-1 uppercase tracking-wider">Runtime</div>
+            </div>
+            <div class="w-px h-8 bg-white/10 hidden md:block"></div>
+            <div class="text-center">
+                <div class="text-white font-bold text-2xl">42</div>
+                <div class="text-white/30 text-xs mt-1 uppercase tracking-wider">Slides</div>
+            </div>
+            <div class="w-px h-8 bg-white/10 hidden md:block"></div>
+            <div class="text-center">
+                <div class="text-white font-bold text-2xl">4</div>
+                <div class="text-white/30 text-xs mt-1 uppercase tracking-wider">Phases</div>
+            </div>
+            <div class="w-px h-8 bg-white/10 hidden md:block"></div>
+            <div class="text-center">
+                <div class="text-gold font-bold text-2xl">IIM</div>
+                <div class="text-white/30 text-xs mt-1 uppercase tracking-wider">Destination</div>
+            </div>
+        </div>
+
+        <!-- Play button card -->
+        <div class="fu d3 relative inline-block">
+            <!-- Glow -->
+            <div class="absolute inset-0 rounded-3xl pointer-events-none" style="background:radial-gradient(ellipse at center,rgba(249,199,79,.15),transparent 70%);filter:blur(24px);transform:scale(1.3);"></div>
+
+            <button id="open-slideshow" onclick="openSlideshow()"
+                class="relative group flex flex-col items-center justify-center gap-5 rounded-3xl cursor-pointer"
+                style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:48px 72px;transition:background .3s,border-color .3s,transform .3s;">
+
+                <!-- Play ring -->
+                <div class="relative flex items-center justify-center w-20 h-20 rounded-full"
+                    style="background:rgba(249,199,79,.12);border:1.5px solid rgba(249,199,79,.35);transition:background .3s,transform .3s;">
+                    <!-- Pulse ring -->
+                    <span class="absolute inset-0 rounded-full animate-ping" style="background:rgba(249,199,79,.08);animation-duration:2s;"></span>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="#f9c74f" style="margin-left:4px;">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <div class="text-white font-semibold text-lg group-hover:text-gold transition-colors">Watch the Story</div>
+                    <div class="text-white/35 text-xs mt-1">With music by Ludovico Einaudi</div>
+                </div>
+            </button>
+        </div>
+
+    </div>
+</section>
+
+<!-- ── Fullscreen Slideshow Modal ─────────────────────────────────────────── -->
+<div id="slideshow-modal"
+    class="fixed inset-0 z-[200] flex items-center justify-center"
+    style="background:rgba(0,0,0,.97);display:none!important;opacity:0;transition:opacity .4s;">
+
+    <!-- Close button -->
+    <button onclick="closeSlideshow()"
+        class="absolute top-5 right-5 z-10 flex items-center justify-center w-10 h-10 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+
+    <!-- ESC hint -->
+    <div class="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/20 text-xs">Press ESC to close</div>
+
+    <!-- iframe (src injected on open to avoid preloading audio) -->
+    <iframe id="slideshow-iframe"
+        src=""
+        allow="autoplay; fullscreen"
+        allowfullscreen
+        style="width:100%;height:100%;border:none;display:block;">
+    </iframe>
+</div>
+
+<!-- ════════════════════════════════════════════
      CTA
 ════════════════════════════════════════════ -->
 <section id="cta" class="bg-navy relative overflow-hidden" style="padding:120px 0;">
@@ -1011,6 +1112,44 @@ const fuObserver = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
 }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 fuEls.forEach(el => fuObserver.observe(el));
+
+// ── CAT Slideshow Modal
+const slideshowModal  = document.getElementById('slideshow-modal');
+const slideshowIframe = document.getElementById('slideshow-iframe');
+const SLIDESHOW_URL   = 'https://praveenmjoel.github.io/Cat-Slideshow/';
+
+function openSlideshow() {
+    slideshowIframe.src = SLIDESHOW_URL;          // load on demand
+    slideshowModal.style.removeProperty('display');
+    requestAnimationFrame(() => slideshowModal.style.opacity = '1');
+    document.body.style.overflow = 'hidden';
+}
+function closeSlideshow() {
+    slideshowModal.style.opacity = '0';
+    setTimeout(() => {
+        slideshowModal.style.display = 'none';
+        slideshowIframe.src = '';                 // unload iframe + stop audio
+        document.body.style.overflow = '';
+    }, 400);
+}
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && slideshowModal.style.display !== 'none') closeSlideshow();
+});
+
+// Play card hover effect
+const openBtn = document.getElementById('open-slideshow');
+if (openBtn) {
+    openBtn.addEventListener('mouseenter', () => {
+        openBtn.style.background = 'rgba(255,255,255,.07)';
+        openBtn.style.borderColor = 'rgba(249,199,79,.3)';
+        openBtn.style.transform = 'translateY(-3px)';
+    });
+    openBtn.addEventListener('mouseleave', () => {
+        openBtn.style.background = 'rgba(255,255,255,.04)';
+        openBtn.style.borderColor = 'rgba(255,255,255,.1)';
+        openBtn.style.transform = 'translateY(0)';
+    });
+}
 
 // ── Smooth anchor scroll
 document.querySelectorAll('a[href^="#"]').forEach(a => {
