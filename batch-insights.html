@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch Insights — T.I.M.E. Madurai</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { navy: '#0d2d6e', 'navy-light': '#1a3d8f', gold: '#f9c74f' },
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'Helvetica', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { background: #f0f4ff; }
+
+    /* Tab bar */
+    .tab-btn { transition: all .25s; border-bottom: 2px solid transparent; }
+    .tab-btn.active { color: #0d2d6e; border-color: #f9c74f; font-weight: 600; }
+
+    /* Cards */
+    .stat-card { background: white; border-radius: 16px; padding: 20px 24px;
+                 box-shadow: 0 1px 3px rgba(13,45,110,.07), 0 4px 16px rgba(13,45,110,.06); }
+
+    /* Table */
+    table { border-collapse: collapse; width: 100%; }
+    th { background: #0d2d6e; color: white; padding: 10px 14px; text-align: left; font-size: .75rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+    td { padding: 9px 14px; font-size: .84rem; border-bottom: 1px solid #e8edf8; }
+    tr:hover td { background: #f5f8ff; }
+
+    /* Attendance badge */
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .72rem; font-weight: 600; }
+    .badge-green  { background: #dcfce7; color: #166534; }
+    .badge-yellow { background: #fef9c3; color: #854d0e; }
+    .badge-red    { background: #fee2e2; color: #991b1b; }
+
+    /* Score colour */
+    .score-high   { color: #16a34a; font-weight: 600; }
+    .score-mid    { color: #d97706; font-weight: 600; }
+    .score-low    { color: #dc2626; font-weight: 600; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 1s linear infinite; }
+
+    /* Chart container */
+    .chart-wrap { position: relative; height: 280px; }
+
+    /* Error card */
+    .error-card { background: #fff7ed; border: 1px solid #fdba74; border-radius: 12px; padding: 20px 24px; }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen">
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="bg-navy text-white px-6 md:px-10 py-5 flex items-center justify-between shadow-lg">
+  <div class="flex items-center gap-4">
+    <img src="TIME Logo White.png" alt="T.I.M.E. Madurai" style="height:30px;width:auto;">
+    <div>
+      <div class="font-bold text-base">Batch Insights</div>
+      <div class="text-white/40 text-xs tracking-wide">Live data · CAT 2026</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-3">
+    <span id="last-updated" class="text-white/35 text-xs hidden"></span>
+    <button onclick="loadAll()" id="refresh-btn"
+      class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all"
+      style="background:rgba(249,199,79,.15);border:1px solid rgba(249,199,79,.3);color:#f9c74f;">
+      <svg id="refresh-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+</header>
+
+<!-- ── Tab bar ──────────────────────────────────────────────────────────────── -->
+<div class="bg-white border-b border-gray-100 px-6 md:px-10 flex gap-6">
+  <button class="tab-btn active py-3.5 text-sm text-navy/50 hover:text-navy" onclick="showTab('attendance')">Attendance</button>
+  <button class="tab-btn py-3.5 text-sm text-navy/50 hover:text-navy" onclick="showTab('scores')">Scores</button>
+</div>
+
+<!-- ── Main ─────────────────────────────────────────────────────────────────── -->
+<main class="max-w-7xl mx-auto px-4 md:px-10 py-8">
+
+  <!-- Loading state -->
+  <div id="loading" class="flex flex-col items-center justify-center py-24 gap-4">
+    <svg class="spinner w-8 h-8 text-navy" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+      <path class="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+    </svg>
+    <div class="text-navy/50 text-sm">Fetching live data from Google Sheets…</div>
+  </div>
+
+  <!-- Error state -->
+  <div id="error-state" class="hidden">
+    <div class="error-card max-w-xl mx-auto mt-8">
+      <div class="font-semibold text-amber-800 mb-1">Could not load data</div>
+      <div id="error-msg" class="text-amber-700 text-sm"></div>
+      <div class="mt-3 text-amber-700 text-sm">Make sure the Google Sheet is set to <strong>"Anyone with the link can view"</strong> and try refreshing.</div>
+    </div>
+  </div>
+
+  <!-- ── ATTENDANCE TAB ───────────────────────────────────────────────────── -->
+  <div id="tab-attendance" class="hidden">
+
+    <!-- Stat cards -->
+    <div id="att-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
+
+    <!-- Charts row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="stat-card">
+        <div class="font-semibold text-navy text-sm mb-4">Attendance % per Student</div>
+        <div class="chart-wrap"><canvas id="chart-att-student"></canvas></div>
+      </div>
+      <div class="stat-card">
+        <div class="font-semibold text-navy text-sm mb-4">Class Attendance Over Time</div>
+        <div class="chart-wrap"><canvas id="chart-att-trend"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="stat-card overflow-x-auto">
+      <div class="font-semibold text-navy text-sm mb-4">Student Attendance Detail</div>
+      <div id="att-table"></div>
+    </div>
+  </div>
+
+  <!-- ── SCORES TAB ───────────────────────────────────────────────────────── -->
+  <div id="tab-scores" class="hidden">
+
+    <!-- Stat cards -->
+    <div id="score-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
+
+    <!-- Charts row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="stat-card">
+        <div class="font-semibold text-navy text-sm mb-4">Average Score per Test</div>
+        <div class="chart-wrap"><canvas id="chart-score-test"></canvas></div>
+      </div>
+      <div class="stat-card">
+        <div class="font-semibold text-navy text-sm mb-4">Score Distribution (latest test)</div>
+        <div class="chart-wrap"><canvas id="chart-score-dist"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="stat-card overflow-x-auto">
+      <div class="font-semibold text-navy text-sm mb-4">Student Score Sheet</div>
+      <div id="score-table"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── Config ───────────────────────────────────────────────────────────────────
+const SHEET_ID = '17FktHAvR_CBoZG_omLduWJoocDXcuu2JuztPRc3l1A8';
+const SHEET_ATT   = 'Attendance';
+const SHEET_SCORE = 'Score sheet';
+
+const NAVY  = '#0d2d6e';
+const GOLD  = '#f9c74f';
+const PALETTE = ['#0d2d6e','#1a3d8f','#f9c74f','#4a8cd9','#22c55e','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4'];
+
+let chartInstances = {};
+let attData = null, scoreData = null;
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+function showTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && tab === 'attendance') || (i === 1 && tab === 'scores'));
+  });
+  document.getElementById('tab-attendance').classList.toggle('hidden', tab !== 'attendance');
+  document.getElementById('tab-scores').classList.toggle('hidden', tab !== 'scores');
+}
+
+// ── Fetch via JSONP (bypasses CORS for public sheets) ────────────────────────
+function fetchSheet(sheetName) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'gviz_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('Timeout loading "' + sheetName + '" — check the sheet name and sharing settings.'));
+    }, 12000);
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = function(data) {
+      cleanup();
+      resolve(data);
+    };
+
+    script.src =
+      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq` +
+      `?tqx=out:json;handler:${cbName}` +
+      `&sheet=${encodeURIComponent(sheetName)}`;
+
+    script.onerror = function() {
+      cleanup();
+      reject(new Error('Could not reach Google Sheets. Check your internet connection.'));
+    };
+
+    document.head.appendChild(script);
+  });
+}
+
+// ── Parse gviz table into {headers, rows} ────────────────────────────────────
+function parseGviz(gviz) {
+  const cols = gviz.table.cols;
+  const rows = gviz.table.rows;
+  const headers = cols.map(c => c.label || c.id || '');
+  const data = rows.map(r => r.c.map(cell => cell ? (cell.v !== null && cell.v !== undefined ? cell.v : cell.f || '') : ''));
+  return { headers, rows: data };
+}
+
+// ── Stat card HTML ────────────────────────────────────────────────────────────
+function statCard(label, value, sub = '', color = NAVY) {
+  return `<div class="stat-card">
+    <div class="text-xs font-medium uppercase tracking-widest mb-1" style="color:${color};opacity:.5;">${label}</div>
+    <div class="text-3xl font-bold" style="color:${color};">${value}</div>
+    ${sub ? `<div class="text-xs mt-1" style="color:${color};opacity:.45;">${sub}</div>` : ''}
+  </div>`;
+}
+
+// ── Kill + recreate a canvas (prevents Chart.js "already in use" error) ────────
+function freshCanvas(id) {
+  const old = document.getElementById(id);
+  const parent = old.parentNode;
+  old.remove();
+  const c = document.createElement('canvas');
+  c.id = id;
+  parent.appendChild(c);
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+  return c.getContext('2d');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ATTENDANCE
+// ════════════════════════════════════════════════════════════════════════════
+function renderAttendance({ headers, rows }) {
+  // Assume col 0 = student name/ID, col 1 = optional roll/ID,
+  // remaining cols = session dates with values P / A / L / 1 / 0 etc.
+  // Find name col (first col) and session cols
+  const nameCol = 0;
+  // Detect session columns: skip columns that look like IDs/numbers only (first 1-2)
+  const sessionStart = headers.slice(1).findIndex(h => /\d{1,2}[\/\-\.]\d|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|session|class|day/i.test(h)) + 1;
+  const sessIdx = sessionStart > 0 ? sessionStart : 1;
+  const sessionCols = headers.slice(sessIdx);
+
+  // For each student, count present
+  const students = rows.filter(r => r[nameCol] && String(r[nameCol]).trim());
+  const studentStats = students.map(r => {
+    const name = String(r[nameCol]).trim();
+    let present = 0, total = 0;
+    for (let i = sessIdx; i < headers.length; i++) {
+      const v = String(r[i] || '').trim().toLowerCase();
+      if (v === '' || v === '-') continue;
+      total++;
+      if (v === 'p' || v === '1' || v === 'present' || v === 'yes') present++;
+    }
+    const pct = total > 0 ? Math.round((present / total) * 100) : null;
+    return { name, present, total, pct };
+  });
+
+  // Class average per session (for trend)
+  const sessionAvg = sessionCols.map((_, si) => {
+    const absIdx = sessIdx + si;
+    let p = 0, t = 0;
+    students.forEach(r => {
+      const v = String(r[absIdx] || '').trim().toLowerCase();
+      if (v === '' || v === '-') return;
+      t++;
+      if (v === 'p' || v === '1' || v === 'present' || v === 'yes') p++;
+    });
+    return t > 0 ? Math.round((p / t) * 100) : null;
+  });
+
+  // ── Stat cards ───────────────────────────────────────────────────────────
+  const valids = studentStats.filter(s => s.pct !== null);
+  const classAvg = valids.length ? Math.round(valids.reduce((a, s) => a + s.pct, 0) / valids.length) : 0;
+  const above75  = valids.filter(s => s.pct >= 75).length;
+  const below60  = valids.filter(s => s.pct < 60).length;
+
+  document.getElementById('att-stats').innerHTML =
+    statCard('Total Students', students.length) +
+    statCard('Sessions Tracked', sessionCols.length) +
+    statCard('Class Average', classAvg + '%', above75 + ' students ≥75%', classAvg >= 75 ? '#16a34a' : classAvg >= 60 ? '#d97706' : '#dc2626') +
+    statCard('Below 60%', below60, 'need attention', below60 > 0 ? '#dc2626' : '#16a34a');
+
+  // ── Chart 1: Attendance % per student (horizontal bar) ───────────────────
+  const sorted = [...studentStats].filter(s => s.pct !== null).sort((a, b) => b.pct - a.pct);
+  const ctx1 = freshCanvas('chart-att-student');
+  chartInstances['chart-att-student'] = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: sorted.map(s => s.name.split(' ')[0]),
+      datasets: [{
+        label: 'Attendance %',
+        data: sorted.map(s => s.pct),
+        backgroundColor: sorted.map(s => s.pct >= 75 ? '#22c55e' : s.pct >= 60 ? '#f59e0b' : '#ef4444'),
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { max: 100, grid: { color: '#f0f4ff' }, ticks: { callback: v => v + '%' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  // ── Chart 2: Trend over sessions ─────────────────────────────────────────
+  const trendData = sessionAvg.filter(v => v !== null);
+  const trendLabels = sessionCols.filter((_, i) => sessionAvg[i] !== null);
+  const ctx2 = freshCanvas('chart-att-trend');
+  chartInstances['chart-att-trend'] = new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels: trendLabels,
+      datasets: [{
+        label: 'Class attendance %',
+        data: trendData,
+        borderColor: NAVY,
+        backgroundColor: 'rgba(13,45,110,.08)',
+        fill: true, tension: 0.35, pointBackgroundColor: NAVY, pointRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { max: 100, grid: { color: '#f0f4ff' }, ticks: { callback: v => v + '%' } },
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10 } } }
+      }
+    }
+  });
+
+  // ── Table ─────────────────────────────────────────────────────────────────
+  const maxCols = 12; // show at most 12 recent sessions in table
+  const showCols = sessionCols.slice(-maxCols);
+  const showStart = Math.max(sessIdx, headers.length - maxCols);
+
+  let html = `<table>
+    <thead><tr>
+      <th>#</th><th>Student</th>
+      ${showCols.map(h => `<th style="min-width:54px">${h}</th>`).join('')}
+      <th>Present</th><th>Attendance</th>
+    </tr></thead><tbody>`;
+
+  studentStats.forEach((s, i) => {
+    const badgeClass = s.pct === null ? '' : s.pct >= 75 ? 'badge-green' : s.pct >= 60 ? 'badge-yellow' : 'badge-red';
+    const rowCells = rows[students.indexOf(rows.find(r => String(r[nameCol]).trim() === s.name))];
+    html += `<tr>
+      <td class="text-navy/40">${i + 1}</td>
+      <td class="font-medium text-navy">${s.name}</td>
+      ${Array.from({ length: showCols.length }, (_, ci) => {
+        const v = String((rowCells || [])[showStart + ci] || '').trim();
+        const isP = /^(p|1|present|yes)$/i.test(v);
+        const isA = /^(a|0|absent|no)$/i.test(v);
+        return `<td class="text-center" style="color:${isP ? '#16a34a' : isA ? '#dc2626' : '#94a3b8'}">${v || '–'}</td>`;
+      }).join('')}
+      <td class="text-navy">${s.present} / ${s.total}</td>
+      <td><span class="badge ${badgeClass}">${s.pct !== null ? s.pct + '%' : '—'}</span></td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('att-table').innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SCORES
+// ════════════════════════════════════════════════════════════════════════════
+function renderScores({ headers, rows }) {
+  const nameCol = 0;
+  // Session/test columns: skip first 1-2 non-score cols
+  const scoreStart = 1;
+  const testCols = headers.slice(scoreStart);
+
+  const students = rows.filter(r => r[nameCol] && String(r[nameCol]).trim());
+
+  // Parse scores
+  const studentData = students.map(r => {
+    const name = String(r[nameCol]).trim();
+    const scores = testCols.map((_, i) => {
+      const v = r[scoreStart + i];
+      const n = parseFloat(String(v || '').replace(/[^0-9.\-]/g, ''));
+      return isNaN(n) ? null : n;
+    });
+    const valid = scores.filter(s => s !== null);
+    const avg = valid.length ? Math.round((valid.reduce((a, b) => a + b, 0) / valid.length) * 10) / 10 : null;
+    const best = valid.length ? Math.max(...valid) : null;
+    return { name, scores, avg, best };
+  });
+
+  // Average per test
+  const testAvgs = testCols.map((_, ti) => {
+    const vals = studentData.map(s => s.scores[ti]).filter(v => v !== null);
+    return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : null;
+  });
+
+  // Max possible score (infer from max value across sheet)
+  const allScores = studentData.flatMap(s => s.scores).filter(v => v !== null);
+  const maxScore = allScores.length ? Math.max(...allScores) : 100;
+
+  // ── Stat cards ───────────────────────────────────────────────────────────
+  const allAvgs = studentData.filter(s => s.avg !== null).map(s => s.avg);
+  const classAvg = allAvgs.length ? Math.round((allAvgs.reduce((a, b) => a + b, 0) / allAvgs.length) * 10) / 10 : 0;
+  const topScorer = studentData.filter(s => s.avg !== null).sort((a, b) => b.avg - a.avg)[0];
+  const latestAvg = testAvgs.filter(v => v !== null).slice(-1)[0];
+
+  document.getElementById('score-stats').innerHTML =
+    statCard('Students', students.length) +
+    statCard('Tests Tracked', testCols.length) +
+    statCard('Class Average', classAvg, 'across all tests') +
+    statCard('Latest Test Avg', latestAvg ?? '—', testCols[testCols.length - 1] || '');
+
+  // ── Chart 1: Average per test ─────────────────────────────────────────────
+  const validTestIdx = testCols.map((_, i) => i).filter(i => testAvgs[i] !== null);
+  const ctx1 = freshCanvas('chart-score-test');
+  chartInstances['chart-score-test'] = new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: validTestIdx.map(i => testCols[i]),
+      datasets: [{
+        label: 'Class avg',
+        data: validTestIdx.map(i => testAvgs[i]),
+        borderColor: NAVY, backgroundColor: 'rgba(13,45,110,.08)',
+        fill: true, tension: 0.35, pointBackgroundColor: GOLD, pointRadius: 5, pointBorderColor: NAVY,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: '#f0f4ff' }, ticks: { font: { size: 11 } } },
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, font: { size: 10 } } }
+      }
+    }
+  });
+
+  // ── Chart 2: Distribution of latest test ─────────────────────────────────
+  const latestIdx = testCols.length - 1;
+  const latestScores = studentData.map(s => s.scores[latestIdx]).filter(v => v !== null);
+  const buckets = ['0–25%', '26–50%', '51–75%', '76–100%'];
+  const bounds = [0.25, 0.5, 0.75, 1.0];
+  const counts = [0, 0, 0, 0];
+  latestScores.forEach(s => {
+    const pct = s / maxScore;
+    const bi = bounds.findIndex(b => pct <= b);
+    if (bi >= 0) counts[bi]++;
+  });
+  const ctx2 = freshCanvas('chart-score-dist');
+  chartInstances['chart-score-dist'] = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: buckets,
+      datasets: [{ data: counts, backgroundColor: ['#ef4444','#f59e0b','#60a5fa','#22c55e'], borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right', labels: { font: { size: 11 }, padding: 14 } } }
+    }
+  });
+
+  // ── Table ─────────────────────────────────────────────────────────────────
+  const maxShow = 10;
+  const showTests = testCols.slice(-maxShow);
+  const showFrom = Math.max(0, testCols.length - maxShow);
+
+  function scoreClass(v) {
+    if (v === null) return '';
+    const pct = v / maxScore;
+    return pct >= 0.75 ? 'score-high' : pct >= 0.5 ? 'score-mid' : 'score-low';
+  }
+
+  const sorted = [...studentData].sort((a, b) => (b.avg ?? -Infinity) - (a.avg ?? -Infinity));
+
+  let html = `<table><thead><tr>
+    <th>#</th><th>Student</th>
+    ${showTests.map(t => `<th style="min-width:64px">${t}</th>`).join('')}
+    <th>Average</th><th>Best</th>
+  </tr></thead><tbody>`;
+
+  sorted.forEach((s, i) => {
+    html += `<tr>
+      <td class="text-navy/40">${i + 1}</td>
+      <td class="font-medium text-navy">${s.name}</td>
+      ${showTests.map((_, ci) => {
+        const v = s.scores[showFrom + ci];
+        return `<td class="text-center ${scoreClass(v)}">${v !== null ? v : '–'}</td>`;
+      }).join('')}
+      <td class="font-semibold text-navy">${s.avg ?? '–'}</td>
+      <td class="text-green-700 font-semibold">${s.best ?? '–'}</td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('score-table').innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// LOAD
+// ════════════════════════════════════════════════════════════════════════════
+async function loadAll() {
+  document.getElementById('loading').classList.remove('hidden');
+  document.getElementById('error-state').classList.add('hidden');
+  document.getElementById('tab-attendance').classList.add('hidden');
+  document.getElementById('tab-scores').classList.add('hidden');
+
+  const icon = document.getElementById('refresh-icon');
+  icon.classList.add('spinner');
+
+  try {
+    const [attGviz, scoreGviz] = await Promise.all([
+      fetchSheet(SHEET_ATT),
+      fetchSheet(SHEET_SCORE),
+    ]);
+
+    attData   = parseGviz(attGviz);
+    scoreData = parseGviz(scoreGviz);
+
+    renderAttendance(attData);
+    renderScores(scoreData);
+
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('tab-attendance').classList.remove('hidden');
+    document.getElementById('tab-scores').classList.add('hidden');
+
+    const now = new Date();
+    document.getElementById('last-updated').textContent =
+      `Updated ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
+    document.getElementById('last-updated').classList.remove('hidden');
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('error-state').classList.remove('hidden');
+    document.getElementById('error-msg').textContent = err.message;
+  }
+
+  icon.classList.remove('spinner');
+}
+
+// Boot
+loadAll();
+</script>
+</body>
+</html>
