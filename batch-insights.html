@@ -183,50 +183,42 @@ function showTab(tab) {
   document.getElementById('tab-scores').classList.toggle('hidden', tab !== 'scores');
 }
 
-// ── Fetch via JSONP (bypasses CORS for public sheets) ────────────────────────
-function fetchSheet(sheetName) {
-  return new Promise((resolve, reject) => {
-    const cbName = 'gviz_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const script = document.createElement('script');
+// ── Fetch sheet as CSV, parse manually ───────────────────────────────────────
+async function fetchSheet(sheetName) {
+  // Use the CSV export URL — works for any public "Anyone with link can view" sheet
+  const url =
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq` +
+    `?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
 
-    const timer = setTimeout(() => {
-      cleanup();
-      reject(new Error('Timeout loading "' + sheetName + '" — check the sheet name and sharing settings.'));
-    }, 12000);
+  const res = await fetch(url, { credentials: 'omit' });
+  if (!res.ok) throw new Error(`HTTP ${res.status} — sheet "${sheetName}" not found or not public`);
 
-    function cleanup() {
-      clearTimeout(timer);
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
+  const text = await res.text();
+  if (!text.trim()) throw new Error(`Sheet "${sheetName}" is empty or the tab name is wrong`);
+
+  return parseCSV(text);
+}
+
+// ── Simple CSV parser (handles quoted fields with commas inside) ──────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  function splitLine(line) {
+    const result = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+      else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+      else cur += ch;
     }
-
-    window[cbName] = function(data) {
-      cleanup();
-      resolve(data);
-    };
-
-    script.src =
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq` +
-      `?tqx=out:json;handler:${cbName}` +
-      `&sheet=${encodeURIComponent(sheetName)}`;
-
-    script.onerror = function() {
-      cleanup();
-      reject(new Error('Could not reach Google Sheets. Check your internet connection.'));
-    };
-
-    document.head.appendChild(script);
-  });
+    result.push(cur.trim());
+    return result;
+  }
+  const headers = splitLine(lines[0]);
+  const rows = lines.slice(1).map(l => splitLine(l));
+  return { headers, rows };
 }
 
-// ── Parse gviz table into {headers, rows} ────────────────────────────────────
-function parseGviz(gviz) {
-  const cols = gviz.table.cols;
-  const rows = gviz.table.rows;
-  const headers = cols.map(c => c.label || c.id || '');
-  const data = rows.map(r => r.c.map(cell => cell ? (cell.v !== null && cell.v !== undefined ? cell.v : cell.f || '') : ''));
-  return { headers, rows: data };
-}
 
 // ── Stat card HTML ────────────────────────────────────────────────────────────
 function statCard(label, value, sub = '', color = NAVY) {
@@ -530,13 +522,13 @@ async function loadAll() {
   icon.classList.add('spinner');
 
   try {
-    const [attGviz, scoreGviz] = await Promise.all([
+    const [attParsed, scoreParsed] = await Promise.all([
       fetchSheet(SHEET_ATT),
       fetchSheet(SHEET_SCORE),
     ]);
 
-    attData   = parseGviz(attGviz);
-    scoreData = parseGviz(scoreGviz);
+    attData   = attParsed;
+    scoreData = scoreParsed;
 
     renderAttendance(attData);
     renderScores(scoreData);
