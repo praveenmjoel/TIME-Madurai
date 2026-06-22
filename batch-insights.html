@@ -3,78 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Batch Insights — T.I.M.E. Madurai</title>
+  <title>Batch Insights — Watrap | T.I.M.E. Madurai</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <script>
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: { navy: '#0d2d6e', 'navy-light': '#1a3d8f', gold: '#f9c74f' },
-          fontFamily: { sans: ['"Plus Jakarta Sans"', 'Helvetica', 'sans-serif'] }
-        }
-      }
+      theme: { extend: {
+        colors: { navy:'#0d2d6e', gold:'#f9c74f' },
+        fontFamily: { sans:['"Plus Jakarta Sans"','Helvetica','sans-serif'] }
+      }}
     }
   </script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    body { background: #f0f4ff; }
-
-    /* Tab bar */
-    .tab-btn { transition: all .25s; border-bottom: 2px solid transparent; }
-    .tab-btn.active { color: #0d2d6e; border-color: #f9c74f; font-weight: 600; }
-
-    /* Cards */
-    .stat-card { background: white; border-radius: 16px; padding: 20px 24px;
-                 box-shadow: 0 1px 3px rgba(13,45,110,.07), 0 4px 16px rgba(13,45,110,.06); }
-
-    /* Table */
-    table { border-collapse: collapse; width: 100%; }
-    th { background: #0d2d6e; color: white; padding: 10px 14px; text-align: left; font-size: .75rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
-    td { padding: 9px 14px; font-size: .84rem; border-bottom: 1px solid #e8edf8; }
-    tr:hover td { background: #f5f8ff; }
-
-    /* Attendance badge */
-    .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .72rem; font-weight: 600; }
-    .badge-green  { background: #dcfce7; color: #166534; }
-    .badge-yellow { background: #fef9c3; color: #854d0e; }
-    .badge-red    { background: #fee2e2; color: #991b1b; }
-
-    /* Score colour */
-    .score-high   { color: #16a34a; font-weight: 600; }
-    .score-mid    { color: #d97706; font-weight: 600; }
-    .score-low    { color: #dc2626; font-weight: 600; }
-
-    /* Spinner */
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner { animation: spin 1s linear infinite; }
-
-    /* Chart container */
-    .chart-wrap { position: relative; height: 280px; }
-
-    /* Error card */
-    .error-card { background: #fff7ed; border: 1px solid #fdba74; border-radius: 12px; padding: 20px 24px; }
+    *, *::before, *::after { box-sizing:border-box; }
+    body { background:#eef2fb; }
+    .card { background:white; border-radius:16px; box-shadow:0 1px 3px rgba(13,45,110,.07),0 4px 16px rgba(13,45,110,.06); }
+    .tab-btn { transition:all .2s; border-bottom:2px solid transparent; }
+    .tab-btn.active { color:#0d2d6e; border-color:#f9c74f; font-weight:700; }
+    table { border-collapse:collapse; width:100%; font-size:.82rem; }
+    th { background:#0d2d6e; color:white; padding:9px 14px; text-align:left; font-size:.7rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+    td { padding:8px 14px; border-bottom:1px solid #e8edf8; white-space:nowrap; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#f5f8ff; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:99px; font-size:.7rem; font-weight:600; }
+    .pill-g { background:#dcfce7; color:#166534; }
+    .pill-y { background:#fef9c3; color:#854d0e; }
+    .pill-r { background:#fee2e2; color:#991b1b; }
+    .chart-box { position:relative; height:260px; }
+    select.filter { background:white; border:1px solid #e2e8f0; border-radius:8px; padding:6px 30px 6px 10px;
+      font-size:.8rem; color:#0d2d6e; appearance:none; cursor:pointer;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%230d2d6e' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 8px center; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spin { animation:spin 1s linear infinite; }
+    .subject-dot { width:9px; height:9px; border-radius:50%; display:inline-block; flex-shrink:0; }
   </style>
 </head>
-<body class="font-sans antialiased min-h-screen">
+<body class="font-sans antialiased">
 
-<!-- ── Header ──────────────────────────────────────────────────────────────── -->
-<header class="bg-navy text-white px-6 md:px-10 py-5 flex items-center justify-between shadow-lg">
+<!-- Header -->
+<header class="bg-navy px-6 md:px-10 py-4 flex items-center justify-between shadow-lg">
   <div class="flex items-center gap-4">
-    <img src="TIME Logo White.png" alt="T.I.M.E. Madurai" style="height:30px;width:auto;">
+    <img src="TIME Logo White.png" alt="T.I.M.E. Madurai" style="height:28px;width:auto;">
     <div>
-      <div class="font-bold text-base">Batch Insights</div>
-      <div class="text-white/40 text-xs tracking-wide">Live data · CAT 2026</div>
+      <div class="text-white font-bold">Batch Insights</div>
+      <div class="text-white/40 text-xs">Watrap · JEE / NEET 2027</div>
     </div>
   </div>
   <div class="flex items-center gap-3">
-    <span id="last-updated" class="text-white/35 text-xs hidden"></span>
-    <button onclick="loadAll()" id="refresh-btn"
-      class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all"
+    <span id="updated" class="text-white/35 text-xs"></span>
+    <button onclick="loadAll()" class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold"
       style="background:rgba(249,199,79,.15);border:1px solid rgba(249,199,79,.3);color:#f9c74f;">
-      <svg id="refresh-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <svg id="ri" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
       </svg>
       Refresh
@@ -82,79 +64,99 @@
   </div>
 </header>
 
-<!-- ── Tab bar ──────────────────────────────────────────────────────────────── -->
-<div class="bg-white border-b border-gray-100 px-6 md:px-10 flex gap-6">
-  <button class="tab-btn active py-3.5 text-sm text-navy/50 hover:text-navy" onclick="showTab('attendance')">Attendance</button>
-  <button class="tab-btn py-3.5 text-sm text-navy/50 hover:text-navy" onclick="showTab('scores')">Scores</button>
+<!-- Tabs -->
+<div class="bg-white border-b border-slate-100 px-6 md:px-10 flex gap-7 sticky top-0 z-10 shadow-sm">
+  <button class="tab-btn active py-3.5 text-sm text-navy/50" onclick="showTab('attendance')">Attendance</button>
+  <button class="tab-btn py-3.5 text-sm text-navy/50" onclick="showTab('scores')">Scores</button>
 </div>
 
-<!-- ── Main ─────────────────────────────────────────────────────────────────── -->
-<main class="max-w-7xl mx-auto px-4 md:px-10 py-8">
+<main class="max-w-7xl mx-auto px-4 md:px-8 py-8">
 
-  <!-- Loading state -->
-  <div id="loading" class="flex flex-col items-center justify-center py-24 gap-4">
-    <svg class="spinner w-8 h-8 text-navy" fill="none" viewBox="0 0 24 24">
+  <!-- Loading -->
+  <div id="loading" class="flex flex-col items-center justify-center py-28 gap-4">
+    <svg class="spin w-8 h-8 text-navy" fill="none" viewBox="0 0 24 24">
       <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
-      <path class="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
     </svg>
-    <div class="text-navy/50 text-sm">Fetching live data from Google Sheets…</div>
+    <div class="text-navy/50 text-sm">Loading live data…</div>
   </div>
 
-  <!-- Error state -->
-  <div id="error-state" class="hidden">
-    <div class="error-card max-w-xl mx-auto mt-8">
+  <!-- Error -->
+  <div id="err" class="hidden max-w-lg mx-auto mt-10">
+    <div class="card p-6" style="border:1px solid #fdba74;background:#fff7ed;">
       <div class="font-semibold text-amber-800 mb-1">Could not load data</div>
-      <div id="error-msg" class="text-amber-700 text-sm"></div>
-      <div class="mt-3 text-amber-700 text-sm">Make sure the Google Sheet is set to <strong>"Anyone with the link can view"</strong> and try refreshing.</div>
+      <div id="err-msg" class="text-amber-700 text-sm mb-2"></div>
+      <div class="text-amber-700 text-xs">Make sure the Google Sheet is set to <strong>"Anyone with the link can view"</strong>.</div>
     </div>
   </div>
 
-  <!-- ── ATTENDANCE TAB ───────────────────────────────────────────────────── -->
-  <div id="tab-attendance" class="hidden">
+  <!-- ── ATTENDANCE TAB ─────────────────────────────────────────────────── -->
+  <div id="tab-att" class="hidden space-y-6">
 
     <!-- Stat cards -->
-    <div id="att-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
+    <div id="att-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
 
-    <!-- Charts row -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div class="stat-card">
-        <div class="font-semibold text-navy text-sm mb-4">Attendance % per Student</div>
-        <div class="chart-wrap"><canvas id="chart-att-student"></canvas></div>
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card p-5">
+        <div class="font-semibold text-navy text-sm mb-4">Sessions Attended per Student</div>
+        <div class="chart-box"><canvas id="c-att-student"></canvas></div>
       </div>
-      <div class="stat-card">
-        <div class="font-semibold text-navy text-sm mb-4">Class Attendance Over Time</div>
-        <div class="chart-wrap"><canvas id="chart-att-trend"></canvas></div>
+      <div class="card p-5">
+        <div class="font-semibold text-navy text-sm mb-4">Class Attendance per Sunday</div>
+        <div class="chart-box"><canvas id="c-att-date"></canvas></div>
       </div>
     </div>
 
     <!-- Table -->
-    <div class="stat-card overflow-x-auto">
-      <div class="font-semibold text-navy text-sm mb-4">Student Attendance Detail</div>
+    <div class="card p-5 overflow-x-auto">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div class="font-semibold text-navy text-sm">Student Attendance Breakdown</div>
+        <select class="filter" id="att-subject-filter" onchange="renderAttTable()">
+          <option value="all">All Sessions</option>
+        </select>
+      </div>
       <div id="att-table"></div>
     </div>
   </div>
 
-  <!-- ── SCORES TAB ───────────────────────────────────────────────────────── -->
-  <div id="tab-scores" class="hidden">
+  <!-- ── SCORES TAB ─────────────────────────────────────────────────────── -->
+  <div id="tab-scores" class="hidden space-y-6">
 
     <!-- Stat cards -->
-    <div id="score-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
+    <div id="score-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
 
-    <!-- Charts row -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div class="stat-card">
-        <div class="font-semibold text-navy text-sm mb-4">Average Score per Test</div>
-        <div class="chart-wrap"><canvas id="chart-score-test"></canvas></div>
+    <!-- Filter row -->
+    <div class="flex flex-wrap gap-3 items-center">
+      <select class="filter" id="score-subject-filter" onchange="applyScoreFilter()">
+        <option value="all">All Subjects</option>
+      </select>
+      <select class="filter" id="score-student-filter" onchange="applyScoreFilter()">
+        <option value="all">All Students</option>
+      </select>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card p-5">
+        <div class="font-semibold text-navy text-sm mb-4">Average Score % per Student</div>
+        <div class="chart-box"><canvas id="c-score-student"></canvas></div>
       </div>
-      <div class="stat-card">
-        <div class="font-semibold text-navy text-sm mb-4">Score Distribution (latest test)</div>
-        <div class="chart-wrap"><canvas id="chart-score-dist"></canvas></div>
+      <div class="card p-5">
+        <div class="font-semibold text-navy text-sm mb-4">Class Average per Test Date</div>
+        <div class="chart-box"><canvas id="c-score-date"></canvas></div>
       </div>
     </div>
 
+    <!-- Subject breakdown -->
+    <div class="card p-5">
+      <div class="font-semibold text-navy text-sm mb-4">Subject-wise Average Score %</div>
+      <div class="chart-box" style="height:180px;"><canvas id="c-score-subject"></canvas></div>
+    </div>
+
     <!-- Table -->
-    <div class="stat-card overflow-x-auto">
-      <div class="font-semibold text-navy text-sm mb-4">Student Score Sheet</div>
+    <div class="card p-5 overflow-x-auto">
+      <div class="font-semibold text-navy text-sm mb-4">Score Sheet — All Tests</div>
       <div id="score-table"></div>
     </div>
   </div>
@@ -162,215 +164,237 @@
 </main>
 
 <script>
-// ── Config ───────────────────────────────────────────────────────────────────
-const SHEET_ID = '17FktHAvR_CBoZG_omLduWJoocDXcuu2JuztPRc3l1A8';
+// ═══════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════
+const SHEET_ID    = '17FktHAvR_CBoZG_omLduWJoocDXcuu2JuztPRc3l1A8';
 const SHEET_ATT   = 'Attendance';
 const SHEET_SCORE = 'Score sheet';
 
-const NAVY  = '#0d2d6e';
-const GOLD  = '#f9c74f';
-const PALETTE = ['#0d2d6e','#1a3d8f','#f9c74f','#4a8cd9','#22c55e','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4'];
-
-let chartInstances = {};
-let attData = null, scoreData = null;
-
-// ── Tabs ─────────────────────────────────────────────────────────────────────
-function showTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', (i === 0 && tab === 'attendance') || (i === 1 && tab === 'scores'));
-  });
-  document.getElementById('tab-attendance').classList.toggle('hidden', tab !== 'attendance');
-  document.getElementById('tab-scores').classList.toggle('hidden', tab !== 'scores');
+const NAVY = '#0d2d6e', GOLD = '#f9c74f';
+const SUBJECT_COLORS = {
+  'Physics':   '#4a8cd9',
+  'Chemistry': '#f59e0b',
+  'Biology':   '#22c55e',
+  'Math':      '#a855f7',
+  'Test':      '#64748b',
+  'Study':     '#94a3b8',
+};
+function subjColor(s) {
+  const k = Object.keys(SUBJECT_COLORS).find(k => s.trim().toLowerCase().startsWith(k.toLowerCase()));
+  return k ? SUBJECT_COLORS[k] : '#94a3b8';
 }
 
-// ── Fetch sheet as CSV, parse manually ───────────────────────────────────────
-async function fetchSheet(sheetName) {
-  // Use the CSV export URL — works for any public "Anyone with link can view" sheet
-  const url =
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq` +
-    `?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+let attRows = [], scoreRows = [];
+let charts = {};
 
+// ═══════════════════════════════════════════════════════════════
+// FETCH + CSV PARSE
+// ═══════════════════════════════════════════════════════════════
+async function fetchSheet(sheet) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}`;
   const res = await fetch(url, { credentials: 'omit' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} — sheet "${sheetName}" not found or not public`);
-
+  if (!res.ok) throw new Error(`HTTP ${res.status} — "${sheet}" not accessible`);
   const text = await res.text();
-  if (!text.trim()) throw new Error(`Sheet "${sheetName}" is empty or the tab name is wrong`);
-
-  return parseCSV(text);
+  if (!text.trim()) throw new Error(`Sheet "${sheet}" is empty or tab name is wrong`);
+  return csvToRows(text);
 }
 
-// ── Simple CSV parser (handles quoted fields with commas inside) ──────────────
-function parseCSV(text) {
+function csvToRows(text) {
   const lines = text.trim().split('\n');
-  function splitLine(line) {
-    const result = [];
-    let cur = '', inQ = false;
+  return lines.map(line => {
+    const cells = []; let cur = '', inQ = false;
     for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
-      else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
-      else cur += ch;
+      const c = line[i];
+      if (c === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+      else if (c === ',' && !inQ) { cells.push(cur.trim()); cur = ''; }
+      else cur += c;
     }
-    result.push(cur.trim());
-    return result;
-  }
-  const headers = splitLine(lines[0]);
-  const rows = lines.slice(1).map(l => splitLine(l));
-  return { headers, rows };
+    cells.push(cur.trim());
+    return cells;
+  });
 }
 
-
-// ── Stat card HTML ────────────────────────────────────────────────────────────
-function statCard(label, value, sub = '', color = NAVY) {
-  return `<div class="stat-card">
-    <div class="text-xs font-medium uppercase tracking-widest mb-1" style="color:${color};opacity:.5;">${label}</div>
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+function normName(n) { return String(n || '').replace(/\s+/g, ' ').trim(); }
+function normSession(s) { return String(s || '').trim().replace(/\s+$/, ''); }
+function pct(n, d) { return d ? Math.round((n / d) * 100) : 0; }
+function fmtDate(d) {
+  // d is MM/DD/YYYY → return "Jun 7"
+  if (!d) return '';
+  const [m, day] = d.split('/');
+  const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[+m] || m} ${+day}`;
+}
+function killChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+  const old = document.getElementById(id);
+  if (old) { const p = old.parentNode; old.remove(); const c = document.createElement('canvas'); c.id = id; p.appendChild(c); }
+  return document.getElementById(id).getContext('2d');
+}
+function statCard(label, value, sub='', color=NAVY) {
+  return `<div class="card p-5">
+    <div class="text-xs font-semibold uppercase tracking-widest mb-1" style="color:${color};opacity:.45;">${label}</div>
     <div class="text-3xl font-bold" style="color:${color};">${value}</div>
-    ${sub ? `<div class="text-xs mt-1" style="color:${color};opacity:.45;">${sub}</div>` : ''}
+    ${sub ? `<div class="text-xs mt-1" style="color:${color};opacity:.4;">${sub}</div>` : ''}
   </div>`;
 }
 
-// ── Kill + recreate a canvas (prevents Chart.js "already in use" error) ────────
-function freshCanvas(id) {
-  const old = document.getElementById(id);
-  const parent = old.parentNode;
-  old.remove();
-  const c = document.createElement('canvas');
-  c.id = id;
-  parent.appendChild(c);
-  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
-  return c.getContext('2d');
+// ═══════════════════════════════════════════════════════════════
+// ATTENDANCE
+// ═══════════════════════════════════════════════════════════════
+// Columns: Date(0) Day(1) StartTime(2) EndTime(3) Session(4)
+//          StudentName(5) Attendance(6) Portion(7) Reason(8)
+
+let attData = {}; // { student: { date: { sessions: [{session, present}] } } }
+let attDates = [], attStudents = [], attSessions = [];
+
+function processAttendance(rows) {
+  const data = {}, datesSet = new Set(), studentsSet = new Set(), sessionsSet = new Set();
+
+  rows.slice(1).forEach(r => {
+    const date    = String(r[0] || '').trim();
+    const session = normSession(r[4]);
+    const student = normName(r[5]);
+    const present = String(r[6] || '').trim().toLowerCase() === 'present';
+    if (!date || !student) return;
+
+    studentsSet.add(student);
+    datesSet.add(date);
+    sessionsSet.add(session);
+    if (!data[student]) data[student] = {};
+    if (!data[student][date]) data[student][date] = [];
+    data[student][date].push({ session, present });
+  });
+
+  attData     = data;
+  attDates    = [...datesSet].sort((a,b) => new Date(a) - new Date(b));
+  attStudents = [...studentsSet].sort();
+  attSessions = [...sessionsSet].filter(Boolean).sort();
+
+  // Populate subject filter
+  const sel = document.getElementById('att-subject-filter');
+  sel.innerHTML = '<option value="all">All Sessions</option>';
+  attSessions.forEach(s => {
+    const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o);
+  });
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// ATTENDANCE
-// ════════════════════════════════════════════════════════════════════════════
-function renderAttendance({ headers, rows }) {
-  // Assume col 0 = student name/ID, col 1 = optional roll/ID,
-  // remaining cols = session dates with values P / A / L / 1 / 0 etc.
-  // Find name col (first col) and session cols
-  const nameCol = 0;
-  // Detect session columns: skip columns that look like IDs/numbers only (first 1-2)
-  const sessionStart = headers.slice(1).findIndex(h => /\d{1,2}[\/\-\.]\d|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|session|class|day/i.test(h)) + 1;
-  const sessIdx = sessionStart > 0 ? sessionStart : 1;
-  const sessionCols = headers.slice(sessIdx);
+function getAttFilter() { return document.getElementById('att-subject-filter').value; }
 
-  // For each student, count present
-  const students = rows.filter(r => r[nameCol] && String(r[nameCol]).trim());
-  const studentStats = students.map(r => {
-    const name = String(r[nameCol]).trim();
-    let present = 0, total = 0;
-    for (let i = sessIdx; i < headers.length; i++) {
-      const v = String(r[i] || '').trim().toLowerCase();
-      if (v === '' || v === '-') continue;
-      total++;
-      if (v === 'p' || v === '1' || v === 'present' || v === 'yes') present++;
-    }
-    const pct = total > 0 ? Math.round((present / total) * 100) : null;
-    return { name, present, total, pct };
-  });
-
-  // Class average per session (for trend)
-  const sessionAvg = sessionCols.map((_, si) => {
-    const absIdx = sessIdx + si;
-    let p = 0, t = 0;
-    students.forEach(r => {
-      const v = String(r[absIdx] || '').trim().toLowerCase();
-      if (v === '' || v === '-') return;
-      t++;
-      if (v === 'p' || v === '1' || v === 'present' || v === 'yes') p++;
+function calcStudentAtt(filter = 'all') {
+  return attStudents.map(student => {
+    let total = 0, present = 0;
+    Object.values(attData[student] || {}).forEach(sessions => {
+      sessions.forEach(({ session, present: p }) => {
+        if (filter === 'all' || session === filter) { total++; if (p) present++; }
+      });
     });
-    return t > 0 ? Math.round((p / t) * 100) : null;
+    return { student, present, total, pct: pct(present, total) };
   });
+}
 
-  // ── Stat cards ───────────────────────────────────────────────────────────
-  const valids = studentStats.filter(s => s.pct !== null);
-  const classAvg = valids.length ? Math.round(valids.reduce((a, s) => a + s.pct, 0) / valids.length) : 0;
-  const above75  = valids.filter(s => s.pct >= 75).length;
-  const below60  = valids.filter(s => s.pct < 60).length;
+function renderAttendance() {
+  const stats = calcStudentAtt('all');
+  const totalSessions = stats.reduce((a,s) => a + s.total, 0);
+  const avgPct = stats.length ? Math.round(stats.reduce((a,s) => a + s.pct, 0) / stats.length) : 0;
+  const perfect = stats.filter(s => s.pct === 100).length;
+  const below80 = stats.filter(s => s.total > 0 && s.pct < 80).length;
 
   document.getElementById('att-stats').innerHTML =
-    statCard('Total Students', students.length) +
-    statCard('Sessions Tracked', sessionCols.length) +
-    statCard('Class Average', classAvg + '%', above75 + ' students ≥75%', classAvg >= 75 ? '#16a34a' : classAvg >= 60 ? '#d97706' : '#dc2626') +
-    statCard('Below 60%', below60, 'need attention', below60 > 0 ? '#dc2626' : '#16a34a');
+    statCard('Students', attStudents.length) +
+    statCard('Sundays', attDates.length, 'class days') +
+    statCard('Class Avg', avgPct+'%', 'across all sessions', avgPct >= 90 ? '#16a34a' : avgPct >= 75 ? '#d97706' : '#dc2626') +
+    statCard('Perfect Attendance', perfect, below80 + ' students below 80%');
 
-  // ── Chart 1: Attendance % per student (horizontal bar) ───────────────────
-  const sorted = [...studentStats].filter(s => s.pct !== null).sort((a, b) => b.pct - a.pct);
-  const ctx1 = freshCanvas('chart-att-student');
-  chartInstances['chart-att-student'] = new Chart(ctx1, {
+  // Chart: sessions per student (stacked: present / absent)
+  const ctx1 = killChart('c-att-student');
+  const firstName = n => n.split(/\s+/)[0];
+  charts['c-att-student'] = new Chart(ctx1, {
     type: 'bar',
     data: {
-      labels: sorted.map(s => s.name.split(' ')[0]),
-      datasets: [{
-        label: 'Attendance %',
-        data: sorted.map(s => s.pct),
-        backgroundColor: sorted.map(s => s.pct >= 75 ? '#22c55e' : s.pct >= 60 ? '#f59e0b' : '#ef4444'),
-        borderRadius: 6,
-      }]
+      labels: stats.map(s => firstName(s.student)),
+      datasets: [
+        { label: 'Present', data: stats.map(s => s.present), backgroundColor: '#22c55e', borderRadius: 5 },
+        { label: 'Absent',  data: stats.map(s => s.total - s.present), backgroundColor: '#fca5a5', borderRadius: 5 },
+      ]
     },
     options: {
-      indexAxis: 'y',
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend: { position:'top', labels:{ font:{size:11}, padding:12 } } },
       scales: {
-        x: { max: 100, grid: { color: '#f0f4ff' }, ticks: { callback: v => v + '%' } },
-        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        x: { stacked:true, grid:{display:false}, ticks:{font:{size:10}} },
+        y: { stacked:true, grid:{color:'#f0f4ff'}, ticks:{stepSize:2} }
       }
     }
   });
 
-  // ── Chart 2: Trend over sessions ─────────────────────────────────────────
-  const trendData = sessionAvg.filter(v => v !== null);
-  const trendLabels = sessionCols.filter((_, i) => sessionAvg[i] !== null);
-  const ctx2 = freshCanvas('chart-att-trend');
-  chartInstances['chart-att-trend'] = new Chart(ctx2, {
+  // Chart: % present per date
+  const datePct = attDates.map(date => {
+    let tot = 0, pres = 0;
+    attStudents.forEach(s => {
+      (attData[s]?.[date] || []).forEach(({present}) => { tot++; if (present) pres++; });
+    });
+    return pct(pres, tot);
+  });
+  const ctx2 = killChart('c-att-date');
+  charts['c-att-date'] = new Chart(ctx2, {
     type: 'line',
     data: {
-      labels: trendLabels,
+      labels: attDates.map(fmtDate),
       datasets: [{
-        label: 'Class attendance %',
-        data: trendData,
-        borderColor: NAVY,
-        backgroundColor: 'rgba(13,45,110,.08)',
-        fill: true, tension: 0.35, pointBackgroundColor: NAVY, pointRadius: 4,
+        label: 'Attendance %', data: datePct,
+        borderColor: NAVY, backgroundColor: 'rgba(13,45,110,.08)',
+        fill:true, tension:.35, pointBackgroundColor: GOLD, pointRadius:5, pointBorderColor: NAVY,
       }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{display:false} },
       scales: {
-        y: { max: 100, grid: { color: '#f0f4ff' }, ticks: { callback: v => v + '%' } },
-        x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10 } } }
+        y: { min:0, max:100, grid:{color:'#f0f4ff'}, ticks:{callback:v=>v+'%'} },
+        x: { grid:{display:false}, ticks:{font:{size:11}} }
       }
     }
   });
 
-  // ── Table ─────────────────────────────────────────────────────────────────
-  const maxCols = 12; // show at most 12 recent sessions in table
-  const showCols = sessionCols.slice(-maxCols);
-  const showStart = Math.max(sessIdx, headers.length - maxCols);
+  renderAttTable();
+}
 
-  let html = `<table>
-    <thead><tr>
-      <th>#</th><th>Student</th>
-      ${showCols.map(h => `<th style="min-width:54px">${h}</th>`).join('')}
-      <th>Present</th><th>Attendance</th>
-    </tr></thead><tbody>`;
+function renderAttTable() {
+  const filter = getAttFilter();
+  const stats  = calcStudentAtt(filter);
 
-  studentStats.forEach((s, i) => {
-    const badgeClass = s.pct === null ? '' : s.pct >= 75 ? 'badge-green' : s.pct >= 60 ? 'badge-yellow' : 'badge-red';
-    const rowCells = rows[students.indexOf(rows.find(r => String(r[nameCol]).trim() === s.name))];
+  // Per-date stats for each student
+  const rows = attStudents.map(student => {
+    const byDate = attDates.map(date => {
+      const sessions = (attData[student]?.[date] || []).filter(e => filter === 'all' || e.session === filter);
+      const p = sessions.filter(e => e.present).length;
+      return { present: p, total: sessions.length };
+    });
+    const s = stats.find(x => x.student === student);
+    return { student, byDate, ...s };
+  });
+
+  const pillClass = p => p === 100 ? 'pill-g' : p >= 80 ? 'pill-y' : 'pill-r';
+
+  let html = `<table><thead><tr>
+    <th>Student</th>
+    ${attDates.map(d => `<th>${fmtDate(d)}</th>`).join('')}
+    <th>Total</th><th>Attendance</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach(r => {
     html += `<tr>
-      <td class="text-navy/40">${i + 1}</td>
-      <td class="font-medium text-navy">${s.name}</td>
-      ${Array.from({ length: showCols.length }, (_, ci) => {
-        const v = String((rowCells || [])[showStart + ci] || '').trim();
-        const isP = /^(p|1|present|yes)$/i.test(v);
-        const isA = /^(a|0|absent|no)$/i.test(v);
-        return `<td class="text-center" style="color:${isP ? '#16a34a' : isA ? '#dc2626' : '#94a3b8'}">${v || '–'}</td>`;
-      }).join('')}
-      <td class="text-navy">${s.present} / ${s.total}</td>
-      <td><span class="badge ${badgeClass}">${s.pct !== null ? s.pct + '%' : '—'}</span></td>
+      <td class="font-medium text-navy">${r.student}</td>
+      ${r.byDate.map(({present, total}) =>
+        `<td class="text-center">${total === 0 ? '<span class="text-slate-300">—</span>'
+          : `<span style="color:${present===total?'#16a34a':'#dc2626'}">${present}/${total}</span>`}</td>`
+      ).join('')}
+      <td class="text-navy font-semibold">${r.present}/${r.total}</td>
+      <td><span class="pill ${pillClass(r.pct)}">${r.pct}%</span></td>
     </tr>`;
   });
 
@@ -378,181 +402,243 @@ function renderAttendance({ headers, rows }) {
   document.getElementById('att-table').innerHTML = html;
 }
 
-// ════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // SCORES
-// ════════════════════════════════════════════════════════════════════════════
-function renderScores({ headers, rows }) {
-  const nameCol = 0;
-  // Session/test columns: skip first 1-2 non-score cols
-  const scoreStart = 1;
-  const testCols = headers.slice(scoreStart);
+// ═══════════════════════════════════════════════════════════════
+// Columns: Date(0) Name(1) Course(2) Topics(3) Subject(4)
+//          Correct(5) Wrong(6) Score(7) TotalMarks(8) TestType(9)
 
-  const students = rows.filter(r => r[nameCol] && String(r[nameCol]).trim());
+let scoreData = []; // array of { date, name, course, topic, subject, correct, wrong, score, total }
+let scoreDates = [], scoreStudents = [], scoreSubjects = [];
 
-  // Parse scores
-  const studentData = students.map(r => {
-    const name = String(r[nameCol]).trim();
-    const scores = testCols.map((_, i) => {
-      const v = r[scoreStart + i];
-      const n = parseFloat(String(v || '').replace(/[^0-9.\-]/g, ''));
-      return isNaN(n) ? null : n;
-    });
-    const valid = scores.filter(s => s !== null);
-    const avg = valid.length ? Math.round((valid.reduce((a, b) => a + b, 0) / valid.length) * 10) / 10 : null;
-    const best = valid.length ? Math.max(...valid) : null;
-    return { name, scores, avg, best };
+function processScores(rows) {
+  scoreData = [];
+  const dSet = new Set(), sSet = new Set(), subSet = new Set();
+
+  rows.slice(1).forEach(r => {
+    const date    = String(r[0] || '').trim();
+    const name    = normName(r[1]);
+    const course  = String(r[2] || '').trim();
+    const topic   = String(r[3] || '').trim();
+    const subject = normSession(r[4]);
+    const correct = parseFloat(r[5]) || 0;
+    const wrong   = parseFloat(r[6]) || 0;
+    const score   = parseFloat(r[7]);
+    const total   = parseFloat(r[8]) || 80;
+    if (!date || !name || isNaN(score)) return;
+
+    dSet.add(date); sSet.add(name); subSet.add(subject);
+    scoreData.push({ date, name, course, topic, subject, correct, wrong, score, total });
   });
 
-  // Average per test
-  const testAvgs = testCols.map((_, ti) => {
-    const vals = studentData.map(s => s.scores[ti]).filter(v => v !== null);
-    return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : null;
-  });
+  scoreDates    = [...dSet].sort((a,b) => new Date(a) - new Date(b));
+  scoreStudents = [...sSet].sort();
+  scoreSubjects = [...subSet].sort();
 
-  // Max possible score (infer from max value across sheet)
-  const allScores = studentData.flatMap(s => s.scores).filter(v => v !== null);
-  const maxScore = allScores.length ? Math.max(...allScores) : 100;
+  // Populate filters
+  const subjSel = document.getElementById('score-subject-filter');
+  subjSel.innerHTML = '<option value="all">All Subjects</option>';
+  scoreSubjects.forEach(s => { const o = document.createElement('option'); o.value=s; o.textContent=s; subjSel.appendChild(o); });
 
-  // ── Stat cards ───────────────────────────────────────────────────────────
-  const allAvgs = studentData.filter(s => s.avg !== null).map(s => s.avg);
-  const classAvg = allAvgs.length ? Math.round((allAvgs.reduce((a, b) => a + b, 0) / allAvgs.length) * 10) / 10 : 0;
-  const topScorer = studentData.filter(s => s.avg !== null).sort((a, b) => b.avg - a.avg)[0];
-  const latestAvg = testAvgs.filter(v => v !== null).slice(-1)[0];
+  const studSel = document.getElementById('score-student-filter');
+  studSel.innerHTML = '<option value="all">All Students</option>';
+  scoreStudents.forEach(s => { const o = document.createElement('option'); o.value=s; o.textContent=s.split(' ')[0]; studSel.appendChild(o); });
+}
+
+function getScoreFilter() {
+  return {
+    subject: document.getElementById('score-subject-filter').value,
+    student: document.getElementById('score-student-filter').value,
+  };
+}
+
+function filtered(data, { subject, student }) {
+  return data.filter(r =>
+    (subject === 'all' || r.subject === subject) &&
+    (student === 'all' || r.name === student)
+  );
+}
+
+function avgScore(rows) {
+  if (!rows.length) return null;
+  const sum = rows.reduce((a,r) => a + (r.score / r.total * 100), 0);
+  return Math.round(sum / rows.length);
+}
+
+function applyScoreFilter() { renderScores(null); }
+
+function renderScores(loadErr) {
+  const scoreEl = document.getElementById('tab-scores');
+  if (scoreData.length === 0) {
+    const msg = loadErr
+      ? `Could not load the Score sheet: <strong>${loadErr}</strong><br><br>Tip: Make sure the tab is named exactly <strong>"Score sheet"</strong> in Google Sheets and the spreadsheet is shared "Anyone with link can view".`
+      : `The Score sheet tab appears empty or its name doesn't match <strong>"Score sheet"</strong> in Google Sheets. Please verify the exact tab name and try again.`;
+    document.getElementById('score-stats').innerHTML = '';
+    document.getElementById('score-table').innerHTML = `<div class="text-sm text-amber-700 p-4 bg-amber-50 rounded-xl border border-amber-200">${msg}</div>`;
+    ['c-score-student','c-score-date','c-score-subject'].forEach(id => { const el=document.getElementById(id); if(el) el.getContext('2d').clearRect(0,0,el.width,el.height); });
+    return;
+  }
+  const f    = getScoreFilter();
+  const data = filtered(scoreData, f);
+
+  // Stat cards
+  const classAvg = avgScore(data) ?? '—';
+  const byStudent = scoreStudents.map(n => ({ name:n, avg: avgScore(data.filter(r=>r.name===n)) })).filter(s=>s.avg!==null);
+  const topScorer = byStudent.sort((a,b)=>b.avg-a.avg)[0];
+  const negCount  = data.filter(r => r.score < 0).length;
 
   document.getElementById('score-stats').innerHTML =
-    statCard('Students', students.length) +
-    statCard('Tests Tracked', testCols.length) +
-    statCard('Class Average', classAvg, 'across all tests') +
-    statCard('Latest Test Avg', latestAvg ?? '—', testCols[testCols.length - 1] || '');
+    statCard('Tests (rows)', data.length) +
+    statCard('Class Avg', typeof classAvg==='number' ? classAvg+'%' : classAvg, 'across filtered tests') +
+    statCard('Top Scorer', topScorer ? topScorer.name.split(' ')[0] : '—', topScorer ? topScorer.avg+'% avg' : '') +
+    statCard('Negative Scores', negCount, 'times score < 0', negCount>0?'#dc2626':'#16a34a');
 
-  // ── Chart 1: Average per test ─────────────────────────────────────────────
-  const validTestIdx = testCols.map((_, i) => i).filter(i => testAvgs[i] !== null);
-  const ctx1 = freshCanvas('chart-score-test');
-  chartInstances['chart-score-test'] = new Chart(ctx1, {
+  // Chart 1: avg % per student
+  const firstName = n => n.split(/[\s.]+/).filter(Boolean)[0];
+  const studAvgs = scoreStudents.map(n => ({ name:n, avg: avgScore(filtered(scoreData, {...f, student:'all'}).filter(r=>r.name===n)) }));
+  const ctx1 = killChart('c-score-student');
+  charts['c-score-student'] = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: studAvgs.map(s => firstName(s.name)),
+      datasets: [{ label:'Avg %', data: studAvgs.map(s=>s.avg), backgroundColor: studAvgs.map(s => (s.avg||0)>=60?'#0d2d6e':'#ef4444'), borderRadius:6 }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{ x:{grid:{display:false}}, y:{max:100,grid:{color:'#f0f4ff'},ticks:{callback:v=>v+'%'}} }
+    }
+  });
+
+  // Chart 2: class avg per date
+  const dateAvgs = scoreDates.map(d => avgScore(data.filter(r=>r.date===d)));
+  const ctx2 = killChart('c-score-date');
+  charts['c-score-date'] = new Chart(ctx2, {
     type: 'line',
     data: {
-      labels: validTestIdx.map(i => testCols[i]),
+      labels: scoreDates.map(fmtDate),
       datasets: [{
-        label: 'Class avg',
-        data: validTestIdx.map(i => testAvgs[i]),
-        borderColor: NAVY, backgroundColor: 'rgba(13,45,110,.08)',
-        fill: true, tension: 0.35, pointBackgroundColor: GOLD, pointRadius: 5, pointBorderColor: NAVY,
+        label:'Class avg %', data: dateAvgs,
+        borderColor: NAVY, backgroundColor:'rgba(13,45,110,.08)',
+        fill:true, tension:.35, pointBackgroundColor:GOLD, pointRadius:5, pointBorderColor:NAVY,
       }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { grid: { color: '#f0f4ff' }, ticks: { font: { size: 11 } } },
-        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, font: { size: 10 } } }
-      }
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{ y:{max:100,grid:{color:'#f0f4ff'},ticks:{callback:v=>v+'%'}}, x:{grid:{display:false}} }
     }
   });
 
-  // ── Chart 2: Distribution of latest test ─────────────────────────────────
-  const latestIdx = testCols.length - 1;
-  const latestScores = studentData.map(s => s.scores[latestIdx]).filter(v => v !== null);
-  const buckets = ['0–25%', '26–50%', '51–75%', '76–100%'];
-  const bounds = [0.25, 0.5, 0.75, 1.0];
-  const counts = [0, 0, 0, 0];
-  latestScores.forEach(s => {
-    const pct = s / maxScore;
-    const bi = bounds.findIndex(b => pct <= b);
-    if (bi >= 0) counts[bi]++;
-  });
-  const ctx2 = freshCanvas('chart-score-dist');
-  chartInstances['chart-score-dist'] = new Chart(ctx2, {
-    type: 'doughnut',
+  // Chart 3: avg per subject (bar)
+  const subjData = scoreSubjects.map(s => ({ s, avg: avgScore(filtered(scoreData, {...f, subject:'all'}).filter(r=>r.subject===s)) })).filter(x=>x.avg!==null);
+  const ctx3 = killChart('c-score-subject');
+  charts['c-score-subject'] = new Chart(ctx3, {
+    type:'bar',
     data: {
-      labels: buckets,
-      datasets: [{ data: counts, backgroundColor: ['#ef4444','#f59e0b','#60a5fa','#22c55e'], borderWidth: 2, borderColor: '#fff' }]
+      labels: subjData.map(x=>x.s),
+      datasets:[{ label:'Avg %', data:subjData.map(x=>x.avg), backgroundColor:subjData.map(x=>subjColor(x.s)), borderRadius:6 }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'right', labels: { font: { size: 11 }, padding: 14 } } }
+      responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{legend:{display:false}},
+      scales:{ x:{max:100,grid:{color:'#f0f4ff'},ticks:{callback:v=>v+'%'}}, y:{grid:{display:false},ticks:{font:{size:11}}} }
     }
   });
 
-  // ── Table ─────────────────────────────────────────────────────────────────
-  const maxShow = 10;
-  const showTests = testCols.slice(-maxShow);
-  const showFrom = Math.max(0, testCols.length - maxShow);
+  // Table: all rows sorted by date desc, then student
+  const tableRows = [...data].sort((a,b) => (new Date(b.date)-new Date(a.date)) || a.name.localeCompare(b.name));
 
-  function scoreClass(v) {
-    if (v === null) return '';
-    const pct = v / maxScore;
-    return pct >= 0.75 ? 'score-high' : pct >= 0.5 ? 'score-mid' : 'score-low';
+  function scorePill(s, total) {
+    const p = Math.round(s/total*100);
+    if (s < 0) return `<span class="pill pill-r">${s} ⚠</span>`;
+    const cls = p>=70?'pill-g':p>=40?'pill-y':'pill-r';
+    return `<span class="pill ${cls}">${s}<span class="opacity-50">/${total}</span></span>`;
   }
 
-  const sorted = [...studentData].sort((a, b) => (b.avg ?? -Infinity) - (a.avg ?? -Infinity));
-
   let html = `<table><thead><tr>
-    <th>#</th><th>Student</th>
-    ${showTests.map(t => `<th style="min-width:64px">${t}</th>`).join('')}
-    <th>Average</th><th>Best</th>
+    <th>Date</th><th>Student</th><th>Course</th><th>Subject</th>
+    <th>Topic</th><th>✓ Correct</th><th>✗ Wrong</th><th>Score</th><th>% Score</th>
   </tr></thead><tbody>`;
-
-  sorted.forEach((s, i) => {
+  tableRows.forEach(r => {
+    const p = Math.round(r.score/r.total*100);
+    const pClass = p>=70?'#16a34a':p>=40?'#d97706':'#dc2626';
     html += `<tr>
-      <td class="text-navy/40">${i + 1}</td>
-      <td class="font-medium text-navy">${s.name}</td>
-      ${showTests.map((_, ci) => {
-        const v = s.scores[showFrom + ci];
-        return `<td class="text-center ${scoreClass(v)}">${v !== null ? v : '–'}</td>`;
-      }).join('')}
-      <td class="font-semibold text-navy">${s.avg ?? '–'}</td>
-      <td class="text-green-700 font-semibold">${s.best ?? '–'}</td>
+      <td class="text-slate-500">${fmtDate(r.date)}</td>
+      <td class="font-medium text-navy">${r.name}</td>
+      <td><span class="pill" style="background:#e0e7ff;color:#4338ca;">${r.course}</span></td>
+      <td><span class="flex items-center gap-1.5"><span class="subject-dot" style="background:${subjColor(r.subject)}"></span>${r.subject}</span></td>
+      <td class="text-slate-500" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;" title="${r.topic}">${r.topic.length>40?r.topic.slice(0,40)+'…':r.topic}</td>
+      <td class="text-center text-green-700 font-semibold">${r.correct}</td>
+      <td class="text-center text-red-600 font-semibold">${r.wrong}</td>
+      <td class="text-center">${scorePill(r.score, r.total)}</td>
+      <td class="text-center font-bold" style="color:${pClass}">${p}%</td>
     </tr>`;
   });
-
   html += '</tbody></table>';
   document.getElementById('score-table').innerHTML = html;
 }
 
-// ════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════
+function showTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='attendance')||(i===1&&tab==='scores')));
+  document.getElementById('tab-att').classList.toggle('hidden', tab!=='attendance');
+  document.getElementById('tab-scores').classList.toggle('hidden', tab!=='scores');
+  // Re-render charts after tab is visible so Chart.js gets correct container dimensions
+  if (tab === 'attendance') renderAttendance();
+  if (tab === 'scores') renderScores();
+}
+
+// ═══════════════════════════════════════════════════════════════
 // LOAD
-// ════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 async function loadAll() {
   document.getElementById('loading').classList.remove('hidden');
-  document.getElementById('error-state').classList.add('hidden');
-  document.getElementById('tab-attendance').classList.add('hidden');
+  document.getElementById('err').classList.add('hidden');
+  document.getElementById('tab-att').classList.add('hidden');
   document.getElementById('tab-scores').classList.add('hidden');
-
-  const icon = document.getElementById('refresh-icon');
-  icon.classList.add('spinner');
+  document.getElementById('ri').classList.add('spin');
 
   try {
-    const [attParsed, scoreParsed] = await Promise.all([
+    // Load both sheets independently so one failure doesn't block the other
+    const [attResult, scoreResult] = await Promise.allSettled([
       fetchSheet(SHEET_ATT),
       fetchSheet(SHEET_SCORE),
     ]);
 
-    attData   = attParsed;
-    scoreData = scoreParsed;
-
-    renderAttendance(attData);
-    renderScores(scoreData);
+    let scoreErr = null;
+    if (attResult.status === 'fulfilled') {
+      processAttendance(attResult.value);
+    } else {
+      throw attResult.reason; // Attendance is required — surface the error
+    }
+    if (scoreResult.status === 'fulfilled') {
+      processScores(scoreResult.value);
+    } else {
+      scoreErr = scoreResult.reason.message;
+      console.warn('Score sheet failed to load:', scoreErr);
+    }
 
     document.getElementById('loading').classList.add('hidden');
-    document.getElementById('tab-attendance').classList.remove('hidden');
-    document.getElementById('tab-scores').classList.add('hidden');
-
+    document.getElementById('tab-att').classList.remove('hidden');
     const now = new Date();
-    document.getElementById('last-updated').textContent =
-      `Updated ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
-    document.getElementById('last-updated').classList.remove('hidden');
 
-  } catch (err) {
-    console.error(err);
+    // Render AFTER tabs are visible so Chart.js can measure container dimensions
+    renderAttendance();
+    renderScores(scoreErr);
+    document.getElementById('updated').textContent =
+      `Updated ${now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}`;
+  } catch(e) {
+    console.error(e);
     document.getElementById('loading').classList.add('hidden');
-    document.getElementById('error-state').classList.remove('hidden');
-    document.getElementById('error-msg').textContent = err.message;
+    document.getElementById('err').classList.remove('hidden');
+    document.getElementById('err-msg').textContent = e.message;
   }
-
-  icon.classList.remove('spinner');
+  document.getElementById('ri').classList.remove('spin');
 }
 
-// Boot
 loadAll();
 </script>
 </body>
