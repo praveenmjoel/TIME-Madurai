@@ -159,6 +159,33 @@ export const HUBS = [
       { label: 'NEP 2020 Explained', href: '/guide/nep-2020-explained/' },
     ],
   },
+  {
+    slug: 'faq',
+    label: 'FAQ',
+    live: true,
+    blurb: '100+ real questions from students & parents, answered',
+    clusters: [
+      { label: 'JEE FAQs', href: '/faq/jee/' },
+      { label: 'NEET FAQs', href: '/faq/neet/' },
+      { label: 'Counselling & Rank FAQs', href: '/faq/counselling-and-rank/' },
+      { label: 'Reservation FAQs', href: '/faq/reservation/' },
+      { label: 'Colleges & Branches FAQs', href: '/faq/colleges-and-branches/' },
+      { label: 'Droppers & Gap Year FAQs', href: '/faq/droppers/' },
+      { label: 'Scholarships & Mental Health FAQs', href: '/faq/scholarships-and-mental-health/' },
+    ],
+  },
+  {
+    slug: 'tools',
+    label: 'Tools',
+    live: true,
+    blurb: 'College predictor & comparison calculators',
+    clusters: [
+      { label: 'College Predictor', href: '/tools/college-predictor/' },
+      { label: 'Branch Comparison', href: '/tools/branch-comparison/' },
+      { label: 'College Comparison', href: '/tools/college-comparison/' },
+      { label: 'Career Comparison', href: '/tools/career-comparison/' },
+    ],
+  },
   { slug: 'blog', label: 'Blog', live: false, blurb: 'Exam dates, results & deadline reminders', clusters: [] },
 ];
 

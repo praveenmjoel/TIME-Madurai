@@ -1,0 +1,42 @@
+import { buildLeafPage } from '../../lib/leaf.mjs';
+
+const faqs = [
+  { q: 'How many times can I appear for JEE Main?', a: 'There is no lifetime attempt limit. You can appear for JEE Main in consecutive years as long as you have passed or are appearing in Class 12. Most students appear in Class 12 and once more the following year if needed. Each year has two sessions (January and April); you can appear in one or both.' },
+  { q: 'Which session of JEE Main is better — January or April?', a: 'Neither is universally better. January typically has a slightly less-prepared candidate pool, so percentiles can be higher for the same raw score. April allows more preparation time. Appear in BOTH sessions — your best NTA score is used for ranking.' },
+  { q: 'What is the minimum percentage needed in Class 12 to appear for JEE Main?', a: 'There is NO minimum percentage requirement to APPEAR for JEE Main. However, to be ELIGIBLE for NITs, IIITs, and GFTIs, you must score at least 75% aggregate in Class 12 (or be in the top 20 percentile of your board). SC/ST/PwD candidates need 65%. Tamil Nadu Board students: the 75% rule applies to TN HSC marks.' },
+  { q: 'Can I use TN State Board marks for JEE Main eligibility?', a: 'Yes. TN HSC marks are fully accepted. The 75% requirement is calculated on the 5-subject aggregate including Physics, Chemistry, and Mathematics/Biology. The top-20-percentile of the TN Board is an alternative qualifying criterion if you score between 65–75%.' },
+  { q: 'Is coaching mandatory for JEE Main?', a: 'No. Many students crack JEE Main with self-study and online resources. However, structured coaching (like TIME UG) provides chapter-wise pacing, mock tests with All-India benchmarking, and doubt-clearing that is hard to replicate through self-study alone. The key is consistent daily practice — with or without coaching.' },
+  { q: 'What is the NTA Score and how is it different from my actual marks?', a: 'Your NTA Score is a percentile — it shows what percentage of candidates scored equal to or below you in your session. It is NOT your marks out of 300. NTA Score 98 means you scored better than 98% of candidates. All-India Rank (AIR) is derived from NTA Scores after combining both sessions.' },
+  { q: 'Can I change my exam centre city after registration?', a: 'NTA allows a limited correction window after registration for modifying details including exam city. Watch for the official NTA correction window dates (usually 1–2 weeks after registration closes). Once the correction window closes, no changes are permitted.' },
+  { q: 'What documents are needed for JEE Main registration?', a: 'Aadhaar card (or valid photo ID), Class 10 marksheet (for date of birth), a recent passport-size photograph, scanned signature, and a valid email ID + mobile number. Keep these ready before starting registration on jeemain.nta.ac.in.' },
+  { q: 'How many months of preparation are sufficient for JEE Main?', a: 'For a comfortable JEE Main qualifying score (85–90 percentile): 12–15 months of focused study from Class 11 is ideal. For top-100 NIT ranks: 2 full years from Class 11. For a 1-year dropper: 10–12 hours/day of focused study with excellent coaching/self-study material is achievable.' },
+  { q: 'Is NCERT sufficient for JEE Main?', a: 'For Chemistry: NCERT is the primary reference, especially for Inorganic (direct questions). For Physics and Mathematics: NCERT builds the foundation but is insufficient — you need HC Verma/DC Pandey (Physics) and RD Sharma/Arihant (Maths) for problem-solving practice.' },
+  { q: 'How many mock tests should I attempt before JEE Main?', a: 'Minimum 20–25 full-length mocks in the 3 months before the exam. Time them to match the actual exam slot (9 AM or 3 PM). Analysis after each mock is more important than the number of mocks. 30+ mocks with thorough analysis is ideal for serious aspirants.' },
+  { q: 'Which subject should I focus on most for JEE Main?', a: 'Mathematics is the deciding factor — it differentiates ranks most. Chemistry (especially Inorganic from NCERT) gives the easiest marks. Physics requires conceptual depth. Focus proportionately on your weak subjects; do not neglect any of the three.' },
+  { q: 'Can I crack JEE Main with only 6 hours of study per day?', a: '6 quality hours per day with zero distraction is sufficient for an 85–90 percentile (good NIT range). For IIT-level ranks, 8–10 hours of genuine study (not just sitting with books) is typically needed. Quality of study beats quantity.' },
+  { q: 'Should I prepare for JEE Main and Board exams separately?', a: 'No — they significantly overlap. Class 12 Board exams use the same NCERT content as JEE Main. Prepare for JEE Main first; Board-level performance follows naturally. In the 2 months before Boards, switch emphasis to Board exam format (long-answer, derivations) while maintaining JEE practice.' },
+  { q: 'What is the JEE Advanced eligibility cut-off in JEE Main?', a: 'Top 2,50,000 candidates in JEE Main Paper 1 (B.E./B.Tech) each year are eligible for JEE Advanced. The actual cut-off percentile varies year to year — in 2024, it was approximately 93+ percentile. Category-wise separate cut-offs apply (OBC-NCL, SC, ST, PwD).' },
+  { q: 'How many attempts are allowed for JEE Advanced?', a: 'Maximum 2 attempts, in consecutive years. If you appear in JEE Advanced for the first time in 2025, your second and final attempt must be in 2026.' },
+  { q: 'What is the difference in difficulty between JEE Main and JEE Advanced?', a: 'JEE Advanced is substantially harder — questions test deeper conceptual understanding, multi-step reasoning, and application in novel scenarios. JEE Main tests formula application and NCERT coverage. A student scoring 95 percentile in JEE Main may still struggle significantly with JEE Advanced questions.' },
+  { q: 'Can Tamil Nadu State Board students crack JEE Advanced?', a: 'Yes, absolutely. Historically, several TN State Board students have secured IIT seats. The key gap is that the TN Board syllabus is slightly less deep in Mathematics (especially Probability, Sequence & Series) and Chemistry (Inorganic depth). These gaps must be addressed specifically — NCERT plus coaching material fills them.' },
+];
+
+export const faqJeePage = buildLeafPage({
+  slug: 'faq/jee',
+  title: 'JEE Main & JEE Advanced FAQs: Registration, Eligibility & Strategy | T.I.M.E. Madurai',
+  description: '18 real questions about JEE Main and JEE Advanced — registration, eligibility, NTA scoring, preparation timelines, and Tamil Nadu Board-specific gaps.',
+  canonical: '/faq/jee/',
+  courseLabel: 'JEE',
+  breadcrumb: [{ label: 'Home', href: '/' }, { label: 'FAQ', href: '/faq/' }, { label: 'JEE FAQs' }],
+  eyebrow: 'faq · jee',
+  heroTitle: 'JEE Main & JEE Advanced FAQs',
+  heroSubtitle: 'Registration, eligibility, NTA scoring, and preparation strategy — the exact questions students ask before and during JEE preparation.',
+  stats: [],
+  toc: [ { id: 'faqs', label: 'All Questions' } ],
+  sections: [],
+  faqs,
+  faqTitle: 'JEE Main &amp; Advanced — every question',
+  backLink: { label: 'all FAQ categories', href: '/faq/' },
+  ctaHeading: 'Have a JEE question this page didn\'t answer?',
+  ctaSub: 'Ask a counsellor directly.',
+});

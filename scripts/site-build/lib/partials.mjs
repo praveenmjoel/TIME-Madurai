@@ -339,7 +339,8 @@ export function renderFooter() {
             <div>
                 <div class="pill-label text-white/25 mb-5">Programs</div>
                 <div class="space-y-2.5">
-                    <a href="/#courses" class="text-white/45 text-sm hover:text-gold transition-colors block">JEE / NEET</a>
+                    <a href="/coaching/jee-coaching-madurai/" class="text-white/45 text-sm hover:text-gold transition-colors block">JEE Coaching</a>
+                    <a href="/coaching/neet-coaching-madurai/" class="text-white/45 text-sm hover:text-gold transition-colors block">NEET Coaching</a>
                     <a href="/#courses" class="text-white/45 text-sm hover:text-gold transition-colors block">CAT / MAT</a>
                     <a href="/tce-cat-advantage.html" class="text-gold text-sm hover:text-gold-light transition-colors block flex items-center gap-1.5 mt-4">
                         <span class="w-1.5 h-1.5 rounded-full bg-gold inline-block flex-shrink-0"></span>
@@ -353,6 +354,7 @@ export function renderFooter() {
                     <div class="text-white/45 text-sm">Madurai, Tamil Nadu</div>
                     <a href="tel:+${WHATSAPP_NUMBER}" class="text-white/45 text-sm hover:text-gold transition-colors block">${PHONE_DISPLAY}</a>
                     <a href="javascript:void(0)" onclick="openCounsellingForm()" class="text-white/45 text-sm hover:text-gold transition-colors block">Book a session &rarr;</a>
+                    <div class="text-white/25 text-xs pt-2">Also serving Dindigul, Theni, Virudhunagar, Sivaganga, Karaikudi, Sivakasi &amp; Ramanathapuram</div>
                 </div>
             </div>
         </div>

@@ -114,6 +114,31 @@ import { higherEducationPage } from './content/guide/higher-education-in-india.m
 import { rankingsExplainedPage } from './content/guide/nirf-naac-nba-rankings-explained.mjs';
 import { nep2020Page } from './content/guide/nep-2020-explained.mjs';
 
+import { faqIndexPage } from './content/faq/index.mjs';
+import { faqJeePage } from './content/faq/jee.mjs';
+import { faqNeetPage } from './content/faq/neet.mjs';
+import { faqCounsellingPage } from './content/faq/counselling-and-rank.mjs';
+import { faqReservationPage } from './content/faq/reservation.mjs';
+import { faqCollegesPage } from './content/faq/colleges-and-branches.mjs';
+import { faqDroppersPage } from './content/faq/droppers.mjs';
+import { faqScholarshipsMentalHealthPage } from './content/faq/scholarships-and-mental-health.mjs';
+
+import { jeeCoachingMaduraiPage } from './content/coaching/jee-coaching-madurai.mjs';
+import { neetCoachingMaduraiPage } from './content/coaching/neet-coaching-madurai.mjs';
+import { dindigulPage } from './content/coaching/dindigul.mjs';
+import { theniPage } from './content/coaching/theni.mjs';
+import { virudhunagarPage } from './content/coaching/virudhunagar.mjs';
+import { sivagangaPage } from './content/coaching/sivaganga.mjs';
+import { karaikudiPage } from './content/coaching/karaikudi.mjs';
+import { sivakasiPage } from './content/coaching/sivakasi.mjs';
+import { ramanathapuramPage } from './content/coaching/ramanathapuram.mjs';
+
+import { toolsIndexPage } from './content/tools/index.mjs';
+import { collegePredictorPage } from './content/tools/college-predictor.mjs';
+import { branchComparisonPage } from './content/tools/branch-comparison.mjs';
+import { collegeComparisonPage } from './content/tools/college-comparison.mjs';
+import { careerComparisonPage } from './content/tools/career-comparison.mjs';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..', '..');
 
@@ -141,6 +166,11 @@ const PAGES = [
   iitCutoffsPage, nitCutoffsPage, iiitCutoffsPage, bitsatCutoffsPage, viteeeSrmjeeeCutoffsPage,
   tneaCutoffsPage, neetAiimsCutoffsPage, neetTnGovtCutoffsPage, neetTnPrivateCutoffsPage, neetAyushCutoffsPage,
   higherEducationPage, rankingsExplainedPage, nep2020Page,
+  faqIndexPage, faqJeePage, faqNeetPage, faqCounsellingPage, faqReservationPage,
+  faqCollegesPage, faqDroppersPage, faqScholarshipsMentalHealthPage,
+  jeeCoachingMaduraiPage, neetCoachingMaduraiPage, dindigulPage, theniPage,
+  virudhunagarPage, sivagangaPage, karaikudiPage, sivakasiPage, ramanathapuramPage,
+  toolsIndexPage, collegePredictorPage, branchComparisonPage, collegeComparisonPage, careerComparisonPage,
 ];
 
 for (const page of PAGES) {
