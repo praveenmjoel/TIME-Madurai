@@ -190,3 +190,19 @@ export const HUBS = [
 ];
 
 export const LIVE_HUBS = HUBS.filter(h => h.live);
+
+// Groups hubs into fewer top-level nav categories so the mega-menu/footer stay
+// scannable as the hub count grows. Hub slugs/URLs/pages are untouched — this
+// only controls how the nav presents them (single-hub groups render exactly
+// as before; multi-hub groups render as a wider panel with a sub-heading per
+// hub, keeping each hub's own cluster links grouped underneath it).
+export const NAV_GROUPS = [
+  { label: 'Engineering', hubs: ['engineering'] },
+  { label: 'Medical', hubs: ['medical'] },
+  { label: 'Counselling', hubs: ['counselling'] },
+  { label: 'Exams', hubs: ['exams'] },
+  { label: 'Reservation & Aid', hubs: ['reservation', 'scholarships', 'education-loans'] },
+  { label: 'Careers & Guide', hubs: ['careers', 'guide'] },
+  { label: 'Cutoffs', hubs: ['college-cutoffs'] },
+  { label: 'Resources', hubs: ['faq', 'tools', 'blog'] },
+];

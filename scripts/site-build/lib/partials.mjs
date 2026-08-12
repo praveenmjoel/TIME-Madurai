@@ -1,4 +1,4 @@
-import { HUBS } from './hubs.mjs';
+import { HUBS, NAV_GROUPS } from './hubs.mjs';
 
 const SITE_URL = 'https://timemadurai.com';
 const WHATSAPP_NUMBER = '919159900266'; // Knowledge Hive Learning Services / TIME UG helpline
@@ -92,6 +92,17 @@ const SHARED_CSS = `
         .mega-item { display:block; padding:9px 12px; border-radius:10px; font-size:13px; color:rgba(255,255,255,.65); transition:background .2s,color .2s; }
         .mega-item:hover { background:rgba(249,199,79,.08); color:#f9c74f; }
         .mega-soon { padding:14px 12px; }
+        /* Wide panels group several related hubs under one nav trigger — each
+           hub gets its own sub-column so its cluster links stay visually
+           distinct from its siblings. Anchored to the trigger's right edge
+           (not centered) since these triggers sit right-of-center in the bar
+           and a centered wide panel would run off the viewport edge. */
+        .mega-trigger .mega-panel.mega-panel-wide { left:auto; right:-16px; width:auto; max-width:calc(100vw - 32px); display:flex; gap:2px; padding:14px 8px; transform:translateY(8px); }
+        .mega-trigger:hover .mega-panel.mega-panel-wide, .mega-trigger:focus-within .mega-panel.mega-panel-wide { transform:translateY(4px); }
+        .mega-col { width:168px; padding:0 3px; }
+        .mega-col + .mega-col { border-left:1px solid rgba(255,255,255,.08); }
+        .mega-col-head { display:block; padding:6px 12px 10px; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#f9c74f; }
+        a.mega-col-head:hover { color:#fdd87a; }
 
         /* ── BREADCRUMB ── */
         .crumb-link { color:rgba(13,45,110,.4); transition:color .2s; }
@@ -149,29 +160,66 @@ const SHARED_CSS = `
 `;
 
 // ── NAV (mega-menu) ─────────────────────────────────────────────────────────
+// Renders one trigger per NAV_GROUPS entry. A group with a single hub behaves
+// exactly as a plain hub trigger always has (narrow panel, flat cluster list).
+// A group with multiple hubs renders a wider panel with one sub-column per
+// hub, so related-but-distinct hubs (e.g. Reservation/Scholarships/Loans)
+// share a slot in the bar without losing their own identity or cluster links.
+function groupHubs(group) {
+  return group.hubs.map(slug => HUBS.find(h => h.slug === slug)).filter(Boolean);
+}
+
 function megaMenuDesktop() {
-  return HUBS.map(hub => {
-    if (!hub.live) {
-      return `<div class="mega-trigger">
-                <span class="nav-link text-white/30 text-xs tracking-wide cursor-default">${hub.label}</span>
+  return NAV_GROUPS.map(group => {
+    const hubs = groupHubs(group);
+    if (hubs.length === 1) {
+      const hub = hubs[0];
+      if (!hub.live) {
+        return `<div class="mega-trigger">
+                <span class="nav-link text-white/30 text-xs tracking-wide cursor-default">${group.label}</span>
                 <div class="mega-panel"><div class="mega-soon"><div class="text-gold text-[10px] uppercase tracking-widest mb-1">Coming soon</div><div class="text-white/40 text-xs leading-relaxed">${hub.blurb}</div></div></div>
             </div>`;
-    }
-    const items = hub.clusters.map(c => `<a href="${c.href}" class="mega-item">${c.label}</a>`).join('');
-    return `<div class="mega-trigger">
-                <a href="/${hub.slug}/" class="nav-link text-white/60 hover:text-white text-xs tracking-wide">${hub.label}</a>
+      }
+      const items = hub.clusters.map(c => `<a href="${c.href}" class="mega-item">${c.label}</a>`).join('');
+      return `<div class="mega-trigger">
+                <a href="/${hub.slug}/" class="nav-link text-white/60 hover:text-white text-xs tracking-wide">${group.label}</a>
                 <div class="mega-panel">${items}</div>
+            </div>`;
+    }
+    const cols = hubs.map(hub => {
+      if (!hub.live) {
+        return `<div class="mega-col"><div class="mega-col-head text-white/25">${hub.label} <span class="pill-label" style="font-size:9px;">soon</span></div><div class="text-white/35 text-xs leading-relaxed px-3 pb-2">${hub.blurb}</div></div>`;
+      }
+      const items = hub.clusters.map(c => `<a href="${c.href}" class="mega-item">${c.label}</a>`).join('');
+      return `<div class="mega-col"><a href="/${hub.slug}/" class="mega-col-head">${hub.label}</a>${items}</div>`;
+    }).join('');
+    return `<div class="mega-trigger">
+                <span class="nav-link text-white/60 hover:text-white text-xs tracking-wide cursor-default">${group.label}</span>
+                <div class="mega-panel mega-panel-wide">${cols}</div>
             </div>`;
   }).join('\n            ');
 }
 
 function megaMenuMobile() {
-  return HUBS.map(hub => {
-    if (!hub.live) {
-      return `<div class="text-white/25 text-sm py-2.5 border-b border-white/5 flex items-center justify-between"><span>${hub.label}</span><span class="pill-label" style="font-size:9px;">soon</span></div>`;
+  return NAV_GROUPS.map(group => {
+    const hubs = groupHubs(group);
+    if (hubs.length === 1) {
+      const hub = hubs[0];
+      if (!hub.live) {
+        return `<div class="text-white/25 text-sm py-2.5 border-b border-white/5 flex items-center justify-between"><span>${group.label}</span><span class="pill-label" style="font-size:9px;">soon</span></div>`;
+      }
+      return `<a href="/${hub.slug}/" class="text-white/70 text-sm py-2.5 border-b border-white/5 block font-medium">${group.label}</a>` +
+        hub.clusters.map(c => `<a href="${c.href}" class="text-white/45 text-xs py-2 pl-4 border-b border-white/5 block">${c.label}</a>`).join('');
     }
-    return `<a href="/${hub.slug}/" class="text-white/70 text-sm py-2.5 border-b border-white/5 block font-medium">${hub.label}</a>` +
-      hub.clusters.map(c => `<a href="${c.href}" class="text-white/45 text-xs py-2 pl-4 border-b border-white/5 block">${c.label}</a>`).join('');
+    const groupHeader = `<div class="text-gold/60 text-[10px] uppercase tracking-widest pt-4 pb-1">${group.label}</div>`;
+    const hubBlocks = hubs.map(hub => {
+      if (!hub.live) {
+        return `<div class="text-white/25 text-sm py-2 pl-2 border-b border-white/5 flex items-center justify-between"><span>${hub.label}</span><span class="pill-label" style="font-size:9px;">soon</span></div>`;
+      }
+      return `<a href="/${hub.slug}/" class="text-white/70 text-sm py-2 pl-2 border-b border-white/5 block font-medium">${hub.label}</a>` +
+        hub.clusters.map(c => `<a href="${c.href}" class="text-white/45 text-xs py-2 pl-6 border-b border-white/5 block">${c.label}</a>`).join('');
+    }).join('');
+    return groupHeader + hubBlocks;
   }).join('\n        ');
 }
 
@@ -320,7 +368,11 @@ export function renderFloatingCta({ courseLabel = 'JEE/NEET' } = {}) {
 
 // ── FOOTER (existing structure + new hub sitemap column) ────────────────────
 export function renderFooter() {
-  const hubLinks = HUBS.filter(h => h.live).map(h => `<a href="/${h.slug}/" class="text-white/45 text-sm hover:text-gold transition-colors block">${h.label}</a>`).join('\n                    ');
+  const hubLinks = NAV_GROUPS.map(group => {
+    const primary = groupHubs(group).find(h => h.live);
+    if (!primary) return '';
+    return `<a href="/${primary.slug}/" class="text-white/45 text-sm hover:text-gold transition-colors block">${group.label}</a>`;
+  }).filter(Boolean).join('\n                    ');
   return `
 <footer class="bg-navy border-t border-white/5 py-16 px-6 md:px-12">
     <div class="max-w-7xl mx-auto">
