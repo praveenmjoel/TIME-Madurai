@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://timemadurai.com/sitemap.xml

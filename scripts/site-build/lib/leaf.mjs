@@ -18,7 +18,8 @@ function renderSections(sections) {
     const note = s.note ? `<p class="text-navy/40 text-xs mt-4">${s.note}</p>` : '';
     const call = s.callout ? callout(s.callout) : '';
     const cards = s.cards ? hubCardGrid(s.cards, s.cardCols || 3) : '';
-    return `<div id="${s.id}">${header}${intro}${table}${note}${call}${cards}</div>`;
+    const custom = s.custom || '';
+    return `<div id="${s.id}">${header}${intro}${table}${custom}${note}${call}${cards}</div>`;
   }).join('\n');
 }
 
@@ -57,6 +58,7 @@ ${ctaBand({ heading: cfg.ctaHeading, sub: cfg.ctaSub, courseLabel: cfg.courseLab
   const schema = [
     articleSchema({ title: cfg.heroTitle, description: cfg.description, url: `https://timemadurai.com${cfg.canonical}` }),
     ...(cfg.faqs && cfg.faqs.length ? [faqSchema(cfg.faqs)] : []),
+    ...(cfg.extraSchema || []),
   ];
 
   return {

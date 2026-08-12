@@ -1,5 +1,86 @@
 import { HUBS } from './hubs.mjs';
 
+// ── PROCESS FLOW DIAGRAM (lightweight inline SVG) ───────────────────────────
+// steps: [{label}] — a horizontal chain of numbered steps with connecting arrows.
+// No foreignObject/text-wrap trickery, so it renders identically everywhere.
+export function processFlowSvg(steps) {
+  const stepWidth = 152;
+  const n = steps.length;
+  const width = n * stepWidth;
+  const height = 108;
+  const cy = 28;
+  const r = 20;
+
+  function wrapLabel(label) {
+    const words = label.split(' ');
+    const lines = [];
+    let line = '';
+    words.forEach(w => {
+      if ((line + ' ' + w).trim().length > 16) { lines.push(line.trim()); line = w; }
+      else { line = (line + ' ' + w).trim(); }
+    });
+    if (line) lines.push(line);
+    return lines.slice(0, 2);
+  }
+
+  const nodes = steps.map((s, i) => {
+    const cx = stepWidth * i + stepWidth / 2;
+    const isFirst = i === 0;
+    const lines = wrapLabel(s.label);
+    const textLines = lines.map((l, li) => `<tspan x="${cx}" dy="${li === 0 ? 0 : 13}">${l}</tspan>`).join('');
+    const arrow = i < n - 1
+      ? `<line x1="${cx + r + 3}" y1="${cy}" x2="${cx + stepWidth - r - 3}" y2="${cy}" stroke="rgba(13,45,110,.25)" stroke-width="2" marker-end="url(#pf-arrow)"/>`
+      : '';
+    return `
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="${isFirst ? '#f9c74f' : '#ffffff'}" stroke="#0d2d6e" stroke-width="2"/>
+      <text x="${cx}" y="${cy + 5}" text-anchor="middle" font-size="14" font-weight="700" fill="#0d2d6e" font-family="'Plus Jakarta Sans',sans-serif">${i + 1}</text>
+      <text x="${cx}" y="${cy + r + 18}" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0d2d6e" font-family="'Plus Jakarta Sans',sans-serif">${textLines}</text>
+      ${arrow}`;
+  }).join('');
+
+  return `
+        <div class="data-table-wrap fu" style="padding:20px 12px;">
+            <svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" style="min-width:${width}px;display:block;" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <marker id="pf-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                        <path d="M0,0 L8,4 L0,8 Z" fill="rgba(13,45,110,.35)"/>
+                    </marker>
+                </defs>
+                ${nodes}
+            </svg>
+        </div>`;
+}
+
+// ── PERCENTAGE BREAKDOWN BAR (lightweight inline SVG) ────────────────────────
+// segments: [{label, value, color}] — a single stacked horizontal bar + legend.
+export function percentageBarSvg(segments) {
+  const width = 680;
+  const barY = 16;
+  const barH = 34;
+  const total = segments.reduce((s, seg) => s + seg.value, 0) || 100;
+  let x = 0;
+  const bars = segments.map(seg => {
+    const w = (seg.value / total) * width;
+    const cx = x + w / 2;
+    const label = w > 34 ? `<text x="${cx}" y="${barY + barH / 2 + 5}" text-anchor="middle" font-size="12" font-weight="700" fill="${seg.textColor || '#0d2d6e'}" font-family="'Plus Jakarta Sans',sans-serif">${seg.value}%</text>` : '';
+    const rect = `<rect x="${x.toFixed(1)}" y="${barY}" width="${w.toFixed(1)}" height="${barH}" fill="${seg.color}"/>`;
+    x += w;
+    return rect + label;
+  }).join('');
+  const legend = segments.map(seg =>
+    `<div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:${seg.color};display:inline-block;flex-shrink:0;"></span><span style="font-size:12px;color:rgba(13,45,110,.6);">${seg.label} (${seg.value}%)</span></div>`
+  ).join('');
+
+  return `
+        <div class="fu">
+            <svg viewBox="0 0 ${width} ${barY * 2 + barH}" width="100%" height="66" style="max-width:${width}px;display:block;" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="${barY}" width="${width}" height="${barH}" rx="8" fill="rgba(13,45,110,.05)"/>
+                ${bars}
+            </svg>
+            <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;">${legend}</div>
+        </div>`;
+}
+
 export function heroBanner({ eyebrow, title, subtitle, stats = [] }) {
   const statRow = stats.length ? `
         <div class="fu d2 flex flex-wrap items-center justify-center gap-8 mt-12">
@@ -81,6 +162,31 @@ export function hubCardGrid(cards, cols = 3) {
                 <span class="pill-label text-navy/30 inline-flex items-center gap-2">explore <span>&rarr;</span></span>
             </a>`).join('\n            ')}
         </div>`;
+}
+
+export function courseSchema({ name, description, url, courseCode }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name,
+    description,
+    url,
+    ...(courseCode ? { courseCode } : {}),
+    provider: {
+      '@type': 'Organization',
+      name: 'T.I.M.E. Madurai',
+      sameAs: 'https://timemadurai.com/',
+    },
+    hasCourseInstance: {
+      '@type': 'CourseInstance',
+      courseMode: 'Blended',
+      location: {
+        '@type': 'Place',
+        name: 'T.I.M.E. Madurai',
+        address: { '@type': 'PostalAddress', addressLocality: 'Madurai', addressRegion: 'Tamil Nadu', addressCountry: 'IN' },
+      },
+    },
+  };
 }
 
 // faqs: [{q, a}]

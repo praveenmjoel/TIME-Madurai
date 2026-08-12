@@ -202,3 +202,48 @@ ${renderCounsellingScript()}
   writeFileSync(join(outDir, 'index.html'), html, 'utf8');
   console.log(`Built /${page.slug}/index.html (${(html.length / 1024).toFixed(1)} KB)`);
 }
+
+// ── sitemap.xml + robots.txt ─────────────────────────────────────────────
+// Generated from the same PAGES array that drives the build, so it can
+// never drift out of sync with what's actually published. Static
+// pre-existing pages (homepage, TCE, Achiever League) are listed too.
+const SITE_URL = 'https://timemadurai.com';
+const today = new Date().toISOString().slice(0, 10);
+
+const STATIC_URLS = [
+  { loc: '/', priority: '1.0', changefreq: 'weekly' },
+  { loc: '/tce-cat-advantage.html', priority: '0.6', changefreq: 'monthly' },
+  { loc: '/achiever-league.html', priority: '0.3', changefreq: 'monthly' },
+];
+
+function priorityFor(canonical) {
+  const depth = canonical.split('/').filter(Boolean).length;
+  if (depth <= 1) return '0.9'; // pillar hub
+  return '0.7'; // cluster/leaf page
+}
+
+const urlEntries = [
+  ...STATIC_URLS.map(u => ({ loc: u.loc, priority: u.priority, changefreq: u.changefreq })),
+  ...PAGES.map(p => ({ loc: p.canonical, priority: priorityFor(p.canonical), changefreq: 'monthly' })),
+];
+
+const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntries.map(u => `  <url>
+    <loc>${SITE_URL}${u.loc}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join('\n')}
+</urlset>
+`;
+writeFileSync(join(REPO_ROOT, 'sitemap.xml'), sitemapXml, 'utf8');
+console.log(`Built /sitemap.xml (${urlEntries.length} URLs)`);
+
+const robotsTxt = `User-agent: *
+Allow: /
+
+Sitemap: ${SITE_URL}/sitemap.xml
+`;
+writeFileSync(join(REPO_ROOT, 'robots.txt'), robotsTxt, 'utf8');
+console.log('Built /robots.txt');

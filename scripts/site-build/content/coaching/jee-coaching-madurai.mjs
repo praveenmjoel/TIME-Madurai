@@ -1,4 +1,5 @@
 import { buildLeafPage } from '../../lib/leaf.mjs';
+import { courseSchema } from '../../lib/components.mjs';
 
 const faqs = [
   {
@@ -74,6 +75,12 @@ export const jeeCoachingMaduraiPage = buildLeafPage({
   ],
   faqs,
   faqTitle: 'JEE coaching in Madurai — quick answers',
+  extraSchema: [courseSchema({
+    name: 'JEE Main & JEE Advanced Coaching',
+    description: 'Structured JEE Main and JEE Advanced preparation with All-India Test Series mocks and JoSAA/TNEA counselling guidance.',
+    url: 'https://timemadurai.com/coaching/jee-coaching-madurai/',
+    courseCode: 'JEE',
+  })],
   ctaHeading: 'Ready to talk through a preparation plan?',
   ctaSub: 'No pressure, no pitch — just a conversation about where you want to go.',
 });

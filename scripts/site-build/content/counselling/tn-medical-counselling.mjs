@@ -1,4 +1,16 @@
 import { buildLeafPage } from '../../lib/leaf.mjs';
+import { processFlowSvg } from '../../lib/components.mjs';
+
+const tnMedicalFlow = processFlowSvg([
+  { label: 'Register' },
+  { label: 'Certificate Verification' },
+  { label: 'Choice Filling' },
+  { label: 'Round 1 Allotment' },
+  { label: 'Accept / Join / Wait' },
+  { label: 'Round 2' },
+  { label: 'Mop-Up / Spot Round' },
+  { label: 'Final Reporting' },
+]);
 
 const faqs = [
   {
@@ -51,6 +63,7 @@ export const tnMedicalCounsellingPage = buildLeafPage({
       id: 'process',
       eyebrow: 'the full sequence',
       title: 'Step-by-step process',
+      custom: tnMedicalFlow,
       table: {
         columns: ['Step', 'Detail'],
         rows: [

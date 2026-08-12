@@ -1,4 +1,14 @@
 import { buildLeafPage } from '../../lib/leaf.mjs';
+import { processFlowSvg } from '../../lib/components.mjs';
+
+const josaaFlow = processFlowSvg([
+  { label: 'Registration' },
+  { label: 'Choice Filling' },
+  { label: 'Round 1 Allotment' },
+  { label: 'Accept / Float / Slide' },
+  { label: 'Rounds 2–6' },
+  { label: 'Document Verification' },
+]);
 
 const faqs = [
   {
@@ -55,6 +65,7 @@ export const josaaPage = buildLeafPage({
       id: 'process',
       eyebrow: 'step by step',
       title: 'The JoSAA process, round by round',
+      custom: josaaFlow,
       table: {
         columns: ['Step', 'Action', 'Timing'],
         rows: [

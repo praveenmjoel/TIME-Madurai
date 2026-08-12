@@ -1,4 +1,15 @@
 import { buildLeafPage } from '../../lib/leaf.mjs';
+import { percentageBarSvg } from '../../lib/components.mjs';
+
+const tnBreakdownChart = percentageBarSvg([
+  { label: 'BC', value: 26.5, color: '#0d2d6e', textColor: '#ffffff' },
+  { label: 'BCM', value: 3.5, color: '#1a3d8f', textColor: '#ffffff' },
+  { label: 'MBC+DNC', value: 20, color: '#4a8cd9', textColor: '#ffffff' },
+  { label: 'SC', value: 18, color: '#6ea8e8', textColor: '#ffffff' },
+  { label: 'SCA', value: 3, color: '#8ec1f2' },
+  { label: 'ST', value: 1, color: '#f9c74f' },
+  { label: 'OC', value: 31, color: 'rgba(13,45,110,.12)' },
+]);
 
 const faqs = [
   {
@@ -46,6 +57,7 @@ export const tnReservationPage = buildLeafPage({
           ['OC (Open Competition)', '~31%', 'Merit-based, all communities compete'],
         ],
       },
+      custom: tnBreakdownChart,
     },
     {
       id: 'bc',

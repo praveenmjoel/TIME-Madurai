@@ -1,7 +1,7 @@
 import {
   heroBanner, stickyToc, kpiRow, callout, dataTable,
   hubCardGrid, faqAccordion, faqSchema, articleSchema, exploreHubsGrid,
-  sectionHeader, ctaBand,
+  sectionHeader, ctaBand, percentageBarSvg,
 } from '../lib/components.mjs';
 
 const TOC = [
@@ -69,6 +69,13 @@ ${heroBanner({
             ['General (unreserved)', '40.5%', 'Merit-based, open to all'],
           ]
         )}
+        ${percentageBarSvg([
+          { label: 'OBC-NCL', value: 27, color: '#0d2d6e', textColor: '#ffffff' },
+          { label: 'SC', value: 15, color: '#1a3d8f', textColor: '#ffffff' },
+          { label: 'ST', value: 7.5, color: '#4a8cd9', textColor: '#ffffff' },
+          { label: 'EWS', value: 10, color: '#f9c74f' },
+          { label: 'General', value: 40.5, color: 'rgba(13,45,110,.12)' },
+        ])}
         ${callout({
           type: 'mistake',
           label: 'Common mistake',
@@ -94,6 +101,15 @@ ${heroBanner({
             ['OC (Open Competition)', '~31%', 'Merit-based, all communities compete'],
           ]
         )}
+        ${percentageBarSvg([
+          { label: 'BC', value: 26.5, color: '#0d2d6e', textColor: '#ffffff' },
+          { label: 'BCM', value: 3.5, color: '#1a3d8f', textColor: '#ffffff' },
+          { label: 'MBC+DNC', value: 20, color: '#4a8cd9', textColor: '#ffffff' },
+          { label: 'SC', value: 18, color: '#6ea8e8', textColor: '#ffffff' },
+          { label: 'SCA', value: 3, color: '#8ec1f2' },
+          { label: 'ST', value: 1, color: '#f9c74f' },
+          { label: 'OC', value: 31, color: 'rgba(13,45,110,.12)' },
+        ])}
         <p class="text-navy/40 text-xs mt-4">Reservation percentages are subject to ongoing litigation and court orders — always verify the current operative figures at tneaonline.org or tnmedicalselection.net at counselling time.</p>
       </div>
 

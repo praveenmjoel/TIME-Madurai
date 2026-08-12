@@ -1,4 +1,5 @@
 import { buildLeafPage } from '../../lib/leaf.mjs';
+import { courseSchema } from '../../lib/components.mjs';
 
 const faqs = [
   {
@@ -74,6 +75,12 @@ export const neetCoachingMaduraiPage = buildLeafPage({
   ],
   faqs,
   faqTitle: 'NEET coaching in Madurai — quick answers',
+  extraSchema: [courseSchema({
+    name: 'NEET UG Coaching',
+    description: 'Structured NEET UG preparation with Biology-first strategy, All-India Test Series mocks, and MCC/TN medical counselling guidance.',
+    url: 'https://timemadurai.com/coaching/neet-coaching-madurai/',
+    courseCode: 'NEET',
+  })],
   ctaHeading: 'Ready to talk through a preparation plan?',
   ctaSub: 'No pressure, no pitch — just a conversation about where you want to go.',
 });
