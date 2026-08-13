@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Matches the theme extend that previously lived in the inline
+   `tailwind.config` script loaded via the Play CDN. */
+@theme {
+  --color-navy: #0d2d6e;
+  --color-navy-light: #1a3d8f;
+  --color-gold: #f9c74f;
+  --color-gold-light: #fdd87a;
+  --font-borel: "Borel", cursive;
+  --font-sans: "Plus Jakarta Sans", Helvetica, sans-serif;
+}
+
+/* Explicit sources: the built HTML lives two levels up (repo root),
+   outside this file's own directory tree, so automatic detection
+   can't be relied on to find it. */
+@source "../../*.html";
+@source "../../**/index.html";

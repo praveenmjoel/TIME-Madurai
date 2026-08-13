@@ -1,0 +1,13 @@
+{
+  "name": "time-madurai-site-build",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs && npm run build:css",
+    "build:css": "tailwindcss -i ./tailwind-input.css -o ../../assets/site.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.3.3",
+    "@tailwindcss/cli": "^4.3.3"
+  }
+}
