@@ -31,6 +31,20 @@ import { ecePage } from './content/engineering/branches/electronics-communicatio
 import { mechanicalPage } from './content/engineering/branches/mechanical-engineering.mjs';
 import { civilPage } from './content/engineering/branches/civil-engineering.mjs';
 import { branchVsCollegePage } from './content/engineering/branches/branch-vs-college-debate.mjs';
+import { eeePage } from './content/engineering/branches/electrical-engineering.mjs';
+import { chemicalPage } from './content/engineering/branches/chemical-engineering.mjs';
+import { aerospacePage } from './content/engineering/branches/aerospace-engineering.mjs';
+import { biotechPage } from './content/engineering/branches/biotechnology.mjs';
+import { biomedicalPage } from './content/engineering/branches/biomedical-engineering.mjs';
+import { mechatronicsPage } from './content/engineering/branches/mechatronics-robotics.mjs';
+import { dataSciencePage } from './content/engineering/branches/data-science.mjs';
+import { materialsPage } from './content/engineering/branches/materials-metallurgical-engineering.mjs';
+import { environmentalPage } from './content/engineering/branches/environmental-engineering.mjs';
+import { industrialPage } from './content/engineering/branches/industrial-production-engineering.mjs';
+import { navalArchPage } from './content/engineering/branches/naval-architecture.mjs';
+import { petroleumPage } from './content/engineering/branches/petroleum-engineering.mjs';
+import { miningPage } from './content/engineering/branches/mining-engineering.mjs';
+import { agriFoodPage } from './content/engineering/branches/agricultural-food-technology.mjs';
 import { admissionsIndexPage } from './content/engineering/admissions/index.mjs';
 import { jeeMainPage } from './content/engineering/admissions/jee-main.mjs';
 import { jeeAdvancedPage } from './content/engineering/admissions/jee-advanced.mjs';
@@ -139,6 +153,8 @@ import { branchComparisonPage } from './content/tools/branch-comparison.mjs';
 import { collegeComparisonPage } from './content/tools/college-comparison.mjs';
 import { careerComparisonPage } from './content/tools/career-comparison.mjs';
 
+import { resourcesPage } from './content/resources/index.mjs';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..', '..');
 
@@ -149,6 +165,8 @@ const PAGES = [
   iitGuidePage, nitGuidePage, iiitGuidePage, iiscIiserPage,
   privateCollegesPage, bestTNCollegesPage, engineeringCareersPage,
   branchesIndexPage, csePage, aiMlPage, ecePage, mechanicalPage, civilPage, branchVsCollegePage,
+  eeePage, chemicalPage, aerospacePage, biotechPage, biomedicalPage, mechatronicsPage, dataSciencePage,
+  materialsPage, environmentalPage, industrialPage, navalArchPage, petroleumPage, miningPage, agriFoodPage,
   admissionsIndexPage, jeeMainPage, jeeAdvancedPage, bitsatPage, viteeePage, srmjeeePage, tneaPage,
   mbbsGuidePage, aiimsJipmerPage, govtCollegesTNPage, privateCollegesTNPage,
   mbbsVsBdsVsAyushPage, dropYearPage, medicalCareersPage, ayushPage, alliedHealthPage,
@@ -171,6 +189,7 @@ const PAGES = [
   jeeCoachingMaduraiPage, neetCoachingMaduraiPage, dindigulPage, theniPage,
   virudhunagarPage, sivagangaPage, karaikudiPage, sivakasiPage, ramanathapuramPage,
   toolsIndexPage, collegePredictorPage, branchComparisonPage, collegeComparisonPage, careerComparisonPage,
+  resourcesPage,
 ];
 
 for (const page of PAGES) {

@@ -30,9 +30,10 @@ export const branchesIndexPage = buildLeafPage({
     { id: 'popular', label: 'Most In-Demand' },
     { id: 'core', label: 'Core Branches' },
     { id: 'specialised', label: 'Specialised Branches' },
+    { id: 'decision', label: 'Branch vs. College' },
     { id: 'faqs', label: 'FAQs' },
   ],
-  intro: 'Many students pick a branch on peer pressure, parental advice, or the assumption that CSE is the only option worth having. This section profiles every major branch in detail so you can make an informed choice — including a structured framework for the branch-vs-college debate itself.',
+  intro: 'Many students pick a branch on peer pressure, parental advice, or the assumption that CSE is the only option worth having. This section profiles every major branch in detail — what you\'ll study, who hires you, and what it actually pays — so you choose on data, not pressure.',
   sections: [
     {
       id: 'popular',
@@ -51,13 +52,34 @@ export const branchesIndexPage = buildLeafPage({
       cards: [
         { title: 'Mechanical Engineering', href: '/engineering/branches/mechanical-engineering/', blurb: 'The broadest branch — still the largest recruiter base in Indian manufacturing.' },
         { title: 'Civil Engineering', href: '/engineering/branches/civil-engineering/', blurb: 'Infrastructure and construction — one of the most stable government-linked paths.' },
+        { title: 'Electrical &amp; Electronics Engineering', href: '/engineering/branches/electrical-engineering/', blurb: 'Power systems and one of engineering\'s widest GATE-to-PSU pathways.' },
       ],
     },
     {
       id: 'specialised',
       eyebrow: 'niche but real',
       title: 'Specialised &amp; emerging branches',
-      intro: 'Electrical Engineering, Chemical, Aerospace, Biotechnology, Biomedical, Mechatronics &amp; Robotics, Data Science, Materials &amp; Metallurgical, Environmental, Industrial &amp; Production, Naval Architecture, Petroleum/Mining/Textile, and Agricultural &amp; Food Technology round out the full branch landscape — each with its own recruiter base and salary band, and each covered in the complete handbook.',
+      intro: 'Each of these has its own recruiter base, salary band, and realistic career path — profiled in full rather than named in passing.',
+      cards: [
+        { title: 'Chemical Engineering', href: '/engineering/branches/chemical-engineering/', blurb: 'Petrochemicals, pharma, fertiliser and food processing — not just refineries.' },
+        { title: 'Aerospace Engineering', href: '/engineering/branches/aerospace-engineering/', blurb: 'Small seat count, direct pipeline into ISRO, DRDO and HAL.' },
+        { title: 'Biotechnology', href: '/engineering/branches/biotechnology/', blurb: 'Pharma manufacturing, genetic engineering and bioinformatics.' },
+        { title: 'Biomedical Engineering', href: '/engineering/branches/biomedical-engineering/', blurb: 'The engineering behind MRI machines, pacemakers and diagnostic devices.' },
+        { title: 'Mechatronics &amp; Robotics', href: '/engineering/branches/mechatronics-robotics/', blurb: 'Mechanical, electronics and control systems combined for automation.' },
+        { title: 'Data Science', href: '/engineering/branches/data-science/', blurb: 'Statistics, data engineering and machine learning — heavy overlap with AI/ML.' },
+        { title: 'Materials &amp; Metallurgical Engineering', href: '/engineering/branches/materials-metallurgical-engineering/', blurb: 'From steel to semiconductor and EV-battery materials.' },
+        { title: 'Environmental Engineering', href: '/engineering/branches/environmental-engineering/', blurb: 'Water treatment, waste management and pollution control.' },
+        { title: 'Industrial &amp; Production Engineering', href: '/engineering/branches/industrial-production-engineering/', blurb: 'Optimising how factories run — a natural bridge into operations management.' },
+        { title: 'Naval Architecture &amp; Ocean Engineering', href: '/engineering/branches/naval-architecture/', blurb: 'Ship and marine-structure design for a very small number of seats nationally.' },
+        { title: 'Petroleum Engineering', href: '/engineering/branches/petroleum-engineering/', blurb: 'Oil and gas exploration and production, anchored by ONGC.' },
+        { title: 'Mining Engineering', href: '/engineering/branches/mining-engineering/', blurb: 'Mine planning and safety, with a strong GATE-to-PSU pathway.' },
+        { title: 'Agricultural &amp; Food Technology', href: '/engineering/branches/agricultural-food-technology/', blurb: 'Farm machinery and food processing — genuinely strong in Tamil Nadu.' },
+      ],
+    },
+    {
+      id: 'decision',
+      eyebrow: 'the real question',
+      title: 'Branch vs. college — which matters more?',
       cards: [
         { title: 'Branch vs. College — The Decision Guide', href: '/engineering/branches/branch-vs-college-debate/', blurb: '"CSE at a Tier-3 college or Mechanical at an NIT?" — a structured way to decide, not a one-size-fits-all answer.' },
       ],

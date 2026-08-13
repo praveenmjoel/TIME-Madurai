@@ -186,6 +186,20 @@ export const HUBS = [
       { label: 'Career Comparison', href: '/tools/career-comparison/' },
     ],
   },
+  {
+    slug: 'resources',
+    label: 'Resources',
+    live: true,
+    blurb: 'Official exam, counselling, scholarship & verification portals',
+    clusters: [
+      { label: 'Exam Portals', href: '/resources/#exams' },
+      { label: 'Counselling Portals', href: '/resources/#counselling' },
+      { label: 'Free Study Platforms', href: '/resources/#study' },
+      { label: 'Scholarships & Loans', href: '/resources/#financial' },
+      { label: 'Verify a College', href: '/resources/#verify' },
+      { label: 'Download the Handbook', href: '/resources/#handbook' },
+    ],
+  },
   { slug: 'blog', label: 'Blog', live: false, blurb: 'Exam dates, results & deadline reminders', clusters: [] },
 ];
 
@@ -204,5 +218,5 @@ export const NAV_GROUPS = [
   { label: 'Reservation & Aid', hubs: ['reservation', 'scholarships', 'education-loans'] },
   { label: 'Careers & Guide', hubs: ['careers', 'guide'] },
   { label: 'Cutoffs', hubs: ['college-cutoffs'] },
-  { label: 'Resources', hubs: ['faq', 'tools', 'blog'] },
+  { label: 'Resources', hubs: ['resources', 'faq', 'tools', 'blog'] },
 ];
