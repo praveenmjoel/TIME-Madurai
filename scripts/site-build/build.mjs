@@ -72,6 +72,7 @@ import { choiceFillingPage } from './content/counselling/choice-filling-strategy
 import { documentsChecklistPage } from './content/counselling/documents-checklist.mjs';
 import { managingMultiplePage } from './content/counselling/managing-multiple-counsellings.mjs';
 import { calendarPage } from './content/counselling/calendar.mjs';
+import { seatAcceptanceFeesPage } from './content/counselling/seat-acceptance-fees.mjs';
 
 import { jeeMainExamPage } from './content/exams/jee-main.mjs';
 import { jeeAdvancedExamPage } from './content/exams/jee-advanced.mjs';
@@ -171,7 +172,7 @@ const PAGES = [
   mbbsGuidePage, aiimsJipmerPage, govtCollegesTNPage, privateCollegesTNPage,
   mbbsVsBdsVsAyushPage, dropYearPage, medicalCareersPage, ayushPage, alliedHealthPage,
   josaaPage, mccNeetPage, tnMedicalCounsellingPage, tneaCounsellingPage, ayushCounsellingPage,
-  choiceFillingPage, documentsChecklistPage, managingMultiplePage, calendarPage,
+  choiceFillingPage, documentsChecklistPage, managingMultiplePage, calendarPage, seatAcceptanceFeesPage,
   jeeMainExamPage, jeeAdvancedExamPage, neetUgExamPage, physicsStrategyPage,
   chemistryStrategyPage, mathsStrategyPage, biologyStrategyPage, examDayStrategyPage, mockTestAnalysisPage,
   paramedicalCareersPage, pureScienceCareersPage, defenceCivilServicesPage, alternativeCareersPage,

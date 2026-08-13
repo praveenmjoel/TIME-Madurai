@@ -53,6 +53,7 @@ export const HUBS = [
       { label: 'Documents Checklist', href: '/counselling/documents-checklist/' },
       { label: 'Managing Multiple Counsellings', href: '/counselling/managing-multiple-counsellings/' },
       { label: 'Counselling Calendar', href: '/counselling/calendar/' },
+      { label: 'Seat Acceptance Fees', href: '/counselling/seat-acceptance-fees/' },
     ],
   },
   {
