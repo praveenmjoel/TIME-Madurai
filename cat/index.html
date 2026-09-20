@@ -823,12 +823,6 @@
 
         <p class="text-white/25 text-xs text-center mt-4 leading-relaxed">No spam. No pressure. Just a conversation about your CAT 2027 plan.</p>
       </form>
-
-      <div id="formSuccess" class="hidden text-center py-4">
-        <div class="text-4xl mb-4">🎯</div>
-        <h3 class="text-white font-semibold text-lg mb-2">You're on the list.</h3>
-        <p class="text-white/50 text-sm leading-relaxed">We'll call you within 24 hours. Save our number: <span class="text-gold font-medium">78680 06060</span>.</p>
-      </div>
     </div>
 
     <div class="mt-8 text-center fu d3">
@@ -999,14 +993,17 @@ async function submitEnrollment(e) {
     );
     // (Marketing message failure is non-critical — don't block the user)
 
-    document.getElementById('enrollForm').classList.add('hidden');
-    document.getElementById('formSuccess').classList.remove('hidden');
-    showToast('✓ You\'re on the list! We\'ll call you within 24 hours.', 'success');
-
     // Fire a conversion event for Google Ads if a tag is present on this page.
     if (typeof gtag === 'function') {
       gtag('event', 'generate_lead', { event_category: 'CAT Landing Page' });
     }
+
+    // Redirect to a dedicated Thank You page (a distinct URL, not an inline
+    // state change) — this is what lets Google Ads track form completions
+    // as a "Page visit" conversion. Campaign params are carried forward so
+    // any conversion tag on that page still sees them.
+    window.location.href = '/cat/thank-you/' + window.location.search;
+    return;
 
   } catch (err) {
     console.error('Enrollment submission error:', err);
