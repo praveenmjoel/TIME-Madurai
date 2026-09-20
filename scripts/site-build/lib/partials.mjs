@@ -224,7 +224,7 @@ export function renderNav() {
             <a href="/" class="nav-link text-white/60 hover:text-white text-xs tracking-wide">Home</a>
             ${megaMenuDesktop()}
             <div class="w-px h-4 bg-white/15"></div>
-            <a href="/tce-cat-advantage.html" class="nav-link text-white/60 hover:text-white text-xs tracking-wide">TCE Special</a>
+            <a href="/cat/" class="nav-link text-white/60 hover:text-white text-xs tracking-wide">CAT Program</a>
             <button onclick="openCounsellingForm()" class="btn-gold text-xs font-medium px-4 py-2 rounded-full">Book a Session</button>
         </div>
         <button id="hamburger" class="lg:hidden text-white p-1">
@@ -384,9 +384,9 @@ export function renderFooter() {
                     <a href="/coaching/jee-coaching-madurai/" class="text-white/45 text-sm hover:text-gold transition-colors block">JEE Coaching</a>
                     <a href="/coaching/neet-coaching-madurai/" class="text-white/45 text-sm hover:text-gold transition-colors block">NEET Coaching</a>
                     <a href="/#courses" class="text-white/45 text-sm hover:text-gold transition-colors block">CAT / MAT</a>
-                    <a href="/tce-cat-advantage.html" class="text-gold text-sm hover:text-gold-light transition-colors block flex items-center gap-1.5 mt-4">
+                    <a href="/cat/" class="text-gold text-sm hover:text-gold-light transition-colors block flex items-center gap-1.5 mt-4">
                         <span class="w-1.5 h-1.5 rounded-full bg-gold inline-block flex-shrink-0"></span>
-                        TCE CAT Advantage
+                        CAT Program
                     </a>
                 </div>
             </div>

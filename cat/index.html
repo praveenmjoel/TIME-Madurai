@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAT Coaching in Madurai — IIM-Alumnus Faculty | T.I.M.E. Madurai</title>
+  <meta name="description" content="CAT 2027 programme at T.I.M.E. Madurai — live classes with an IIM-Ahmedabad alumnus trainer, TIME's AIMCAT mock series, and personal mentoring. Book a free counselling call.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://timemadurai.com/cat/">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    /* ── NAV ── */
+    #nav { transition: background .5s, box-shadow .5s, padding .3s; }
+    #nav.scrolled {
+      background: rgba(13,45,110,.96);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 40px rgba(0,0,0,.25);
+      padding-top: 14px; padding-bottom: 14px;
+    }
+    .nav-link { position:relative; transition:color .3s; }
+    .nav-link::after {
+      content:''; position:absolute; bottom:-2px; left:0;
+      width:0; height:1px; background:#f9c74f; transition:width .3s;
+    }
+    .nav-link:hover::after { width:100%; }
+
+    .time-logo-img { display:block; }
+
+    /* ── HERO ── */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .fade-up-1 { animation: fadeUp .8s ease .1s both; }
+    .fade-up-2 { animation: fadeUp .8s ease .3s both; }
+    .fade-up-3 { animation: fadeUp .8s ease .5s both; }
+    .fade-up-4 { animation: fadeUp .8s ease .7s both; }
+
+    /* ── SCROLL REVEAL ── */
+    .fu { opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+    .fu.show { opacity:1; transform:translateY(0); }
+    .fu.d1 { transition-delay:.1s; } .fu.d2 { transition-delay:.2s; }
+    .fu.d3 { transition-delay:.3s; } .fu.d4 { transition-delay:.4s; }
+    .fu.d5 { transition-delay:.5s; } .fu.d6 { transition-delay:.6s; }
+
+    /* ── DOTS BG ── */
+    .dot-bg {
+      background-image: radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    .pill { font-size:11px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; }
+    .gold-line { display:inline-block; width:32px; height:2px; background:#f9c74f; }
+
+    /* ── FEATURE CARDS ── */
+    .feat-card {
+      border:1px solid rgba(13,45,110,.09);
+      border-radius:16px; padding:24px;
+      transition:border-color .3s, transform .3s, box-shadow .3s;
+    }
+    .feat-card:hover {
+      border-color:#f9c74f;
+      transform:translateY(-4px);
+      box-shadow:0 16px 48px rgba(13,45,110,.07);
+    }
+
+    /* ── PHASE TIMELINE ── */
+    .phase-card {
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:16px; padding:32px;
+      transition:border-color .3s;
+    }
+    .phase-card:hover { border-color:rgba(249,199,79,.35); }
+
+    /* ── COMPARE TABLE ── */
+    .cmp-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    .cmp-table th { text-align:left; padding:12px 16px; font-size:0.7rem; text-transform:uppercase; letter-spacing:.06em; font-weight:600; border-bottom:1px solid rgba(13,45,110,.1); }
+    .cmp-table td { padding:12px 16px; border-bottom:1px solid rgba(13,45,110,.05); vertical-align:middle; }
+    .cmp-table tr:last-child td { border-bottom:none; }
+    .cmp-table .good { color:#2ecd6f; font-weight:600; }
+    .cmp-table .muted { color:#9ca3af; }
+
+    /* ── STAT TABLE (IIM results) ── */
+    .stat-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    .stat-table th { text-align:left; padding:10px 14px; font-size:0.68rem; text-transform:uppercase; letter-spacing:.06em; font-weight:600; color:rgba(255,255,255,.35); border-bottom:1px solid rgba(255,255,255,.1); }
+    .stat-table td { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,.06); color:rgba(255,255,255,.7); }
+    .stat-table td.num { color:#f9c74f; font-weight:700; text-align:right; }
+    .stat-table tr:last-child td { border-bottom:none; }
+
+    /* ── BUTTONS ── */
+    .btn-gold {
+      background:#f9c74f; color:#0d2d6e; font-weight:700;
+      transition:background .3s, transform .3s, box-shadow .3s;
+    }
+    .btn-gold:hover { background:#fdd87a; transform:translateY(-2px); box-shadow:0 12px 32px rgba(249,199,79,.4); }
+    .btn-outline { border:1px solid rgba(255,255,255,.2); color:white; transition:border-color .3s, color .3s; }
+    .btn-outline:hover { border-color:#f9c74f; color:#f9c74f; }
+
+    /* ── FORM ── */
+    .form-field {
+      width:100%; background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.15); border-radius:10px;
+      padding:14px 18px; color:white; font-family:inherit; font-size:0.92rem;
+      transition:border-color .3s, background .3s;
+      outline:none;
+    }
+    .form-field::placeholder { color:rgba(255,255,255,.35); }
+    .form-field:focus { border-color:#f9c74f; background:rgba(255,255,255,.1); }
+    .form-field.error { border-color:#e50000; }
+
+    /* ── PHONE FIELD ── */
+    .phone-wrapper {
+      display:flex; align-items:stretch;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.15); border-radius:10px;
+      transition:border-color .3s, background .3s;
+      overflow:hidden;
+    }
+    .phone-wrapper:focus-within {
+      border-color:#f9c74f; background:rgba(255,255,255,.1);
+    }
+    .phone-wrapper.error { border-color:#e50000; }
+    .phone-code-select {
+      background:transparent; border:none; border-right:1px solid rgba(255,255,255,.15);
+      color:white; font-family:inherit; font-size:0.92rem;
+      padding:14px 10px 14px 14px; cursor:pointer; outline:none;
+      flex-shrink:0; appearance:none; -webkit-appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='rgba(255,255,255,.4)' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 8px center;
+      padding-right:24px;
+    }
+    .phone-code-select option { background:#0d2d6e; color:white; }
+    .phone-number-input {
+      flex:1; background:transparent; border:none;
+      color:white; font-family:inherit; font-size:0.92rem;
+      padding:14px 18px; outline:none;
+    }
+    .phone-number-input::placeholder { color:rgba(255,255,255,.35); }
+
+    /* ── FAQ ── */
+    .faq-item { border-bottom:1px solid rgba(13,45,110,.08); }
+    .faq-q {
+      width:100%; text-align:left; padding:20px 0;
+      font-weight:600; color:#0d2d6e; font-size:0.9rem;
+      display:flex; justify-content:space-between; align-items:center;
+      background:none; border:none; cursor:pointer; font-family:inherit;
+    }
+    .faq-a { font-size:0.85rem; color:#374151; line-height:1.7; padding-bottom:16px; display:none; }
+    .faq-a.open { display:block; }
+    .faq-chevron { transition:transform .3s; flex-shrink:0; margin-left:16px; color:#9ca3af; }
+    .faq-chevron.open { transform:rotate(180deg); }
+
+    /* ── TOAST ── */
+    #toast {
+      position:fixed; bottom:28px; right:28px; z-index:9999;
+      background:#0d2d6e; color:white; border-radius:12px;
+      padding:16px 24px; font-size:0.88rem; font-weight:500;
+      box-shadow:0 16px 48px rgba(0,0,0,.2);
+      transform:translateY(80px); opacity:0;
+      transition:transform .4s ease, opacity .4s ease;
+      max-width:320px;
+    }
+    #toast.show { transform:translateY(0); opacity:1; }
+    #toast.success { border-left:4px solid #2ecd6f; }
+    #toast.error-toast { border-left:4px solid #e50000; }
+
+    /* ── STICKY CTA BAR ── */
+    #sticky-bar {
+      position:fixed; bottom:0; left:0; right:0; z-index:100;
+      background:rgba(13,45,110,.97); backdrop-filter:blur(10px);
+      padding:12px 24px; align-items:center; justify-content:space-between;
+      border-top:1px solid rgba(249,199,79,.25);
+      transform:translateY(100%); transition:transform .5s ease;
+    }
+    #sticky-bar.visible { transform:translateY(0); }
+    /* display:flex only below the md breakpoint, so the Tailwind
+       `md:hidden` utility (a lower-specificity class) isn't overridden
+       by this higher-specificity ID rule on desktop. */
+    @media (max-width:767px) {
+      #sticky-bar.visible { display:flex; }
+    }
+
+    .sec { padding:100px 0; }
+    @media(max-width:768px){ .sec { padding:64px 0; } }
+  </style>
+</head>
+
+<body class="bg-white font-sans antialiased text-navy" style="padding-bottom:72px;">
+
+<!-- ══════════════════════════════════
+     NAVBAR
+══════════════════════════════════ -->
+<nav id="nav" class="fixed top-0 left-0 right-0 z-50 py-6 px-6 md:px-12">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <a href="/" class="flex items-center">
+      <img src="/TIME%20Logo%20White.png" alt="T.I.M.E. Madurai" class="time-logo-img" style="height:34px;width:auto;">
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="/#journey"  class="nav-link text-white/60 hover:text-white text-sm tracking-wide">The Journey</a>
+      <a href="/#courses"  class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Programs</a>
+      <a href="/#why-time" class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Why T.I.M.E.</a>
+      <a href="/achiever-league.html" class="nav-link text-white/60 hover:text-white text-sm tracking-wide flex items-center gap-1.5">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+        Student Login
+      </a>
+      <a href="#enroll" class="btn-gold text-sm px-5 py-2.5 rounded-full">Get Free Counselling</a>
+    </div>
+    <button id="hamburger" class="md:hidden text-white p-1">
+      <svg id="ham-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
+      <svg id="close-icon" class="hidden" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div id="mobile-menu" class="hidden md:hidden mt-4 pt-4 border-t border-white/10 flex flex-col gap-5 px-2 pb-4">
+    <a href="/#journey"  class="text-white/70 text-sm">The Journey</a>
+    <a href="/#courses"  class="text-white/70 text-sm">Programs</a>
+    <a href="/#why-time" class="text-white/70 text-sm">Why T.I.M.E.</a>
+    <a href="/achiever-league.html" class="text-white/70 text-sm">Student Login</a>
+    <a href="#enroll" class="btn-gold text-sm font-medium px-5 py-2.5 rounded-full w-fit">Get Free Counselling</a>
+  </div>
+</nav>
+
+
+<!-- ══════════════════════════════════
+     HERO
+══════════════════════════════════ -->
+<section class="min-h-screen bg-navy flex flex-col items-center justify-center relative" style="padding:0;">
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="dot-bg absolute inset-0"></div>
+    <div class="absolute top-1/4 left-1/3 w-96 h-96 rounded-full" style="background:radial-gradient(circle,rgba(249,199,79,.1),transparent);filter:blur(90px);"></div>
+    <div class="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full" style="background:radial-gradient(circle,rgba(74,140,217,.08),transparent);filter:blur(100px);"></div>
+  </div>
+
+  <div class="relative z-10 text-center px-6 max-w-4xl mx-auto" style="padding-top:100px;padding-bottom:80px;">
+
+    <div class="fade-up-1 inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full" style="background:rgba(249,199,79,.12);border:1px solid rgba(249,199,79,.25);">
+      <span class="w-1.5 h-1.5 rounded-full bg-gold inline-block animate-pulse"></span>
+      <span class="pill text-gold text-xs">CAT 2027 Batch Now Open — TIME Madurai</span>
+    </div>
+
+    <h1 class="fade-up-2 font-bold text-white leading-tight mb-6" style="font-size:clamp(34px,6vw,64px);line-height:1.1;">
+      Crack CAT.<br>
+      <span style="color:#f9c74f;">Walk into an IIM.</span>
+    </h1>
+
+    <p class="fade-up-3 text-white/50 text-sm md:text-base leading-relaxed max-w-xl mx-auto mb-10">
+      T.I.M.E. Madurai's CAT 2027 programme — live classes with an IIM Ahmedabad alumnus trainer, TIME's nationally-trusted AIMCAT mock series, and personal mentoring from day one to your interview call.
+    </p>
+
+    <div class="fade-up-4 flex flex-wrap items-center justify-center gap-4 mb-10">
+      <div class="rounded-2xl px-6 py-4 text-center" style="background:rgba(249,199,79,.12);border:1px solid rgba(249,199,79,.25);">
+        <div class="text-gold font-bold" style="font-size:1.6rem;line-height:1;">2,671</div>
+        <div class="text-white/40 text-xs mt-1">TIME students → IIMs, CAT 2024</div>
+      </div>
+      <div class="rounded-2xl px-6 py-4 text-center" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+        <div class="text-white font-bold text-2xl">187</div>
+        <div class="text-white/40 text-xs mt-1">TIME centres nationally</div>
+      </div>
+      <div class="rounded-2xl px-6 py-4 text-center" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+        <div class="text-white font-bold text-2xl">30+</div>
+        <div class="text-white/40 text-xs mt-1">Years training CAT aspirants</div>
+      </div>
+      <div class="rounded-2xl px-6 py-4 text-center" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+        <div class="text-white font-bold text-2xl">IIM-A</div>
+        <div class="text-white/40 text-xs mt-1">Alumnus trainer, Madurai</div>
+      </div>
+    </div>
+
+    <a href="#enroll" class="btn-gold inline-flex items-center gap-3 px-8 py-4 rounded-full text-sm font-semibold tracking-wide">
+      Get My Free Counselling Call
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+    </a>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     WHAT'S INCLUDED
+══════════════════════════════════ -->
+<section class="sec bg-white">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+    <div class="mb-16 fu">
+      <span class="pill text-navy/35">the programme</span>
+      <h2 class="font-bold text-navy mt-3" style="font-size:clamp(28px,5vw,48px);line-height:1.2;">
+        Everything you need.<br>Nothing you don't.
+      </h2>
+      <p class="text-navy/45 mt-4 max-w-md text-sm leading-relaxed">One programme, taught by a trainer who cracked CAT and got into IIM-A — built to take you from your first class to your IIM interview.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="feat-card fu d1">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">Live Classroom + Online</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">Regular live sessions at our Madurai centre, with an online-live option for days you can't make it in person. Real-time interaction, not passive video.</p>
+      </div>
+
+      <div class="feat-card fu d2">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">Session Recordings</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">Every session recorded and available to revisit. Miss a class without losing a concept.</p>
+      </div>
+
+      <div class="feat-card fu d3">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">TIME Printed Study Materials</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">India's most widely used CAT study materials — printed, not PDFs — covering VARC, DILR and QA from the ground up.</p>
+      </div>
+
+      <div class="feat-card fu d4">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">AIMCAT — Full-Length Mock Series</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">TIME's flagship all-India CAT mock series, with a national percentile so you know exactly where you stand — not just against your own batch.</p>
+      </div>
+
+      <div class="feat-card fu d5">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">Personal Mentoring</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">Regular one-on-one check-ins with your trainer on your strategy and weak areas — not a generic batch-wide Q&amp;A.</p>
+      </div>
+
+      <div class="feat-card fu d6">
+        <div class="w-9 h-9 rounded-full bg-navy/6 flex items-center justify-center mb-5">
+          <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/></svg>
+        </div>
+        <h3 class="text-navy font-semibold mb-2 text-base">GD-PI-WAT &amp; IIM Interview Prep</h3>
+        <p class="text-navy/45 text-sm leading-relaxed">B-school shortlisting guidance, Written Ability Test practice, and Personal Interview prep once your calls start coming in.</p>
+      </div>
+    </div>
+
+    <!-- Quick stats bar -->
+    <div class="mt-16 rounded-2xl bg-navy p-8 fu">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div>
+          <div class="text-gold font-bold text-3xl mb-1">14</div>
+          <div class="text-white/40 text-xs uppercase tracking-widest">Month Programme</div>
+        </div>
+        <div>
+          <div class="text-gold font-bold text-3xl mb-1">Live</div>
+          <div class="text-white/40 text-xs uppercase tracking-widest">Classroom + Online</div>
+        </div>
+        <div>
+          <div class="text-gold font-bold text-3xl mb-1">AIMCAT</div>
+          <div class="text-white/40 text-xs uppercase tracking-widest">Mock Test Series</div>
+        </div>
+        <div>
+          <div class="text-gold font-bold text-3xl mb-1">1:1</div>
+          <div class="text-white/40 text-xs uppercase tracking-widest">Mentoring</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     IIM-A ADVANTAGE
+══════════════════════════════════ -->
+<section class="sec" style="background:#f9f9fb;">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+      <div class="fu">
+        <span class="pill text-navy/35">the difference</span>
+        <h2 class="font-bold text-navy mt-3 mb-6" style="font-size:clamp(28px,4.5vw,46px);line-height:1.2;">
+          Not someone who<br>teaches CAT.<br>
+          <span style="color:#0d2d6e;opacity:.6;">Someone who cracked it.</span>
+        </h2>
+        <p class="text-navy/45 text-sm leading-relaxed mb-8 max-w-md">
+          Most online portals give you a "faculty" with a recorded lecture. Your trainer at T.I.M.E. Madurai is an IIM Ahmedabad alumnus — someone who sat the same CAT you're preparing for, got the call, and knows exactly what the IIM panel is looking for.
+        </p>
+
+        <div class="rounded-2xl p-6" style="background:rgba(13,45,110,.05);border-left:3px solid #f9c74f;">
+          <p class="text-navy text-sm leading-relaxed italic mb-3">
+            "Your trainer knows exactly what the IIM panel is looking for. That's not available on any app."
+          </p>
+          <div class="text-navy/40 text-xs font-medium uppercase tracking-wide">IIM-A alumnus, your CAT 2027 trainer</div>
+        </div>
+      </div>
+
+      <div class="fu d2 space-y-4">
+        <div class="flex items-start gap-4 p-5 rounded-xl bg-white border border-navy/8">
+          <div class="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div>
+            <div class="text-navy font-semibold text-sm mb-1">Personal CAT preparation strategy</div>
+            <div class="text-navy/45 text-xs leading-relaxed">What worked, what didn't — shared from direct experience, not from a trainer manual.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-5 rounded-xl bg-white border border-navy/8">
+          <div class="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div>
+            <div class="text-navy font-semibold text-sm mb-1">IIM selection process decoded</div>
+            <div class="text-navy/45 text-xs leading-relaxed">WAT, Personal Interview, profile scoring — from someone who went through it all.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-5 rounded-xl bg-white border border-navy/8">
+          <div class="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div>
+            <div class="text-navy font-semibold text-sm mb-1">Strategy for every background</div>
+            <div class="text-navy/45 text-xs leading-relaxed">Engineering students often come in strong on QA; commerce and arts graduates often start stronger on VARC. Your plan is built around your starting point, not a generic syllabus.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-5 rounded-xl bg-white border border-navy/8">
+          <div class="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div>
+            <div class="text-navy font-semibold text-sm mb-1">Access to IIM alumni network</div>
+            <div class="text-navy/45 text-xs leading-relaxed">Connections that extend well beyond the classroom and the test itself.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     NATIONAL TRACK RECORD
+══════════════════════════════════ -->
+<section class="sec bg-navy relative overflow-hidden">
+  <div class="dot-bg absolute inset-0 pointer-events-none opacity-40"></div>
+  <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+
+      <div class="fu">
+        <span class="pill text-white/30">the numbers behind T.I.M.E.</span>
+        <h2 class="font-bold text-white mt-3 mb-6" style="font-size:clamp(28px,5vw,46px);line-height:1.2;">
+          A national result,<br>delivered locally in Madurai.
+        </h2>
+        <p class="text-white/40 text-sm leading-relaxed mb-8 max-w-md">
+          T.I.M.E. has trained CAT aspirants for over 30 years across India. In CAT 2024 alone, TIME students secured thousands of IIM selections — the same programme, materials and AIMCAT series are what your Madurai batch trains on.
+        </p>
+        <div class="grid grid-cols-2 gap-5">
+          <div class="rounded-2xl p-5" style="background:rgba(249,199,79,.08);border:1px solid rgba(249,199,79,.2);">
+            <div class="text-gold font-bold text-3xl mb-1">2,671</div>
+            <div class="text-white/40 text-xs">TIME students selected into IIMs, CAT 2024</div>
+          </div>
+          <div class="rounded-2xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+            <div class="text-white font-bold text-3xl mb-1">9,006</div>
+            <div class="text-white/40 text-xs">Total IIM selections, CAT 2024</div>
+          </div>
+          <div class="rounded-2xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+            <div class="text-white font-bold text-3xl mb-1">187</div>
+            <div class="text-white/40 text-xs">Centres across India</div>
+          </div>
+          <div class="rounded-2xl p-5" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+            <div class="text-white font-bold text-3xl mb-1">97</div>
+            <div class="text-white/40 text-xs">Cities, including Madurai</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fu d2">
+        <div class="rounded-2xl overflow-hidden border border-white/10">
+          <table class="stat-table">
+            <thead>
+              <tr><th>IIM — CAT 2024 Selections</th><th style="text-align:right;">TIME Students</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>IIM Mumbai</td><td class="num">800</td></tr>
+              <tr><td>IIM Indore</td><td class="num">553</td></tr>
+              <tr><td>IIM Calcutta</td><td class="num">310</td></tr>
+              <tr><td>IIM Bangalore</td><td class="num">282</td></tr>
+              <tr><td>IIM Ahmedabad</td><td class="num">113</td></tr>
+              <tr><td>IIM Kozhikode</td><td class="num">54</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-white/25 text-xs mt-4 leading-relaxed">Source: T.I.M.E. National CAT/MBA Results, CAT 2024 (time4education.com). Figures reflect T.I.M.E. students nationally, not exclusive to the Madurai centre.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     PHASE TIMELINE
+══════════════════════════════════ -->
+<section class="sec bg-white">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+
+    <div class="mb-16 fu">
+      <span class="pill text-navy/35">the journey</span>
+      <h2 class="font-bold text-navy mt-3" style="font-size:clamp(28px,5vw,48px);line-height:1.2;">
+        A structured path,<br>not a syllabus dump.
+      </h2>
+      <p class="text-navy/45 mt-4 text-sm leading-relaxed max-w-md">Three phases, built around how CAT actually rewards preparation — concept clarity first, speed and accuracy next, exam temperament last.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <div class="phase-card fu d1" style="border-color:rgba(13,45,110,.09);">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-10 h-10 rounded-full border border-navy/15 flex items-center justify-center flex-shrink-0">
+            <span class="text-navy text-xs font-semibold">01</span>
+          </div>
+          <div class="flex-1 h-px bg-navy/10"></div>
+          <span class="text-navy/30 text-xs">Months 1–4</span>
+        </div>
+        <div class="pill text-navy/40 mb-3">Foundation</div>
+        <h3 class="text-navy font-semibold text-base mb-3">Build the base.</h3>
+        <p class="text-navy/45 text-sm leading-relaxed mb-5">Concept building across VARC, DILR and QA — closing gaps early, whatever your starting background.</p>
+        <div class="text-navy/40 text-xs font-medium">6 hrs / week</div>
+      </div>
+
+      <div class="phase-card fu d2" style="border-color:rgba(13,45,110,.09);">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-10 h-10 rounded-full border border-navy/15 flex items-center justify-center flex-shrink-0">
+            <span class="text-navy text-xs font-semibold">02</span>
+          </div>
+          <div class="flex-1 h-px bg-navy/10"></div>
+          <span class="text-navy/30 text-xs">Months 5–9</span>
+        </div>
+        <div class="pill text-navy/40 mb-3">Advanced Practice</div>
+        <h3 class="text-navy font-semibold text-base mb-3">Speed. Accuracy. Sectional mocks.</h3>
+        <p class="text-navy/45 text-sm leading-relaxed mb-5">Rigorous problem-solving practice, speed optimisation, and sectional AIMCATs for every section.</p>
+        <div class="text-navy/40 text-xs font-medium">8 hrs / week</div>
+      </div>
+
+      <div class="fu d3" style="border:1px solid rgba(249,199,79,.35);background:rgba(249,199,79,.05);border-radius:16px;padding:32px;">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="border:1px solid rgba(249,199,79,.5);">
+            <span class="text-navy text-xs font-semibold">03</span>
+          </div>
+          <div class="flex-1 h-px" style="background:rgba(249,199,79,.3);"></div>
+          <span class="text-navy/30 text-xs">Months 10–14</span>
+        </div>
+        <div class="pill" style="color:#b8860b;" >Full-Test Sprint</div>
+        <h3 class="text-navy font-semibold text-base mb-3 mt-3">Mocks. IIM strategy. Interview prep.</h3>
+        <p class="text-navy/45 text-sm leading-relaxed mb-5">Full-length AIMCATs on a weekly cadence, deep score analysis, IIM shortlisting strategy, and GD-PI-WAT preparation for the calls you'll get.</p>
+        <div class="text-navy/40 text-xs font-medium">10 hrs / week</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     COMPARISON
+══════════════════════════════════ -->
+<section class="sec" style="background:#f9f9fb;">
+  <div class="max-w-5xl mx-auto px-6 md:px-12">
+
+    <div class="mb-12 text-center fu">
+      <span class="pill text-navy/35">why not a self-paced app?</span>
+      <h2 class="font-bold text-navy mt-3" style="font-size:clamp(26px,4.5vw,44px);line-height:1.2;">
+        The comparison that matters.
+      </h2>
+      <p class="text-navy/45 mt-4 text-sm leading-relaxed max-w-lg mx-auto">Completion rates on self-paced online platforms are under 10%. A live class where your trainer knows your name has far more accountability built in.</p>
+    </div>
+
+    <div class="fu rounded-2xl overflow-hidden border border-navy/8">
+      <table class="cmp-table">
+        <thead>
+          <tr style="background:#fff;">
+            <th class="text-navy/50">What matters</th>
+            <th class="text-navy/35">Generic online portal</th>
+            <th style="color:#0d2d6e;">T.I.M.E. Madurai — CAT</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white">
+          <tr>
+            <td class="font-medium text-navy text-sm">Trainer</td>
+            <td class="muted">Unknown faculty, recorded videos</td>
+            <td class="good">IIM Ahmedabad alumnus, live</td>
+          </tr>
+          <tr style="background:#f9f9fb;">
+            <td class="font-medium text-navy text-sm">Batch Size</td>
+            <td class="muted">Thousands, one-size-fits-all</td>
+            <td class="good">Small batches — your name is known</td>
+          </tr>
+          <tr>
+            <td class="font-medium text-navy text-sm">Personal Attention</td>
+            <td class="muted">None</td>
+            <td class="good">Regular 1-on-1 + doubt clearing</td>
+          </tr>
+          <tr style="background:#f9f9fb;">
+            <td class="font-medium text-navy text-sm">Study Materials</td>
+            <td class="muted">PDF dumps</td>
+            <td class="good">TIME printed books</td>
+          </tr>
+          <tr>
+            <td class="font-medium text-navy text-sm">Mock Tests</td>
+            <td class="muted">Portal-specific, unranked</td>
+            <td class="good">AIMCAT series — All-India percentile</td>
+          </tr>
+          <tr style="background:#f9f9fb;">
+            <td class="font-medium text-navy text-sm">IIM Strategy</td>
+            <td class="muted">Generic videos</td>
+            <td class="good">1-on-1 with someone who cracked it</td>
+          </tr>
+          <tr>
+            <td class="font-medium text-navy text-sm">Accountability</td>
+            <td class="muted">Zero</td>
+            <td class="good">Weekly reviews, personal follow-up</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════ -->
+<section class="sec bg-white">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+    <div class="mb-14 fu">
+      <span class="pill text-navy/35">results</span>
+      <h2 class="font-bold text-navy mt-3" style="font-size:clamp(28px,5vw,48px);line-height:1.2;">
+        From Madurai. Across India.
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+      <div class="fu d1 rounded-2xl p-8" style="background:rgba(13,45,110,.04);border:1px solid rgba(13,45,110,.08);">
+        <div class="pill text-navy/35 mb-4">From T.I.M.E. Madurai</div>
+        <div class="font-bold text-gold text-5xl mb-4 leading-none">"</div>
+        <p class="text-navy/70 text-sm leading-relaxed mb-6">I came in unsure of whether an IIM was even something I could aim for. I left with a CAT 99.2 percentile and a seat at IIM Kozhikode. It was the structure that changed me.</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-navy/6 flex items-center justify-center">
+            <span class="text-navy text-sm font-semibold">A</span>
+          </div>
+          <div>
+            <div class="text-navy text-sm font-medium">Arjun S.</div>
+            <div class="text-navy/35 text-xs">CAT '23 — IIM Kozhikode</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fu d2 rounded-2xl p-8 bg-navy">
+        <div class="pill text-gold/60 mb-4">T.I.M.E. Results Nationwide — CAT 2024</div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="rounded-xl p-4" style="background:rgba(255,255,255,.05);">
+            <div class="text-white text-sm font-semibold">Bobby</div>
+            <div class="text-white/40 text-xs mt-0.5">IIM Mumbai, MBA '26–28</div>
+          </div>
+          <div class="rounded-xl p-4" style="background:rgba(255,255,255,.05);">
+            <div class="text-white text-sm font-semibold">Vignesh</div>
+            <div class="text-white/40 text-xs mt-0.5">XLRI Jamshedpur, PGDM(BM) '26–28</div>
+          </div>
+          <div class="rounded-xl p-4" style="background:rgba(255,255,255,.05);">
+            <div class="text-white text-sm font-semibold">Archana</div>
+            <div class="text-white/40 text-xs mt-0.5">IIM Mumbai, MBA '26–28</div>
+          </div>
+          <div class="rounded-xl p-4" style="background:rgba(255,255,255,.05);">
+            <div class="text-white text-sm font-semibold">Likhita</div>
+            <div class="text-white/40 text-xs mt-0.5">IIM Trichy, MBA '26–28</div>
+          </div>
+        </div>
+        <p class="text-white/25 text-xs mt-5">T.I.M.E. students, national results (time4education.com).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     FAQ / OBJECTION HANDLERS
+══════════════════════════════════ -->
+<section class="sec" style="background:#f9f9fb;">
+  <div class="max-w-3xl mx-auto px-6 md:px-12">
+    <div class="mb-12 fu">
+      <span class="pill text-navy/35">common questions</span>
+      <h2 class="font-bold text-navy mt-3" style="font-size:clamp(24px,4vw,40px);line-height:1.2;">Things people ask before joining.</h2>
+    </div>
+
+    <div class="fu space-y-0" id="faqContainer">
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>What is the pattern of the CAT exam?</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          CAT is a computer-based test held once a year, in late November, with three sections — Verbal Ability &amp; Reading Comprehension (VARC), Data Interpretation &amp; Logical Reasoning (DILR), and Quantitative Ability (QA) — each with its own sectional time limit within the overall 2-hour test. Every part of your preparation here is built around this exact structure.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>When should I start preparing for CAT 2027?</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          Now is a good time. A full run-up gives you time to build the reading habit VARC demands and the problem-solving instincts DILR and QA reward, well before exam pressure sets in. Students who start with 12-14 months on the clock consistently outperform those who cram the last few months.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>I'm a working professional. Can I manage this along with my job?</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          Yes — many of our strongest CAT results have come from working professionals. Sessions are scheduled around typical work hours, every class is recorded, and your mentoring check-ins are built around your available time, not a fixed slot.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>I'm from a non-engineering background. Can I catch up on Quant?</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          Absolutely. The Foundation phase is deliberately built from first principles in QA and DILR, so commerce, arts and science graduates without a quant-heavy background start on equal footing. Plenty of TIME's best CAT results come from exactly this profile.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>How closely do TIME's AIMCATs mirror the real CAT?</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          AIMCAT is TIME's flagship all-India mock series, refreshed every year to track the latest CAT pattern — same section structure, same sectional timing, same on-screen interface style. Your All-India percentile in each AIMCAT is the most reliable predictor available of where you'd stand on exam day.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>Do you help with IIM interviews after the CAT result?</span>
+          <svg class="faq-chevron w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-a">
+          Yes. Once your shortlists start coming in, the programme moves into B-school-specific GD-PI-WAT preparation — Written Ability Test practice, mock panel interviews, and profile-specific guidance from a trainer who has been through the same process at IIM Ahmedabad.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     ENROLLMENT FORM
+══════════════════════════════════ -->
+<section id="enroll" class="sec bg-navy relative overflow-hidden">
+  <div class="absolute top-0 left-0 right-0 h-px" style="background:linear-gradient(90deg,transparent,rgba(249,199,79,.3),transparent);"></div>
+  <div class="dot-bg absolute inset-0 pointer-events-none opacity-30"></div>
+  <div class="absolute -top-32 -right-32 w-80 h-80 rounded-full pointer-events-none" style="background:radial-gradient(circle,rgba(249,199,79,.08),transparent);filter:blur(70px);"></div>
+
+  <div class="max-w-xl mx-auto px-6 md:px-12 relative z-10">
+
+    <div class="text-center mb-10 fu">
+      <span class="pill text-white/30">CAT 2027 · TIME Madurai</span>
+      <h2 class="font-bold text-white mt-3 mb-4" style="font-size:clamp(28px,5vw,48px);line-height:1.2;">
+        Get Your Free Counselling Call.
+      </h2>
+      <p class="text-white/45 text-sm leading-relaxed">Leave your name and number. We'll call you within 24 hours with programme details and a free conversation about your CAT prep plan.</p>
+    </div>
+
+    <div class="fu d2 rounded-2xl p-8 md:p-10" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+      <form id="enrollForm" onsubmit="submitEnrollment(event)">
+
+        <div class="mb-5">
+          <label class="block text-white/60 text-xs font-medium uppercase tracking-widest mb-2">Full Name *</label>
+          <input id="f-name" type="text" placeholder="Your full name" class="form-field" required autocomplete="name">
+        </div>
+
+        <div class="mb-5">
+          <label class="block text-white/60 text-xs font-medium uppercase tracking-widest mb-2">Phone Number *</label>
+          <div class="phone-wrapper" id="phone-wrapper">
+            <select id="f-country-code" class="phone-code-select" autocomplete="tel-country-code">
+              <option value="+91" selected>🇮🇳 +91</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+971">🇦🇪 +971</option>
+              <option value="+65">🇸🇬 +65</option>
+              <option value="+60">🇲🇾 +60</option>
+              <option value="+61">🇦🇺 +61</option>
+              <option value="+49">🇩🇪 +49</option>
+            </select>
+            <input id="f-phone" type="tel" placeholder="98765 43210" class="phone-number-input" required autocomplete="tel-national">
+          </div>
+        </div>
+
+        <div class="mb-5">
+          <label class="block text-white/60 text-xs font-medium uppercase tracking-widest mb-2">I am a</label>
+          <select id="f-profile" class="form-field" style="appearance:none;">
+            <option value="" style="background:#0d2d6e;">Select one (optional)</option>
+            <option value="College Student" style="background:#0d2d6e;">College Student</option>
+            <option value="Recent Graduate" style="background:#0d2d6e;">Recent Graduate</option>
+            <option value="Working Professional" style="background:#0d2d6e;">Working Professional</option>
+            <option value="Other" style="background:#0d2d6e;">Other</option>
+          </select>
+        </div>
+
+        <div class="mb-8">
+          <label class="block text-white/60 text-xs font-medium uppercase tracking-widest mb-2">Email <span class="text-white/25 normal-case tracking-normal font-normal">(optional)</span></label>
+          <input id="f-email" type="email" placeholder="your@email.com" class="form-field" autocomplete="email">
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn-gold w-full py-4 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-3">
+          <span id="btnText">Request My Free Counselling Call</span>
+          <svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          <svg id="btnSpinner" class="w-4 h-4 hidden animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+        </button>
+
+        <p class="text-white/25 text-xs text-center mt-4 leading-relaxed">No spam. No pressure. Just a conversation about your CAT 2027 plan.</p>
+      </form>
+
+      <div id="formSuccess" class="hidden text-center py-4">
+        <div class="text-4xl mb-4">🎯</div>
+        <h3 class="text-white font-semibold text-lg mb-2">You're on the list.</h3>
+        <p class="text-white/50 text-sm leading-relaxed">We'll call you within 24 hours. Save our number: <span class="text-gold font-medium">78680 06060</span>.</p>
+      </div>
+    </div>
+
+    <div class="mt-8 text-center fu d3">
+      <p class="text-white/30 text-xs">Prefer to call directly?</p>
+      <a href="tel:+917868006060" class="text-gold text-sm font-medium hover:text-gold-light transition-colors">78680 06060</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     FOOTER
+══════════════════════════════════ -->
+<footer class="bg-navy border-t border-white/5 py-10 px-6 md:px-12">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <img src="/TIME%20Logo%20White.png" alt="T.I.M.E. Madurai" style="height:28px;width:auto;">
+      <span class="text-white/20 text-xs">T.I.M.E. Madurai &mdash; PG Division</span>
+    </div>
+    <div class="flex items-center gap-6">
+      <a href="/" class="text-white/30 text-xs hover:text-white/60 transition-colors">Home</a>
+      <a href="/#courses" class="text-white/30 text-xs hover:text-white/60 transition-colors">Programs</a>
+      <a href="#enroll" class="text-white/30 text-xs hover:text-white/60 transition-colors">Contact</a>
+    </div>
+    <div class="text-white/20 text-xs">&copy; 2026 T.I.M.E. Madurai. All rights reserved.</div>
+  </div>
+</footer>
+
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Sticky bar (mobile) -->
+<div id="sticky-bar" class="md:hidden">
+  <div>
+    <div class="text-white text-sm font-semibold">CAT 2027 · TIME Madurai</div>
+    <div class="text-white/45 text-xs">Free counselling call · IIM-A alumnus trainer</div>
+  </div>
+  <a href="#enroll" class="btn-gold px-5 py-2.5 rounded-full text-sm font-semibold">Get Callback</a>
+</div>
+
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script>
+// ── ClickUp Config (same TIME Madurai workspace used sitewide) ──────────────
+const CLICKUP_API_KEY   = 'pk_152521978_7EHF7ITXDVC0YYXJYKYYGY85RBZF66CC';
+const CLICKUP_LIST_ID   = '901611772550';   // TIME PG Database
+const CLICKUP_WS_ID     = '9016591512';
+const MARKETING_CHANNEL = '4-90162159784-8'; // Marketing channel
+
+// ── Field IDs (TIME PG Database) ───────────────────────────────────────────
+const FIELD = {
+  mobile:       '11e5ef8a-5870-4da1-9bc7-7fc5c72d8dfe',
+  leadSource:   '49cdb879-1668-4e1a-a085-e27faacbd0c7',
+  leadStatus:   'dbc59886-963c-4a0f-8016-e96a7b6033e1',
+  howKnow:      '1c1eb4b5-fdbd-41f1-a71f-00a6b0d97bf6',
+  sourceNotes:  'eb042253-39ef-44da-bb36-e59b188d2abd',
+  email:        '046eee55-2753-4209-9e07-a57a472a0e92',
+  courses:      '86ffabee-e295-4d77-b136-851260a88ec2',
+};
+// Option IDs
+const OPT = {
+  leadSourceDigital: 'f8748059-ce6e-4a59-bbb1-667b8f5fa2ab', // HO Digital Enquiry
+  leadStatusHot:     '20f4598b-17da-4bf2-b320-760f8661f1f9', // Hot Follow-up
+  howKnowWebsite:    '998c3fda-d40b-48ea-8f63-046c3fb7462a', // Website
+  courseCAT2027:     '0d61b34e-a03b-4cd6-bfe6-9bcecc9a909c', // CAT 2027
+};
+
+// ── Campaign attribution (captured from the ad's landing URL) ──────────────
+function getCampaignParams() {
+  const p = new URLSearchParams(window.location.search);
+  const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'];
+  const out = {};
+  keys.forEach(k => { const v = p.get(k); if (v) out[k] = v; });
+  return out;
+}
+
+// ── Form submission ─────────────────────────────────────────────────────────
+async function submitEnrollment(e) {
+  e.preventDefault();
+
+  const name        = document.getElementById('f-name').value.trim();
+  const countryCode = document.getElementById('f-country-code').value;
+  const rawPhone    = document.getElementById('f-phone').value.trim();
+  const phone       = countryCode + rawPhone.replace(/^0+/, '').replace(/\s+/g, '');
+  const profile     = document.getElementById('f-profile').value;
+  const email       = document.getElementById('f-email').value.trim();
+
+  if (!name || !rawPhone) { showToast('Please enter your name and phone number.', 'error'); return; }
+
+  const btn      = document.getElementById('submitBtn');
+  const btnText  = document.getElementById('btnText');
+  const btnIcon  = document.getElementById('btnIcon');
+  const spinner  = document.getElementById('btnSpinner');
+  btn.disabled = true;
+  btnText.textContent = 'Submitting…';
+  btnIcon.classList.add('hidden');
+  spinner.classList.remove('hidden');
+
+  const campaign = getCampaignParams();
+  const campaignLines = Object.keys(campaign).map(k => `${k}: ${campaign[k]}`);
+
+  try {
+    const taskPayload = {
+      name: name,
+      description: [
+        'CAT programme enquiry — submitted via the CAT landing page (Google Ads).',
+        '',
+        `Phone: ${phone}`,
+        ...(profile ? [`Profile: ${profile}`] : []),
+        ...(email ? [`Email: ${email}`] : []),
+        'Programme of interest: CAT 2027',
+        ...(campaignLines.length ? ['', '-- Campaign attribution --', ...campaignLines] : []),
+      ].join('\n'),
+      custom_fields: [
+        { id: FIELD.mobile,      value: phone },
+        { id: FIELD.leadSource,  value: OPT.leadSourceDigital },
+        { id: FIELD.leadStatus,  value: OPT.leadStatusHot },
+        { id: FIELD.howKnow,     value: OPT.howKnowWebsite },
+        { id: FIELD.sourceNotes, value: 'CAT Landing Page (Google Ads)' },
+        { id: FIELD.courses,     value: [OPT.courseCAT2027] },
+        ...(email ? [{ id: FIELD.email, value: email }] : []),
+      ],
+    };
+
+    const taskRes = await fetch(
+      `https://api.clickup.com/api/v2/list/${CLICKUP_LIST_ID}/task`,
+      {
+        method: 'POST',
+        headers: { 'Authorization': CLICKUP_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify(taskPayload),
+      }
+    );
+
+    if (!taskRes.ok) {
+      const errText = await taskRes.text();
+      console.error('ClickUp API error:', taskRes.status, errText);
+      throw new Error(`ClickUp error ${taskRes.status}: ${errText}`);
+    }
+
+    const task = await taskRes.json();
+    const taskUrl = task.url || `https://app.clickup.com/t/${task.id}`;
+
+    const msgContent = [
+      '🎯 **New CAT Landing Page Enquiry**',
+      '',
+      `**Name:** ${name}`,
+      `**Phone:** ${phone}`,
+      ...(profile ? [`**Profile:** ${profile}`] : []),
+      ...(email ? [`**Email:** ${email}`] : []),
+      '',
+      '**Lead Status:** Hot Follow-up 🔥',
+      '**Source:** CAT Landing Page (Google Ads)',
+      ...(campaignLines.length ? [`**Campaign:** ${campaignLines.join(', ')}`] : []),
+      '',
+      `[View in ClickUp](${taskUrl})`,
+    ].join('\n');
+
+    await fetch(
+      `https://api.clickup.com/api/v3/workspaces/${CLICKUP_WS_ID}/chat/channels/${MARKETING_CHANNEL}/messages`,
+      {
+        method: 'POST',
+        headers: { 'Authorization': CLICKUP_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: msgContent, content_format: 'text/md' }),
+      }
+    );
+    // (Marketing message failure is non-critical — don't block the user)
+
+    document.getElementById('enrollForm').classList.add('hidden');
+    document.getElementById('formSuccess').classList.remove('hidden');
+    showToast('✓ You\'re on the list! We\'ll call you within 24 hours.', 'success');
+
+    // Fire a conversion event for Google Ads if a tag is present on this page.
+    if (typeof gtag === 'function') {
+      gtag('event', 'generate_lead', { event_category: 'CAT Landing Page' });
+    }
+
+  } catch (err) {
+    console.error('Enrollment submission error:', err);
+    showToast('Error: ' + err.message, 'error');
+    btn.disabled = false;
+    btnText.textContent = 'Request My Free Counselling Call';
+    btnIcon.classList.remove('hidden');
+    spinner.classList.add('hidden');
+  }
+}
+
+// ── Toast ───────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type === 'success' ? 'show success' : 'show error-toast';
+  setTimeout(() => { t.className = ''; }, 4500);
+}
+
+// ── FAQ ─────────────────────────────────────────────────────────────────────
+function toggleFaq(btn) {
+  const ans      = btn.nextElementSibling;
+  const chevron  = btn.querySelector('.faq-chevron');
+  const isOpen   = ans.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.faq-chevron').forEach(c => c.classList.remove('open'));
+  if (!isOpen) { ans.classList.add('open'); chevron.classList.add('open'); }
+}
+
+// ── Navbar scroll ───────────────────────────────────────────────────────────
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ── Mobile menu ─────────────────────────────────────────────────────────────
+document.getElementById('hamburger').addEventListener('click', () => {
+  const menu = document.getElementById('mobile-menu');
+  const open = menu.classList.toggle('hidden');
+  document.getElementById('ham-icon').classList.toggle('hidden', !open);
+  document.getElementById('close-icon').classList.toggle('hidden', open);
+});
+document.getElementById('mobile-menu').querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.add('hidden');
+    document.getElementById('ham-icon').classList.remove('hidden');
+    document.getElementById('close-icon').classList.add('hidden');
+  });
+});
+
+// ── Scroll reveal ───────────────────────────────────────────────────────────
+const fuObs = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); }),
+  { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+);
+document.querySelectorAll('.fu').forEach(el => fuObs.observe(el));
+
+// ── Smooth anchors ──────────────────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+});
+
+// ── Sticky bar (shows after hero scrolls out) ───────────────────────────────
+const stickyBar = document.getElementById('sticky-bar');
+const heroSection = document.querySelector('section');
+const heroObserver = new IntersectionObserver(
+  ([entry]) => stickyBar.classList.toggle('visible', !entry.isIntersecting),
+  { threshold: 0 }
+);
+heroObserver.observe(heroSection);
+</script>
+
+</body>
+</html>

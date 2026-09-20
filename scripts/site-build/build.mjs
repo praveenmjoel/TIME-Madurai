@@ -226,13 +226,13 @@ ${renderCounsellingScript()}
 // ── sitemap.xml + robots.txt ─────────────────────────────────────────────
 // Generated from the same PAGES array that drives the build, so it can
 // never drift out of sync with what's actually published. Static
-// pre-existing pages (homepage, TCE, Achiever League) are listed too.
+// pre-existing pages (homepage, CAT landing page, Achiever League) are listed too.
 const SITE_URL = 'https://timemadurai.com';
 const today = new Date().toISOString().slice(0, 10);
 
 const STATIC_URLS = [
   { loc: '/', priority: '1.0', changefreq: 'weekly' },
-  { loc: '/tce-cat-advantage.html', priority: '0.6', changefreq: 'monthly' },
+  { loc: '/cat/', priority: '0.8', changefreq: 'weekly' },
   { loc: '/achiever-league.html', priority: '0.3', changefreq: 'monthly' },
 ];
 
