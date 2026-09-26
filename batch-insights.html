@@ -13,6 +13,8 @@
     body { background:#eef2fb; }
     .card { background:white; border-radius:16px; box-shadow:0 1px 3px rgba(13,45,110,.07),0 4px 16px rgba(13,45,110,.06); }
     .tab-btn { transition:all .2s; border-bottom:2px solid transparent; }
+    .class-btn { padding:.3rem .95rem; border-radius:9999px; font-size:.8rem; font-weight:600; color:rgba(13,45,110,.5); transition:all .2s; }
+    .class-btn.active { background:#0d2d6e; color:#fff; }
     .tab-btn.active { color:#0d2d6e; border-color:#f9c74f; font-weight:700; }
     table { border-collapse:collapse; width:100%; font-size:.82rem; }
     th { background:#0d2d6e; color:white; padding:9px 14px; text-align:left; font-size:.7rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
@@ -41,7 +43,7 @@
     <img src="TIME Logo White.png" alt="T.I.M.E. Madurai" style="height:28px;width:auto;">
     <div>
       <div class="text-white font-bold">Batch Insights</div>
-      <div class="text-white/40 text-xs">Watrap · JEE / NEET 2027</div>
+      <div id="batch-sub" class="text-white/40 text-xs">Watrap · JEE / NEET 2027</div>
     </div>
   </div>
   <div class="flex items-center gap-3">
@@ -57,9 +59,15 @@
 </header>
 
 <!-- Tabs -->
-<div class="bg-white border-b border-slate-100 px-6 md:px-10 flex gap-7 sticky top-0 z-10 shadow-sm">
-  <button class="tab-btn py-3.5 text-sm text-navy/50" onclick="showTab('attendance')">Attendance</button>
-  <button class="tab-btn active py-3.5 text-sm text-navy/50" onclick="showTab('scores')">Scores</button>
+<div class="bg-white border-b border-slate-100 px-6 md:px-10 flex items-center justify-between gap-4 sticky top-0 z-10 shadow-sm">
+  <div class="flex gap-7">
+    <button class="tab-btn py-3.5 text-sm text-navy/50" onclick="showTab('attendance')">Attendance</button>
+    <button class="tab-btn active py-3.5 text-sm text-navy/50" onclick="showTab('scores')">Scores</button>
+  </div>
+  <div class="flex gap-1 p-1 rounded-full bg-slate-100">
+    <button class="class-btn active" data-class="XII" onclick="setClass('XII')">Class XII</button>
+    <button class="class-btn" data-class="XI" onclick="setClass('XI')">Class XI</button>
+  </div>
 </div>
 
 <main class="max-w-7xl mx-auto px-4 md:px-8 py-8">
@@ -166,8 +174,24 @@
 // CONFIG
 // ═══════════════════════════════════════════════════════════════
 const SHEET_ID    = '17FktHAvR_CBoZG_omLduWJoocDXcuu2JuztPRc3l1A8';
-const SHEET_ATT   = 'Attendance';
-const SHEET_SCORE = 'Score sheet'; // must match the tab with actual score data, not the "Score sheet  " (trailing spaces) student-credentials tab
+// Sheets are addressed by name or gid. Prefer gid for XI: gviz silently falls back to the
+// first tab (student credentials!) when a name doesn't match exactly, and "XI - Score sheet "
+// has a trailing space. XII's "Score sheet" must not be confused with "Score sheet  " (credentials).
+const CLASSES = {
+  XII: {
+    subtitle: 'Watrap · JEE / NEET 2027',
+    att:   { sheet: 'Attendance' },
+    score: { sheet: 'Score sheet' },
+    attCols: { session: 4, student: 5, status: 6 },
+  },
+  XI: {
+    subtitle: 'Class XI · JEE / NEET 2028',
+    att:   { gid: '128140552' },   // "XI - JEE / NEET Attendance"
+    score: { gid: '831982155' },   // "XI - Score sheet "
+    attCols: { session: 5, student: 6, status: 7 }, // extra Course column at index 4
+  },
+};
+let currentClass = 'XII', currentTab = 'scores';
 
 const NAVY = '#0d2d6e', GOLD = '#f9c74f';
 const SUBJECT_COLORS = {
@@ -189,12 +213,14 @@ let charts = {};
 // ═══════════════════════════════════════════════════════════════
 // FETCH + CSV PARSE
 // ═══════════════════════════════════════════════════════════════
-async function fetchSheet(sheet) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}`;
+async function fetchSheet(src) {
+  const label = src.sheet || `gid ${src.gid}`;
+  const sel = src.sheet ? `sheet=${encodeURIComponent(src.sheet)}` : `gid=${src.gid}`;
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&${sel}`;
   const res = await fetch(url, { credentials: 'omit' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} — "${sheet}" not accessible`);
+  if (!res.ok) throw new Error(`HTTP ${res.status} — "${label}" not accessible`);
   const text = await res.text();
-  if (!text.trim()) throw new Error(`Sheet "${sheet}" is empty or tab name is wrong`);
+  if (!text.trim()) throw new Error(`Sheet "${label}" is empty or tab name is wrong`);
   return csvToRows(text);
 }
 
@@ -243,8 +269,9 @@ function statCard(label, value, sub='', color=NAVY) {
 // ═══════════════════════════════════════════════════════════════
 // ATTENDANCE
 // ═══════════════════════════════════════════════════════════════
-// Columns: Date(0) Day(1) StartTime(2) EndTime(3) Session(4)
-//          StudentName(5) Attendance(6) Portion(7) Reason(8)
+// XII columns: Date(0) Day(1) StartTime(2) EndTime(3) Session(4)
+//              StudentName(5) Attendance(6) Portion(7) Reason(8)
+// XI adds Course(4) so Session/Student/Attendance are 5/6/7 — see CLASSES[..].attCols
 
 let attData = {}; // { student: { date: { sessions: [{session, present}] } } }
 let attDates = [], attStudents = [], attSessions = [];
@@ -252,11 +279,12 @@ let attDates = [], attStudents = [], attSessions = [];
 function processAttendance(rows) {
   const data = {}, datesSet = new Set(), studentsSet = new Set(), sessionsSet = new Set();
 
+  const cols = CLASSES[currentClass].attCols;
   rows.slice(1).forEach(r => {
     const date    = String(r[0] || '').trim();
-    const session = normSession(r[4]);
-    const student = normName(r[5]);
-    const present = String(r[6] || '').trim().toLowerCase() === 'present';
+    const session = normSession(r[cols.session]);
+    const student = normName(r[cols.student]);
+    const present = String(r[cols.status] || '').trim().toLowerCase() === 'present';
     if (!date || !student) return;
 
     studentsSet.add(student);
@@ -539,8 +567,8 @@ function renderScores(loadErr) {
   const scoreEl = document.getElementById('tab-scores');
   if (scoreData.length === 0) {
     const msg = loadErr
-      ? `Could not load the Score sheet: <strong>${loadErr}</strong><br><br>Tip: Make sure the tab is named exactly <strong>"Score sheet"</strong> in Google Sheets and the spreadsheet is shared "Anyone with link can view".`
-      : `The Score sheet tab appears empty or its name doesn't match <strong>"Score sheet"</strong> in Google Sheets. Please verify the exact tab name and try again.`;
+      ? `Could not load the Class ${currentClass} score sheet: <strong>${loadErr}</strong><br><br>Tip: Make sure the spreadsheet is shared "Anyone with link can view".`
+      : `No Class ${currentClass} scores have been entered yet.`;
     document.getElementById('score-stats').innerHTML = '';
     document.getElementById('score-table').innerHTML = `<div class="text-sm text-amber-700 p-4 bg-amber-50 rounded-xl border border-amber-200">${msg}</div>`;
     ['c-score-student','c-score-date','c-score-subject'].forEach(id => { const el=document.getElementById(id); if(el) el.getContext('2d').clearRect(0,0,el.width,el.height); });
@@ -656,7 +684,17 @@ function renderScores(loadErr) {
 // ═══════════════════════════════════════════════════════════════
 // TAB SWITCHING
 // ═══════════════════════════════════════════════════════════════
+function setClass(c) {
+  if (c === currentClass) return;
+  currentClass = c;
+  document.querySelectorAll('.class-btn').forEach(b => b.classList.toggle('active', b.dataset.class === c));
+  document.getElementById('batch-sub').textContent = CLASSES[c].subtitle;
+  scoreSort = { col: 'date', dir: -1 };
+  loadAll();
+}
+
 function showTab(tab) {
+  currentTab = tab;
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='attendance')||(i===1&&tab==='scores')));
   document.getElementById('tab-att').classList.toggle('hidden', tab!=='attendance');
   document.getElementById('tab-scores').classList.toggle('hidden', tab!=='scores');
@@ -677,9 +715,11 @@ async function loadAll() {
 
   try {
     // Load both sheets independently so one failure doesn't block the other
+    const cfg = CLASSES[currentClass];
+    scoreData = [];
     const [attResult, scoreResult] = await Promise.allSettled([
-      fetchSheet(SHEET_ATT),
-      fetchSheet(SHEET_SCORE),
+      fetchSheet(cfg.att),
+      fetchSheet(cfg.score),
     ]);
 
     let scoreErr = null;
@@ -696,7 +736,8 @@ async function loadAll() {
     }
 
     document.getElementById('loading').classList.add('hidden');
-    document.getElementById('tab-scores').classList.remove('hidden');
+    document.getElementById('tab-scores').classList.toggle('hidden', currentTab !== 'scores');
+    document.getElementById('tab-att').classList.toggle('hidden', currentTab !== 'attendance');
     const now = new Date();
 
     // Render AFTER tabs are visible so Chart.js can measure container dimensions
