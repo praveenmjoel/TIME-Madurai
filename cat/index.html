@@ -862,6 +862,12 @@
           <input id="f-email" type="email" placeholder="your@email.com" class="form-field" autocomplete="email">
         </div>
 
+        <!-- Honeypot: real visitors never see or fill this; bots that do get filtered server-side. -->
+        <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
+          <label for="f-website">Website</label>
+          <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
         <button type="submit" id="submitBtn" class="btn-gold w-full py-4 rounded-xl text-sm font-bold tracking-wide flex items-center justify-center gap-3">
           <span id="btnText">Request My Free Counselling Call</span>
           <svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
@@ -916,34 +922,13 @@
      JAVASCRIPT
 ══════════════════════════════════ -->
 <script>
-// ── ClickUp Config (same TIME Madurai workspace used sitewide) ──────────────
-const CLICKUP_API_KEY   = 'pk_152521978_7EHF7ITXDVC0YYXJYKYYGY85RBZF66CC';
-const CLICKUP_LIST_ID   = '901611772550';   // TIME PG Database
-const CLICKUP_WS_ID     = '9016591512';
-const MARKETING_CHANNEL = '4-90162159784-8'; // Marketing channel
-
-// ── Field IDs (TIME PG Database) ───────────────────────────────────────────
-const FIELD = {
-  mobile:       '11e5ef8a-5870-4da1-9bc7-7fc5c72d8dfe',
-  leadSource:   '49cdb879-1668-4e1a-a085-e27faacbd0c7',
-  leadStatus:   'dbc59886-963c-4a0f-8016-e96a7b6033e1',
-  howKnow:      '1c1eb4b5-fdbd-41f1-a71f-00a6b0d97bf6',
-  sourceNotes:  'eb042253-39ef-44da-bb36-e59b188d2abd',
-  email:        '046eee55-2753-4209-9e07-a57a472a0e92',
-  courses:      '86ffabee-e295-4d77-b136-851260a88ec2',
-};
-// Option IDs
-const OPT = {
-  leadSourceDigital: 'f8748059-ce6e-4a59-bbb1-667b8f5fa2ab', // HO Digital Enquiry
-  leadStatusHot:     '20f4598b-17da-4bf2-b320-760f8661f1f9', // Hot Follow-up
-  howKnowWebsite:    '998c3fda-d40b-48ea-8f63-046c3fb7462a', // Website
-  courseCAT2027:     '0d61b34e-a03b-4cd6-bfe6-9bcecc9a909c', // CAT 2027
-};
+// ── Lead endpoint (Hive Growth → TIME PG, Database Hub) ────────────────────
+const LEAD_ENDPOINT = 'https://hive-growth-production.up.railway.app/api/public/time-pg-website-lead';
 
 // ── Campaign attribution (captured from the ad's landing URL) ──────────────
 function getCampaignParams() {
   const p = new URLSearchParams(window.location.search);
-  const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'];
+  const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid'];
   const out = {};
   keys.forEach(k => { const v = p.get(k); if (v) out[k] = v; });
   return out;
@@ -956,9 +941,9 @@ async function submitEnrollment(e) {
   const name        = document.getElementById('f-name').value.trim();
   const countryCode = document.getElementById('f-country-code').value;
   const rawPhone    = document.getElementById('f-phone').value.trim();
-  const phone       = countryCode + rawPhone.replace(/^0+/, '').replace(/\s+/g, '');
   const profile     = document.getElementById('f-profile').value;
   const email       = document.getElementById('f-email').value.trim();
+  const honeypot    = document.getElementById('f-website').value;
 
   if (!name || !rawPhone) { showToast('Please enter your name and phone number.', 'error'); return; }
 
@@ -971,74 +956,28 @@ async function submitEnrollment(e) {
   btnIcon.classList.add('hidden');
   spinner.classList.remove('hidden');
 
-  const campaign = getCampaignParams();
-  const campaignLines = Object.keys(campaign).map(k => `${k}: ${campaign[k]}`);
-
   try {
-    const taskPayload = {
-      name: name,
-      description: [
-        'CAT programme enquiry — submitted via the CAT landing page (Google Ads).',
-        '',
-        `Phone: ${phone}`,
-        ...(profile ? [`Profile: ${profile}`] : []),
-        ...(email ? [`Email: ${email}`] : []),
-        'Programme of interest: CAT 2027',
-        ...(campaignLines.length ? ['', '-- Campaign attribution --', ...campaignLines] : []),
-      ].join('\n'),
-      custom_fields: [
-        { id: FIELD.mobile,      value: phone },
-        { id: FIELD.leadSource,  value: OPT.leadSourceDigital },
-        { id: FIELD.leadStatus,  value: OPT.leadStatusHot },
-        { id: FIELD.howKnow,     value: OPT.howKnowWebsite },
-        { id: FIELD.sourceNotes, value: 'CAT Landing Page (Google Ads)' },
-        { id: FIELD.courses,     value: [OPT.courseCAT2027] },
-        ...(email ? [{ id: FIELD.email, value: email }] : []),
-      ],
-    };
+    const res = await fetch(LEAD_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        phone: rawPhone,
+        country_code: countryCode,
+        email,
+        i_am: profile,
+        program: 'CAT 2027',
+        ...getCampaignParams(),
+        page_url: window.location.origin + window.location.pathname,
+        website: honeypot,
+      }),
+    });
 
-    const taskRes = await fetch(
-      `https://api.clickup.com/api/v2/list/${CLICKUP_LIST_ID}/task`,
-      {
-        method: 'POST',
-        headers: { 'Authorization': CLICKUP_API_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify(taskPayload),
-      }
-    );
-
-    if (!taskRes.ok) {
-      const errText = await taskRes.text();
-      console.error('ClickUp API error:', taskRes.status, errText);
-      throw new Error(`ClickUp error ${taskRes.status}: ${errText}`);
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('Lead endpoint error:', res.status, errText);
+      throw new Error(`Submission failed (${res.status})`);
     }
-
-    const task = await taskRes.json();
-    const taskUrl = task.url || `https://app.clickup.com/t/${task.id}`;
-
-    const msgContent = [
-      '🎯 **New CAT Landing Page Enquiry**',
-      '',
-      `**Name:** ${name}`,
-      `**Phone:** ${phone}`,
-      ...(profile ? [`**Profile:** ${profile}`] : []),
-      ...(email ? [`**Email:** ${email}`] : []),
-      '',
-      '**Lead Status:** Hot Follow-up 🔥',
-      '**Source:** CAT Landing Page (Google Ads)',
-      ...(campaignLines.length ? [`**Campaign:** ${campaignLines.join(', ')}`] : []),
-      '',
-      `[View in ClickUp](${taskUrl})`,
-    ].join('\n');
-
-    await fetch(
-      `https://api.clickup.com/api/v3/workspaces/${CLICKUP_WS_ID}/chat/channels/${MARKETING_CHANNEL}/messages`,
-      {
-        method: 'POST',
-        headers: { 'Authorization': CLICKUP_API_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: msgContent, content_format: 'text/md' }),
-      }
-    );
-    // (Marketing message failure is non-critical — don't block the user)
 
     // Fire a conversion event for Google Ads if a tag is present on this page.
     if (typeof gtag === 'function') {
@@ -1054,7 +993,7 @@ async function submitEnrollment(e) {
 
   } catch (err) {
     console.error('Enrollment submission error:', err);
-    showToast('Error: ' + err.message, 'error');
+    showToast('Something went wrong. Please try again or call 78680 06060.', 'error');
     btn.disabled = false;
     btnText.textContent = 'Request My Free Counselling Call';
     btnIcon.classList.remove('hidden');
