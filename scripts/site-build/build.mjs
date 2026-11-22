@@ -2,7 +2,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  renderHead, renderNav, renderBreadcrumb, renderCounsellingModal,
+  renderHead, GTM_BODY, renderNav, renderBreadcrumb, renderCounsellingModal,
   renderFloatingCta, renderFooter, renderScripts, renderCounsellingScript,
   breadcrumbSchema,
 } from './lib/partials.mjs';
@@ -206,6 +206,7 @@ for (const page of PAGES) {
     schema,
   })}
 <body class="bg-white font-sans antialiased text-navy">
+${GTM_BODY}
 ${renderNav()}
 ${renderBreadcrumb(page.breadcrumb)}
 ${page.body}
