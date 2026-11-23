@@ -23,6 +23,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+    section[id] { scroll-margin-top: 72px; }
 
     /* ── NAV ── */
     #nav { transition: background .5s, box-shadow .5s, padding .3s; }
@@ -245,9 +246,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <img src="/TIME%20Logo%20White.png" alt="T.I.M.E. Madurai" class="time-logo-img" style="height:34px;width:auto;">
     </a>
     <div class="hidden md:flex items-center gap-8">
-      <a href="/#journey"  class="nav-link text-white/60 hover:text-white text-sm tracking-wide">The Journey</a>
-      <a href="/#courses"  class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Programs</a>
-      <a href="/#why-time" class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Why T.I.M.E.</a>
+      <a href="#programme" class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Programme</a>
+      <a href="#journey" class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Journey</a>
+      <a href="#results" class="nav-link text-white/60 hover:text-white text-sm tracking-wide">Results</a>
+      <a href="#faq" class="nav-link text-white/60 hover:text-white text-sm tracking-wide">FAQ</a>
       <a href="/achiever-league.html" class="nav-link text-white/60 hover:text-white text-sm tracking-wide flex items-center gap-1.5">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
         Student Login
@@ -260,9 +262,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </button>
   </div>
   <div id="mobile-menu" class="hidden md:hidden mt-4 pt-4 border-t border-white/10 flex flex-col gap-5 px-2 pb-4">
-    <a href="/#journey"  class="text-white/70 text-sm">The Journey</a>
-    <a href="/#courses"  class="text-white/70 text-sm">Programs</a>
-    <a href="/#why-time" class="text-white/70 text-sm">Why T.I.M.E.</a>
+    <a href="#programme" class="text-white/70 text-sm">Programme</a>
+    <a href="#journey" class="text-white/70 text-sm">Journey</a>
+    <a href="#results" class="text-white/70 text-sm">Results</a>
+    <a href="#faq" class="text-white/70 text-sm">FAQ</a>
     <a href="/achiever-league.html" class="text-white/70 text-sm">Student Login</a>
     <a href="#enroll" class="btn-gold text-sm font-medium px-5 py-2.5 rounded-full w-fit">Get Free Counselling</a>
   </div>
@@ -272,7 +275,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ══════════════════════════════════
      HERO
 ══════════════════════════════════ -->
-<section class="min-h-screen bg-navy flex flex-col items-center justify-center relative" style="padding:0;">
+<section id="top-hero" class="min-h-screen bg-navy flex flex-col items-center justify-center relative" style="padding:0;">
   <div class="absolute inset-0 overflow-hidden pointer-events-none">
     <div class="dot-bg absolute inset-0"></div>
     <div class="absolute top-1/4 left-1/3 w-96 h-96 rounded-full" style="background:radial-gradient(circle,rgba(249,199,79,.1),transparent);filter:blur(90px);"></div>
@@ -342,7 +345,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ══════════════════════════════════
      WHAT'S INCLUDED
 ══════════════════════════════════ -->
-<section class="sec bg-white">
+<section id="programme" class="sec bg-white">
   <div class="max-w-7xl mx-auto px-6 md:px-12">
     <div class="mb-16 fu">
       <span class="pill text-navy/35">the programme</span>
@@ -431,7 +434,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ══════════════════════════════════
      IIM-A ADVANTAGE
 ══════════════════════════════════ -->
-<section class="sec" style="background:#f9f9fb;">
+<section id="difference" class="sec" style="background:#f9f9fb;">
   <div class="max-w-7xl mx-auto px-6 md:px-12">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
@@ -499,7 +502,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ══════════════════════════════════
      NATIONAL TRACK RECORD
 ══════════════════════════════════ -->
-<section class="sec bg-navy relative overflow-hidden">
+<section id="results-numbers" class="sec bg-navy relative overflow-hidden">
   <div class="dot-bg absolute inset-0 pointer-events-none opacity-40"></div>
   <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
@@ -558,7 +561,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ══════════════════════════════════
      PHASE TIMELINE
 ══════════════════════════════════ -->
-<section class="sec bg-white">
+<section id="journey" class="sec bg-white">
   <div class="max-w-7xl mx-auto px-6 md:px-12">
 
     <div class="mb-16 fu">
@@ -620,7 +623,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ══════════════════════════════════
      COMPARISON
 ══════════════════════════════════ -->
-<section class="sec" style="background:#f9f9fb;">
+<section id="why-live" class="sec" style="background:#f9f9fb;">
   <div class="max-w-5xl mx-auto px-6 md:px-12">
 
     <div class="mb-12 text-center fu">
@@ -686,7 +689,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ══════════════════════════════════
      TESTIMONIALS
 ══════════════════════════════════ -->
-<section class="sec bg-white">
+<section id="results" class="sec bg-white">
   <div class="max-w-7xl mx-auto px-6 md:px-12">
     <div class="mb-14 fu">
       <span class="pill text-navy/35">results</span>
@@ -741,7 +744,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ══════════════════════════════════
      FAQ / OBJECTION HANDLERS
 ══════════════════════════════════ -->
-<section class="sec" style="background:#f9f9fb;">
+<section id="faq" class="sec" style="background:#f9f9fb;">
   <div class="max-w-3xl mx-auto px-6 md:px-12">
     <div class="mb-12 fu">
       <span class="pill text-navy/35">common questions</span>
